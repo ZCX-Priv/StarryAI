@@ -14,7 +14,6 @@ const UI = {
   },
   autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,168)+'px'; },
   focusInput() {
-    // Only auto-focus on desktop — on mobile this would open the keyboard unexpectedly
     if (!('ontouchstart' in window) && !navigator.maxTouchPoints) {
       document.getElementById('msg-input').focus();
     }
@@ -37,6 +36,14 @@ const UI = {
     const isCode=text.includes('```');
     ss.classList.toggle('code-mode',isCode);
     st.textContent=isCode ? '正在生成代码…' : '正在生成回复…';
+  },
+  updateSendButton() {
+    const input=document.getElementById('msg-input');
+    const sendBtn=document.getElementById('send-btn');
+    if (!input||!sendBtn) return;
+    const hasText=input.value.trim().length>0;
+    sendBtn.disabled=!hasText;
+    sendBtn.classList.toggle('active',hasText);
   },
   chatArea() { return document.getElementById('chat-area'); },
   scrollToBottom(force=true) {
@@ -164,5 +171,85 @@ const UI = {
     const count=state.memory.length, badge=document.getElementById('mem-badge');
     if (badge) { badge.textContent=count; badge.style.display=count>0?'inline-flex':'none'; }
     document.getElementById('brain-btn')?.classList.toggle('has-mem',count>0);
+  },
+  positionDropdown(menu, triggerBtn) {
+    const rect=triggerBtn.getBoundingClientRect();
+    const menuRect=menu.getBoundingClientRect();
+    const gap=8;
+    let top=rect.top-menuRect.height-gap;
+    let left=rect.left;
+    if (top<8) top=rect.bottom+gap;
+    if (left+menuRect.width>window.innerWidth-8) left=window.innerWidth-menuRect.width-8;
+    if (left<8) left=8;
+    menu.style.top=top+'px';
+    menu.style.left=left+'px';
+  },
+  toggleDropdown(menu, triggerBtn) {
+    const isShown=menu.classList.contains('show');
+    UI.closeAllDropdowns();
+    if (!isShown) {
+      UI.positionDropdown(menu, triggerBtn);
+      menu.classList.add('show');
+    }
+  },
+  closeAllDropdowns() {
+    document.querySelectorAll('.dropdown-menu').forEach(m=>m.classList.remove('show'));
+  },
+  initDropdowns() {
+    const quickBtn=document.getElementById('quickBtn');
+    const quickMenu=document.getElementById('quickMenu');
+    const moreBtn=document.getElementById('moreBtn');
+    const moreMenu=document.getElementById('moreMenu');
+    if (quickBtn&&quickMenu) {
+      quickBtn.addEventListener('click', (e)=>{e.stopPropagation();UI.toggleDropdown(quickMenu, quickBtn);});
+      quickMenu.querySelectorAll('.dropdown-item').forEach(item=>{
+        item.addEventListener('click', function() {
+          quickMenu.querySelectorAll('.dropdown-item').forEach(i=>{
+            i.classList.remove('active');
+            const check=i.querySelector('.dropdown-check');
+            if (check) check.remove();
+          });
+          this.classList.add('active');
+          const checkHtml='<div class="dropdown-check"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+          this.insertAdjacentHTML('beforeend', checkHtml);
+          const label=this.querySelector('.dropdown-item-header span').textContent;
+          quickBtn.querySelector('span').textContent=label;
+          const iconSvg=this.getAttribute('data-icon');
+          if (iconSvg) {
+            const firstSvg=quickBtn.querySelector('svg[data-icon]');
+            if (firstSvg) firstSvg.outerHTML=iconSvg;
+          }
+          UI.closeAllDropdowns();
+        });
+      });
+    }
+    if (moreBtn&&moreMenu) {
+      moreBtn.addEventListener('click', (e)=>{e.stopPropagation();UI.toggleDropdown(moreMenu, moreBtn);});
+      moreMenu.querySelectorAll('.dropdown-item').forEach(item=>{
+        item.addEventListener('click', function() {
+          const label=this.querySelector('.dropdown-item-header span').textContent;
+          const input=document.getElementById('msg-input');
+          if (input) input.placeholder='在'+label+'模式下发消息...';
+          UI.closeAllDropdowns();
+        });
+      });
+    }
+    document.addEventListener('click', ()=>UI.closeAllDropdowns());
+    document.querySelectorAll('.dropdown-menu').forEach(menu=>{
+      menu.addEventListener('click', e=>e.stopPropagation());
+    });
+    window.addEventListener('resize', ()=>{
+      if (quickMenu?.classList.contains('show')) UI.positionDropdown(quickMenu, quickBtn);
+      if (moreMenu?.classList.contains('show')) UI.positionDropdown(moreMenu, moreBtn);
+    });
+  },
+  initInputListeners() {
+    const input=document.getElementById('msg-input');
+    if (input) {
+      input.addEventListener('input', function() {
+        UI.autoResize(this);
+        UI.updateSendButton();
+      });
+    }
   }
 };

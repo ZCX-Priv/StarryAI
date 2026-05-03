@@ -6,6 +6,7 @@ const App = {
     if (!state.chats.length) Chat.create();
     else { UI.renderChatList(); UI.renderMessages(); UI.updateTopbar(); }
     UI.updateMemoryBadge(); UI.renderModelPill(); UI.initScrollDetection();
+    UI.initDropdowns(); UI.initInputListeners(); UI.updateSendButton();
     requestAnimationFrame(drawChatHoneycomb);
     window.addEventListener('resize', ()=>requestAnimationFrame(drawChatHoneycomb),{passive:true});
   }

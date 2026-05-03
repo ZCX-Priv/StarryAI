@@ -48,39 +48,90 @@
 [data-theme="light"] #input-area::before { background: rgba(244,244,250,0.78); }
 [data-theme="light"] #input-area::after  { background: linear-gradient(to bottom, transparent, rgba(244,244,250,0.6)); }
 
-.input-wrap {
+/* ── Input Container ─────────────────────────────────── */
+.input-container {
   max-width: 720px; margin: 0 auto;
   background: var(--bg2); border: 1.5px solid var(--border2);
   border-radius: var(--radius-xl);
-  display: flex; align-items: flex-end; gap: 6px;
-  padding: 10px 10px 10px 16px;
+  padding: 12px 16px;
   box-shadow: 0 4px 24px rgba(0,0,0,.25), 0 0 0 0 transparent;
   transition: border-color .2s, box-shadow .2s;
 }
-.input-wrap:focus-within {
+.input-container:focus-within {
   border-color: rgba(59,130,246,.5);
   box-shadow: 0 4px 24px rgba(0,0,0,.25), 0 0 0 3px rgba(59,130,246,.12);
 }
+[data-theme="light"] .input-container { border-color: rgba(0,0,0,.18); box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+
+/* ── Input Wrapper ───────────────────────────────────── */
+.input-wrapper {
+  margin-bottom: 8px;
+}
+
+/* ── Message Input ───────────────────────────────────── */
 #msg-input {
-  flex: 1; background: none; border: none; outline: none;
+  width: 100%; background: none; border: none; outline: none;
   font-family: var(--font); font-size: 14.5px; color: var(--text);
-  resize: none; max-height: 168px; overflow-y: auto; line-height: 1.6; padding: 2px 0;
+  resize: none; max-height: 168px; overflow-y: auto; line-height: 1.6;
+  min-height: 24px;
 }
 #msg-input::placeholder        { color: var(--text3); }
 #msg-input::-webkit-scrollbar  { display: none; }
 
+/* ── Input Actions ───────────────────────────────────── */
+.input-actions {
+  display: flex; align-items: center; gap: 2px;
+  flex-wrap: nowrap; padding-bottom: 2px;
+}
+.input-actions::-webkit-scrollbar { display: none; }
+
+/* ── Action Buttons ───────────────────────────────────── */
+.action-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 6px 10px; border: none; background: transparent;
+  border-radius: var(--radius-sm); color: var(--text2);
+  font-size: 12px; cursor: pointer; transition: all 0.15s ease;
+  white-space: nowrap; font-family: inherit;
+}
+.action-btn:hover {
+  background: var(--bg3); color: var(--text);
+}
+.action-btn svg { flex-shrink: 0; }
+
+/* Quick Button */
+.quick-btn span {
+  color: var(--text); font-weight: 500;
+}
+
+/* ── Divider ──────────────────────────────────────────── */
+.divider {
+  width: 1px; height: 16px; background: var(--border);
+  margin: 0 4px; flex-shrink: 0;
+}
+
+/* ── Spacer ───────────────────────────────────────────── */
+.spacer { flex: 1; }
+
+/* ── Send Button ──────────────────────────────────────── */
 .send-btn {
-  width: 36px; height: 36px; background: var(--accent-btn); border: none;
+  width: 36px; height: 36px; background: var(--bg4); border: none;
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: #fff; flex-shrink: 0;
-  transition: background .2s, transform .1s, box-shadow .2s;
+  cursor: pointer; color: var(--text3); flex-shrink: 0;
+  transition: background .2s, transform .1s, box-shadow .2s, color .2s;
+}
+.send-btn:hover:not(:disabled) {
+  background: var(--accent); color: #fff;
+  transform: scale(1.05);
+}
+.send-btn:active:not(:disabled) { transform: scale(0.95); }
+.send-btn.active {
+  background: var(--accent); color: #fff; cursor: pointer;
   box-shadow: 0 2px 10px rgba(37,99,235,.4);
 }
-.send-btn:hover    { background: var(--accent); box-shadow: 0 3px 14px rgba(59,130,246,.5); }
-.send-btn:active   { transform: scale(.91); }
-.send-btn:disabled { background: var(--bg4); color: var(--text3); cursor: not-allowed; box-shadow: none; }
+.send-btn:disabled { cursor: default; }
 .send-btn.hidden   { display: none; }
 
+/* ── Stop Button ──────────────────────────────────────── */
 .stop-btn {
   width: 36px; height: 36px; background: var(--bg4); border: none;
   border-radius: 50%; display: none; align-items: center; justify-content: center;
@@ -89,19 +140,63 @@
 .stop-btn.visible { display: flex; }
 .stop-btn:hover   { background: rgba(248,113,113,.15); }
 
+/* ── Dropdown Wrapper ─────────────────────────────────── */
+.dropdown-wrapper { position: relative; }
+
+/* ── Dropdown Menu ────────────────────────────────────── */
+.dropdown-menu {
+  position: fixed;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: 0 8px 32px rgba(0,0,0,.3), 0 2px 8px rgba(0,0,0,.15);
+  padding: 8px; min-width: 240px; z-index: 10000;
+  opacity: 0; visibility: hidden; transform: translateY(8px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.dropdown-menu.show {
+  opacity: 1; visibility: visible; transform: translateY(0);
+  pointer-events: auto;
+}
+.quick-menu { min-width: 260px; }
+.more-menu  { min-width: 200px; }
+
+/* ── Dropdown Item ────────────────────────────────────── */
+.dropdown-item {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: all 0.15s ease;
+  position: relative; border: none; background: transparent;
+  text-align: left; font-family: inherit; width: 100%;
+}
+.dropdown-item:hover { background: var(--bg3); }
+.dropdown-item.active { background: var(--accent-glow); }
+
+.dropdown-item-header {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--text); font-size: 14px; font-weight: 500;
+}
+.dropdown-item-header svg {
+  flex-shrink: 0; color: var(--text2);
+}
+.dropdown-item.active .dropdown-item-header svg { color: var(--accent); }
+
+.dropdown-item-desc {
+  font-size: 12px; color: var(--text3);
+  padding-left: 30px; line-height: 1.4;
+}
+
+.dropdown-check {
+  position: absolute; right: 12px; top: 50%;
+  transform: translateY(-50%); color: var(--accent);
+}
+
+/* ── Input Hint ───────────────────────────────────────── */
 .input-hint { max-width: 720px; margin: 5px auto 0; text-align: center; font-size: 11px; color: var(--text3); }
 
-/* Pollinations credit in input area */
-.input-pollinations-credit { max-width: 720px; margin: 3px auto 0; text-align: center; }
-.input-pollen-link {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11px; color: rgba(255,140,30,.75); text-decoration: none;
-  padding: 2px 8px; border-radius: 10px; transition: color .15s;
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .action-btn span { display: none; }
+  .action-btn { padding: 6px 8px; }
+  .divider { display: none; }
+  #input-area { padding: 0 12px 16px; }
 }
-.input-pollen-link:hover { color: rgba(255,160,60,.95); }
-.input-pollen-logo       { opacity: .7; flex-shrink: 0; filter: invert(65%) sepia(70%) saturate(350%) hue-rotate(5deg) brightness(1.1); }
-
-/* Light theme */
-[data-theme="light"] .input-wrap      { border-color: rgba(0,0,0,.18); box-shadow: 0 2px 12px rgba(0,0,0,.08); }
-[data-theme="light"] #scroll-btn      { box-shadow: 0 2px 14px rgba(0,0,0,.18); border-color: rgba(0,0,0,.18); }
-[data-theme="light"] .input-pollen-link { color: rgba(150,75,0,.8); }

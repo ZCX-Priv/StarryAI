@@ -95,11 +95,175 @@
         <div class="stream-dot"></div>
         <span id="stream-status-text">正在生成回复…</span>
       </div>
-      <div class="input-wrap">
-        <textarea id="msg-input" rows="1" placeholder="消息..." onkeydown="UI.handleInputKey(event)" oninput="UI.autoResize(this)"></textarea>
-        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
-          <button class="send-btn" id="send-btn" onclick="Chat.send()">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      <div class="input-container">
+        <div class="input-wrapper">
+          <textarea id="msg-input" rows="1" placeholder="发消息..." onkeydown="UI.handleInputKey(event)" oninput="UI.autoResize(this)"></textarea>
+        </div>
+        <div class="input-actions">
+          <button class="action-btn" title="附件" id="attachBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M21.44 11.05L12.25 20.24C10.73 21.76 8.27 21.76 6.75 20.24C5.23 18.72 5.23 16.26 6.75 14.74L15.94 5.55C16.92 4.57 18.51 4.57 19.49 5.55C20.47 6.53 20.47 8.12 19.49 9.1L10.3 18.29C9.81 18.78 9.02 18.78 8.53 18.29C8.04 17.8 8.04 17.01 8.53 16.52L17.72 7.33" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="divider"></div>
+          <div class="dropdown-wrapper quick-dropdown-wrapper">
+            <button class="action-btn quick-btn" title="快速" id="quickBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" data-icon="quick">
+                <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>快速</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="dropdown-menu quick-menu" id="quickMenu">
+              <div class="dropdown-item active" data-mode="quick" data-icon='<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'>
+                <div class="dropdown-item-header">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>快速</span>
+                </div>
+                <p class="dropdown-item-desc">适用于大部分情况</p>
+                <div class="dropdown-check">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12L10 17L19 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="dropdown-item" data-mode="think" data-icon='<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'>
+                <div class="dropdown-item-header">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>思考</span>
+                </div>
+                <p class="dropdown-item-desc">擅长解决更难的问题</p>
+              </div>
+              <div class="dropdown-item" data-mode="expert" data-icon='<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M12 2V6M12 18V22M2 12H6M18 12H22M5.64 5.64L8.46 8.46M15.54 15.54L18.36 18.36M5.64 18.36L8.46 15.54M15.54 8.46L18.36 5.64" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'>
+                <div class="dropdown-item-header">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M12 2V6M12 18V22M2 12H6M18 12H22M5.64 5.64L8.46 8.46M15.54 15.54L18.36 18.36M5.64 18.36L8.46 15.54M15.54 8.46L18.36 5.64" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                  <span>专家</span>
+                </div>
+                <p class="dropdown-item-desc">研究级智能模型</p>
+              </div>
+            </div>
+          </div>
+          <button class="action-btn" title="图像生成" id="imageBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
+              <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>图像生成</span>
+          </button>
+          <button class="action-btn" title="帮我写作" id="writeBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="4" y="2" width="16" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M8 6H16M8 10H16M8 14H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>帮我写作</span>
+          </button>
+          <div class="dropdown-wrapper more-dropdown-wrapper">
+            <button class="action-btn" title="更多" id="moreBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="15" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="3" y="15" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="15" y="15" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              <span>更多</span>
+            </button>
+            <div class="dropdown-menu more-menu" id="moreMenu">
+              <div class="dropdown-item" data-action="translate">
+                <div class="dropdown-item-header">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 6H12M4 6L2 10M4 6L8 10M12 6L10 10M12 6L14 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 10H14M8 10V20M14 20L18 14M14 20L10 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>翻译</span>
+                </div>
+              </div>
+              <div class="dropdown-item" data-action="coding">
+                <div class="dropdown-item-header">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M8 6L3 12L8 18M16 6L21 12L16 18M14 4L10 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>编程</span>
+                </div>
+              </div>
+              <div class="dropdown-item" data-action="research">
+                <div class="dropdown-item-header">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M10 10C10 11.1 9.1 12 8 12C6.9 12 6 11.1 6 10C6 8.9 6.9 8 8 8C9.1 8 10 8.9 10 10Z" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M18 10C18 11.1 17.1 12 16 12C14.9 12 14 11.1 14 10C14 8.9 14.9 8 16 8C17.1 8 18 8.9 18 10Z" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M10 14C10 14 11 17 14 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M2 10C2 6 5.58 3 10 3C14.42 3 18 6 18 10C18 14 14.42 17 10 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M12 17V21M8 21H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                  <span>深入研究</span>
+                </div>
+              </div>
+              <div class="dropdown-item" data-action="podcast">
+                <div class="dropdown-item-header">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M16 8C16 8 18 10 18 12C18 14 16 16 16 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                  <span>AI 播客</span>
+                </div>
+              </div>
+              <div class="dropdown-item" data-action="meeting">
+                <div class="dropdown-item-header">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="12" cy="12" r="1" fill="currentColor"/>
+                  </svg>
+                  <span>记录会议</span>
+                </div>
+              </div>
+              <div class="dropdown-item" data-action="music">
+                <div class="dropdown-item-header">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 18V5L21 3V16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
+                  <span>音乐生成</span>
+                </div>
+              </div>
+              <div class="dropdown-item" data-action="solve">
+                <div class="dropdown-item-header">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M9 10C9 10 9.5 8 12 8C14.5 8 15 10 15 10C15 10 14.5 12 12 12C9.5 12 9 14 9 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                  <span>解题答疑</span>
+                </div>
+              </div>
+              <div class="dropdown-item" data-action="analysis">
+                <div class="dropdown-item-header">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>数据分析</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="spacer"></div>
+          <button class="send-btn" id="send-btn" title="发送" onclick="Chat.send()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 19V5M5 12L12 5L19 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </button>
           <button class="stop-btn" id="stop-btn" onclick="Chat.stopGeneration()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
@@ -107,7 +271,6 @@
         </div>
       </div>
       <div class="input-hint" id="txt-input-hint">回复可能包含错误</div>
-
     </div>
   </main>
 </div>
