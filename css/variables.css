@@ -1,0 +1,55 @@
+/* ── Design Tokens ───────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg:          #0d0d10;
+  --bg2:         #16161c;
+  --bg3:         #1e1e27;
+  --bg4:         #282834;
+  --sidebar:     #0f0f14;
+  --text:        #eeeef3;
+  --text2:       #9898ae;
+  --text3:       #5c5c72;
+  --accent:      #3b82f6;
+  --accent2:     #60a5fa;
+  --accent-glow: rgba(59,130,246,0.20);
+  --accent-btn:  #2563eb;
+  --user-bubble: #2563eb;
+  --user-text:   #ffffff;
+  --ai-bubble:   #1a1a24;
+  --ai-text:     #d8d8e8;
+  --border:      rgba(255,255,255,0.09);
+  --border2:     rgba(255,255,255,0.15);
+  --danger:      #f87171;
+  --success:     #4ade80;
+  --radius:      12px;
+  --radius-sm:   8px;
+  --radius-xl:   20px;
+  --font:        'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --sidebar-w:   268px;
+  --ease:        cubic-bezier(0.4,0,0.2,1);
+  --honey-opacity: 0.07;
+}
+
+[data-theme="light"] {
+  --bg:          #f4f4fa;
+  --bg2:         #ffffff;
+  --bg3:         #eaeaf4;
+  --bg4:         #dcdcea;
+  --sidebar:     #ededf6;
+  --text:        #111118;
+  --text2:       #42425a;
+  --text3:       #7a7a96;
+  --accent:      #2563eb;
+  --accent2:     #3b82f6;
+  --accent-glow: rgba(37,99,235,0.14);
+  --accent-btn:  #2563eb;
+  --user-bubble: #2563eb;
+  --ai-bubble:   #f0f0f8;
+  --ai-text:     #111118;
+  --border:      rgba(0,0,0,0.11);
+  --border2:     rgba(0,0,0,0.18);
+  --danger:      #dc2626;
+  --success:     #16a34a;
+  --honey-opacity: 0.05;
+}

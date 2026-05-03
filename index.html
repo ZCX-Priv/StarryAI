@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="logo.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <title>星语</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="css/input.css">
+  <link rel="stylesheet" href="css/modals.css">
+  <link rel="stylesheet" href="css/utilities.css">
+
+  <!-- highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+
+<!-- ── Mobile Sidebar Overlay ────────────────────────── -->
+<div id="sb-overlay" onclick="closeSidebar()"></div>
+
+<!-- ── App Shell ─────────────────────────────────────── -->
+<div id="app">
+  <canvas id="chat-honeycomb"></canvas>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="sb-head">
+      <div class="sb-logo">
+        <div class="sb-logo-mark"><img src="logo.png" alt="Logo"></div>
+        <span class="sb-logo-name">星语</span>
+      </div>
+      <button class="btn-new" onclick="Chat.create()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span id="txt-new-chat">新对话</span>
+      </button>
+    </div>
+    <div class="sb-section" id="txt-chats-label">对话</div>
+    <div class="chat-list" id="chat-list"></div>
+    <div class="sb-bottom">
+
+      <button class="sb-btn" onclick="UI.openModal('settings')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span id="txt-settings">设置</span>
+      </button>
+
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main id="main">
+    <!-- Topbar -->
+    <div id="topbar">
+      <div class="tb-left">
+        <button class="tb-toggle" onclick="toggleSidebar()" id="sb-toggle-btn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="tb-title" id="chat-title">新对话</span>
+      </div>
+      <div class="tb-right">
+        <button class="brain-btn" id="brain-btn" onclick="UI.openModal('memory')">
+          <div class="mem-dot"></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>
+        </button>
+        <button class="model-pill" id="model-pill-btn" onclick="UI.openModal('model')" title="">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6M3 15h6"/></svg>
+          <span id="model-pill-label">deepseek</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <button class="icon-btn" onclick="Theme.toggle()" id="theme-btn">
+          <svg id="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div id="chat-area">
+      <div class="messages-inner" id="messages"></div>
+    </div>
+
+    <!-- Input Area -->
+    <div id="input-area">
+      <button id="scroll-btn" onclick="UI.scrollToBottom(true)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        <span id="txt-scroll-down">滚动到底部</span>
+      </button>
+      <div id="stream-status">
+        <div class="stream-dot"></div>
+        <span id="stream-status-text">正在生成回复…</span>
+      </div>
+      <div class="input-wrap">
+        <textarea id="msg-input" rows="1" placeholder="消息..." onkeydown="UI.handleInputKey(event)" oninput="UI.autoResize(this)"></textarea>
+        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+          <button class="send-btn" id="send-btn" onclick="Chat.send()">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+          <button class="stop-btn" id="stop-btn" onclick="Chat.stopGeneration()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="input-hint" id="txt-input-hint">回复可能包含错误</div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ── Modals ─────────────────────────────────────────── -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-title" id="txt-settings-title">设置</span>
+      <button class="icon-btn" onclick="UI.closeModal('settings-modal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-keys" onclick="Modals.switchTab('keys')"><span id="txt-tab-keys">密钥</span></button>
+      <button class="modal-tab" id="tab-appearance" onclick="Modals.switchTab('appearance')"><span id="txt-tab-appearance">外观</span></button>
+    </div>
+    <div class="modal-body" id="settings-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="memory-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-title" id="txt-memory-title">记忆</span>
+      <button class="icon-btn" onclick="UI.closeModal('memory-modal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="memory-body"></div>
+    <div class="modal-footer">
+      <button class="btn-sm danger" onclick="Memory.clear()" id="txt-clear-memory">全部清除</button>
+      <button class="btn-sm ghost" onclick="UI.closeModal('memory-modal')" id="txt-close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div class="modal-overlay" id="help-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-title" id="txt-help-title">帮助中心</span>
+      <button class="icon-btn" onclick="UI.closeModal('help-modal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="help-body"></div>
+    <div class="modal-footer">
+      <button class="btn-sm ghost" onclick="UI.closeModal('help-modal')" id="txt-help-close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="model-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-hd">
+      <span class="modal-title" id="txt-model-picker-title">选择模型</span>
+      <button class="icon-btn" onclick="UI.closeModal('model-modal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="model-body"></div>
+  </div>
+</div>
+
+<!-- ── JavaScript (load order matters) ───────────────── -->
+<script src="js/config.js"></script>
+<script src="js/state.js"></script>
+<script src="js/store-theme-account.js"></script>
+<script src="js/api.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/memory.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/keys.js"></script>
+<script src="js/canvas.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+/* ── Toast ───────────────────────────────────────────── */
+#toast {
+  position: fixed; bottom: 20px; left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--text); color: var(--bg);
+  padding: 9px 18px; border-radius: 20px; font-size: 13.5px;
+  z-index: 2000; transition: transform .3s var(--ease);
+  pointer-events: none; white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── highlight.js overrides ──────────────────────────── */
+.hljs { background: transparent !important; padding: 0 !important; font-size: 13px !important; }
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 680px) {
+  #sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 10; transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  .msg-bubble { max-width: 92%; }
+  #scroll-btn { z-index: 8; }
+}
+
+@media (min-width: 681px) and (max-width: 1024px) {
+  :root { --sidebar-w: 240px; }
+  .messages-inner { max-width: 680px; }
+  .input-wrap, .input-hint, .input-pollinations-credit { max-width: 680px; }
+}
+
+@media (min-width: 1025px) {
+  :root { --sidebar-w: 280px; }
+  .messages-inner { max-width: 780px; }
+  .input-wrap, .input-hint, .input-pollinations-credit { max-width: 780px; }
+  #stream-status { max-width: 780px; }
+}
+
+@media (min-width: 1400px) {
+  :root { --sidebar-w: 300px; font-size: 16px; }
+  .messages-inner { max-width: 860px; }
+  .input-wrap, .input-hint, .input-pollinations-credit { max-width: 860px; }
+  #stream-status { max-width: 860px; }
+}
+
+@media (min-width: 1800px) {
+  :root { --sidebar-w: 320px; }
+  .messages-inner { max-width: 960px; }
+  .input-wrap, .input-hint, .input-pollinations-credit { max-width: 960px; }
+  #stream-status { max-width: 960px; }
+}
