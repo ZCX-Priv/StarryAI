@@ -12,7 +12,7 @@ const Chat = {
   },
   create() {
     const id=Date.now().toString(36)+Math.random().toString(36).slice(2);
-    const chat={id,title:'新对话',messages:[],createdAt:Date.now(),model:state.model};
+    const chat={id,title:'新对话',messages:[],createdAt:Date.now(),model:state.model,agentId:state.currentAgentId};
     state.chats.unshift(chat); state.activeChatId=chat.id;
     Store.saveChats(); localStorage.setItem(KEYS.KEYS_MAP.ACTIVE_CHAT,chat.id);
     UI.renderChatList(); UI.renderMessages(); UI.updateTopbar();
@@ -42,7 +42,13 @@ const Chat = {
     document.querySelector('.msg-actions')?.remove();
     UI.collapseAllUserMsgs();
     input.value=''; UI.autoResize(input);
-    Chat.addMsg('user',text); UI.addBubble('user',text);
+    
+    let messageText = text;
+    if (state.bannerPrompt) {
+      messageText = state.bannerPrompt.replace('{user_input}', text);
+    }
+    
+    Chat.addMsg('user',messageText); UI.addBubble('user',text);
     UI.renderChatList(); UI.updateTopbar();
     await Chat._streamResponse();
   },

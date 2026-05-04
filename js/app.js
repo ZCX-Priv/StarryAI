@@ -3,6 +3,8 @@ const App = {
   async enter() {
     document.getElementById('app').classList.add('visible');
     await Keys._loadModels();
+    await Banner.loadConfig();
+    Banner.renderActions();
     if (!state.chats.length) Chat.create();
     else { UI.renderChatList(); UI.renderMessages(); UI.updateTopbar(); }
     UI.updateMemoryBadge(); UI.renderModelPill(); UI.initScrollDetection();
@@ -21,6 +23,9 @@ async function init() {
   state.chats  = Store.load(KEYS.KEYS_MAP.CHATS, []);
   state.model  = localStorage.getItem(KEYS.KEYS_MAP.MODEL)||'nova-fast';
   state.activeChatId = localStorage.getItem(KEYS.KEYS_MAP.ACTIVE_CHAT);
+  await Prompts.loadMainPrompt();
+  await Prompts.loadMemoryPrompts();
+  await Agents.init();
   App.enter();
 }
 init();

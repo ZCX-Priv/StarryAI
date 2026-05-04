@@ -15,6 +15,11 @@ const API = {
     return sys ? [{role:'system', content:sys}, ...msgs] : msgs;
   },
   buildSystemPrompt() {
+    const templatePrompt = Prompts.buildSystemPromptFromTemplate();
+    if (templatePrompt) {
+      return templatePrompt;
+    }
+    
     const langNames = {
       pt:'Portuguese (Brazilian)', en:'English', es:'Spanish', fr:'French',
       de:'German', it:'Italian', ja:'Japanese', zh:'Chinese (Simplified)', ko:'Korean', ru:'Russian'

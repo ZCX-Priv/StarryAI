@@ -4,6 +4,7 @@ const Memory = {
     if (!state.activeKey||recentMsgs.length<2) return;
     try {
       const existing=state.memory.length ? state.memory.map((m,i)=>`${i+1}. ${m}`).join('\n') : '(vazia)';
+      const systemPrompt = Prompts.buildMemoryExtractPrompt(existing, recentMsgs);
       const r=await fetch(`${API_BASE}/v1/chat/completions`,{
         method:'POST',
         headers:{'Authorization':`Bearer ${state.activeKey}`,'Content-Type':'application/json'},
@@ -11,7 +12,7 @@ const Memory = {
           model:'nova-fast', stream:false, temperature:0.3,
           seed:Math.floor(Math.random()*2147483647),
           messages:[
-            {role:'system', content:`You are a memory manager for an AI assistant. Extract only truly new and durable personal facts about the USER.\n\nSTRICT RULES:\n1. Only facts about the USER — never AI responses.\n2. Only NEW facts NOT already in existing memory.\n3. If a topic already exists (e.g. "user likes anime"), do NOT add more about that same topic unless it is a completely different type of fact.\n4. Skip transient/task info. Only durable: name, language, tone, profession, core interests (one per topic), habits.\n5. Max 10 words per fact.\n6. If nothing new: return exactly []\n7. Return ONLY a valid JSON array of strings.\n\nExisting memory — do NOT duplicate these topics:\n${existing}`},
+            {role:'system', content:systemPrompt},
             {role:'user', content:`Conversation:\n${JSON.stringify(recentMsgs)}`}
           ]
         })
@@ -31,6 +32,7 @@ const Memory = {
   async deduplicate() {
     if (state.memory.length<5) return;
     try {
+      const systemPrompt = Prompts.buildMemoryDeduplicatePrompt(state.memory, MEMORY_MAX_BLOCKS);
       const r=await fetch(`${API_BASE}/v1/chat/completions`,{
         method:'POST',
         headers:{'Authorization':`Bearer ${state.activeKey}`,'Content-Type':'application/json'},
@@ -38,7 +40,7 @@ const Memory = {
           model:'nova-fast', stream:false, temperature:0.2,
           seed:Math.floor(Math.random()*2147483647),
           messages:[
-            {role:'system', content:`You are a memory optimizer. Clean and deduplicate a list of user facts.\n\nRULES:\n- Merge all facts about the same topic into ONE concise entry. Keep only the ESSENCE.\n- Remove redundant, overly specific, or repetitive entries.\n- Limit to ONE entry per topic/interest area.\n- Keep ONLY high-value durable facts: name, language preference, tone, profession, core interests (one per area), habits.\n- Max ${MEMORY_MAX_BLOCKS} entries. Max 12 words each.\n- Return ONLY a valid JSON array of strings. Nothing else.`},
+            {role:'system', content:systemPrompt},
             {role:'user', content:`Memory to clean:\n${JSON.stringify(state.memory)}`}
           ]
         })

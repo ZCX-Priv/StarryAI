@@ -15,4 +15,11 @@ let state = {
   autoScroll:    true,
   honeycomb:     true,
   settingsTab:   'keys',
+  currentBannerMode: null,
+  bannerPrompt:  null,
+  mainPromptTemplate: null,
+  memoryExtractTemplate: null,
+  memoryDeduplicateTemplate: null,
+  currentAgentId: null,
+  agentPrompt:   null,
 };

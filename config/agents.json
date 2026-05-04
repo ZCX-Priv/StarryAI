@@ -1,0 +1,25 @@
+{
+  "agents": [
+    {
+      "id": "assistant",
+      "name": "默认助手",
+      "avatar": "agents/assistant.png",
+      "prompt": "assistant.md",
+      "description": "通用AI助手"
+    },
+    {
+      "id": "coder",
+      "name": "编程专家",
+      "avatar": "agents/coder.png",
+      "prompt": "coder.md",
+      "description": "专注于编程问题"
+    },
+    {
+      "id": "writer",
+      "name": "写作助手",
+      "avatar": "agents/writer.png",
+      "prompt": "writer.md",
+      "description": "擅长文案写作"
+    }
+  ]
+}

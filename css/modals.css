@@ -17,10 +17,12 @@
 .modal-overlay.visible .modal { transform: none; }
 
 .modal-hd {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; justify-content: center;
   padding: 20px 22px 0; flex-shrink: 0;
+  position: relative;
 }
-.modal-title { font-size: 17px; font-weight: 600; }
+.modal-title { font-size: 17px; font-weight: 600; text-align: center; }
+.modal-hd .icon-btn { position: absolute; right: 22px; }
 
 .modal-tabs {
   display: flex; gap: 2px; padding: 14px 22px 0; flex-shrink: 0;

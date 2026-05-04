@@ -1,0 +1,321 @@
+/* ── Agents Page ─────────────────────────────────────── */
+#agents-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+  z-index: 100;
+}
+
+#agents-page.hidden {
+  display: none;
+}
+
+/* ── Agents Topbar ────────────────────────────────────── */
+#agents-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.agents-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  position: absolute;
+  left: 20px;
+}
+
+.agents-back-btn:hover {
+  background: var(--bg4);
+  color: var(--text);
+}
+
+.agents-back-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+#agents-topbar .page-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ── Agents Content ───────────────────────────────────── */
+#agents-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+#agents-content::-webkit-scrollbar {
+  width: 5px;
+}
+
+#agents-content::-webkit-scrollbar-thumb {
+  background: var(--bg4);
+  border-radius: 5px;
+}
+
+/* ── My Agents Section ────────────────────────────────── */
+.my-agents-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.my-agents-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+
+.my-agents-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.my-agent-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.my-agent-item:hover {
+  background: var(--bg3);
+  border-color: var(--border2);
+}
+
+.my-agent-item.active {
+  background: var(--accent-glow);
+  border-color: rgba(59,130,246,.3);
+}
+
+.my-agent-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--bg3);
+}
+
+.my-agent-name {
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.my-agent-item.active .my-agent-name {
+  color: var(--accent2);
+  font-weight: 500;
+}
+
+/* ── Agents Tabs ──────────────────────────────────────── */
+.agents-tabs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.agents-tabs-left {
+  display: flex;
+  gap: 8px;
+}
+
+.agents-tabs .btn-sm.primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+
+.agents-tabs .btn-sm.primary:hover {
+  background: var(--accent2);
+}
+
+.agents-tabs .btn-sm.primary svg {
+  width: 14px;
+  height: 14px;
+}
+
+.agent-tab {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text2);
+  font-size: 13px;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.agent-tab:hover {
+  background: var(--bg3);
+}
+
+.agent-tab.active {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+/* ── Agents Grid ──────────────────────────────────────── */
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  padding: 20px;
+  flex: 1;
+}
+
+/* ── Agent Card ───────────────────────────────────────── */
+.agent-card {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all .2s;
+  background: var(--bg2);
+}
+
+.agent-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+
+.card-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--bg3);
+}
+
+.card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.card-desc {
+  font-size: 12.5px;
+  color: var(--text3);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-meta {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--text3);
+}
+
+.card-meta svg {
+  width: 13px;
+  height: 13px;
+  margin-right: 3px;
+  vertical-align: middle;
+}
+
+/* ── Light Theme ──────────────────────────────────────── */
+[data-theme="light"] .agent-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,.1);
+}
+
+[data-theme="light"] .my-agent-item.active {
+  background: rgba(37,99,235,.10);
+  border-color: rgba(37,99,235,.3);
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 680px) {
+  #agents-topbar {
+    padding: 12px 16px;
+  }
+
+  .agents-tabs {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .agents-tabs-left {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+
+  .agents-tabs .btn-sm.primary {
+    justify-content: center;
+  }
+
+  .agents-grid {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .agent-card {
+    padding: 14px;
+  }
+}

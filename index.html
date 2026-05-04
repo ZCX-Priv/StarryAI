@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="css/chat.css">
   <link rel="stylesheet" href="css/input.css">
   <link rel="stylesheet" href="css/modals.css">
+  <link rel="stylesheet" href="css/agents.css">
   <link rel="stylesheet" href="css/utilities.css">
 
   <!-- highlight.js -->
@@ -36,10 +37,16 @@
         <div class="sb-logo-mark"><img src="logo.png" alt="Logo"></div>
         <span class="sb-logo-name">星语</span>
       </div>
-      <button class="btn-new" onclick="Chat.create()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span id="txt-new-chat">新对话</span>
-      </button>
+      <div class="sb-btns">
+        <button class="btn-new" onclick="Chat.create()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span id="txt-new-chat">新对话</span>
+        </button>
+        <button class="btn-agents" onclick="UI.showPage('agents')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>智能体</span>
+        </button>
+      </div>
     </div>
     <div class="sb-section" id="txt-chats-label">对话</div>
     <div class="chat-list" id="chat-list"></div>
@@ -154,111 +161,6 @@
               </div>
             </div>
           </div>
-          <button class="action-btn" title="图像生成" id="imageBtn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/>
-              <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
-              <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>图像生成</span>
-          </button>
-          <button class="action-btn" title="帮我写作" id="writeBtn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <rect x="4" y="2" width="16" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M8 6H16M8 10H16M8 14H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            <span>帮我写作</span>
-          </button>
-          <div class="dropdown-wrapper more-dropdown-wrapper">
-            <button class="action-btn" title="更多" id="moreBtn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="15" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="3" y="15" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="15" y="15" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-              </svg>
-              <span>更多</span>
-            </button>
-            <div class="dropdown-menu more-menu" id="moreMenu">
-              <div class="dropdown-item" data-action="translate">
-                <div class="dropdown-item-header">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M4 6H12M4 6L2 10M4 6L8 10M12 6L10 10M12 6L14 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2 10H14M8 10V20M14 20L18 14M14 20L10 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>翻译</span>
-                </div>
-              </div>
-              <div class="dropdown-item" data-action="coding">
-                <div class="dropdown-item-header">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M8 6L3 12L8 18M16 6L21 12L16 18M14 4L10 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>编程</span>
-                </div>
-              </div>
-              <div class="dropdown-item" data-action="research">
-                <div class="dropdown-item-header">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M10 10C10 11.1 9.1 12 8 12C6.9 12 6 11.1 6 10C6 8.9 6.9 8 8 8C9.1 8 10 8.9 10 10Z" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M18 10C18 11.1 17.1 12 16 12C14.9 12 14 11.1 14 10C14 8.9 14.9 8 16 8C17.1 8 18 8.9 18 10Z" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M10 14C10 14 11 17 14 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M2 10C2 6 5.58 3 10 3C14.42 3 18 6 18 10C18 14 14.42 17 10 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M12 17V21M8 21H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                  </svg>
-                  <span>深入研究</span>
-                </div>
-              </div>
-              <div class="dropdown-item" data-action="podcast">
-                <div class="dropdown-item-header">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M16 8C16 8 18 10 18 12C18 14 16 16 16 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                  </svg>
-                  <span>AI 播客</span>
-                </div>
-              </div>
-              <div class="dropdown-item" data-action="meeting">
-                <div class="dropdown-item-header">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.5"/>
-                    <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/>
-                    <circle cx="12" cy="12" r="1" fill="currentColor"/>
-                  </svg>
-                  <span>记录会议</span>
-                </div>
-              </div>
-              <div class="dropdown-item" data-action="music">
-                <div class="dropdown-item-header">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 18V5L21 3V16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.5"/>
-                    <circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="1.5"/>
-                  </svg>
-                  <span>音乐生成</span>
-                </div>
-              </div>
-              <div class="dropdown-item" data-action="solve">
-                <div class="dropdown-item-header">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M9 10C9 10 9.5 8 12 8C14.5 8 15 10 15 10C15 10 14.5 12 12 12C9.5 12 9 14 9 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                  </svg>
-                  <span>解题答疑</span>
-                </div>
-              </div>
-              <div class="dropdown-item" data-action="analysis">
-                <div class="dropdown-item-header">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>数据分析</span>
-                </div>
-              </div>
-            </div>
-          </div>
           <div class="spacer"></div>
           <button class="send-btn" id="send-btn" title="发送" onclick="Chat.send()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -273,6 +175,31 @@
       <div class="input-hint" id="txt-input-hint">回复可能包含错误</div>
     </div>
   </main>
+</div>
+
+<!-- Agents Page -->
+<div id="agents-page" class="hidden">
+  <div id="agents-topbar">
+    <button class="agents-back-btn" onclick="UI.showPage('chat')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      返回
+    </button>
+    <span class="page-title">智能体广场</span>
+  </div>
+  <div id="agents-content">
+    <div id="my-agents-container"></div>
+    <div class="agents-tabs">
+      <div class="agents-tabs-left">
+        <button class="agent-tab active" data-category="work">工作</button>
+        <button class="agent-tab" data-category="study">学习</button>
+        <button class="agent-tab" data-category="create">创作</button>
+        <button class="agent-tab" data-category="life">生活</button>
+        <button class="agent-tab" data-category="mine">我的</button>
+      </div>
+      <button class="btn-sm primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>创建 AI 智能体</button>
+    </div>
+    <div class="agents-grid" id="agents-grid"></div>
+  </div>
 </div>
 
 <!-- ── Modals ─────────────────────────────────────────── -->
@@ -332,7 +259,10 @@
 <!-- ── JavaScript (load order matters) ───────────────── -->
 <script src="js/config.js"></script>
 <script src="js/state.js"></script>
+<script src="js/agents.js"></script>
+<script src="js/banner.js"></script>
 <script src="js/store-theme-account.js"></script>
+<script src="js/prompts.js"></script>
 <script src="js/api.js"></script>
 <script src="js/renderer.js"></script>
 <script src="js/ui.js"></script>

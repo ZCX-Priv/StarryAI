@@ -131,6 +131,19 @@ const UI = {
     else if (type==='model') { document.getElementById('model-modal').classList.add('visible'); Modals.renderModelPicker(); }
     else { document.getElementById('memory-modal').classList.add('visible'); Modals.renderMemory(); }
   },
+  showPage(page) {
+    const app = document.getElementById('app');
+    const agentsPage = document.getElementById('agents-page');
+    if (page === 'chat') {
+      app.classList.remove('hidden');
+      agentsPage.classList.add('hidden');
+    } else if (page === 'agents') {
+      app.classList.add('hidden');
+      agentsPage.classList.remove('hidden');
+      Agents.renderPlaza();
+      UI._closeSidebarMobile();
+    }
+  },
   closeModal(id) { document.getElementById(id).classList.remove('visible'); },
   updateTopbar() {
     const chat=Chat.getActive();
@@ -226,13 +239,21 @@ const UI = {
     if (moreBtn&&moreMenu) {
       moreBtn.addEventListener('click', (e)=>{e.stopPropagation();UI.toggleDropdown(moreMenu, moreBtn);});
       moreMenu.querySelectorAll('.dropdown-item').forEach(item=>{
-        item.addEventListener('click', function() {
-          const label=this.querySelector('.dropdown-item-header span').textContent;
-          const input=document.getElementById('msg-input');
-          if (input) input.placeholder='在'+label+'模式下发消息...';
-          UI.closeAllDropdowns();
+          item.addEventListener('click', function() {
+            const actionId=this.getAttribute('data-action');
+            if (actionId && window.Banner) {
+              const action = Banner.config?.actions.find(a => a.id === actionId);
+              if (action) {
+                Banner.handleAction(action);
+              }
+            } else {
+              const label=this.querySelector('.dropdown-item-header span').textContent;
+              const input=document.getElementById('msg-input');
+              if (input) input.placeholder='在'+label+'模式下发消息...';
+            }
+            UI.closeAllDropdowns();
+          });
         });
-      });
     }
     document.addEventListener('click', ()=>UI.closeAllDropdowns());
     document.querySelectorAll('.dropdown-menu').forEach(menu=>{
