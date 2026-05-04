@@ -206,10 +206,9 @@
 /* ── Agents Grid ──────────────────────────────────────── */
 .agents-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
   padding: 20px;
-  flex: 1;
 }
 
 /* ── Agent Card ───────────────────────────────────────── */
@@ -222,6 +221,7 @@
   cursor: pointer;
   transition: all .2s;
   background: var(--bg2);
+  max-width: 400px;
 }
 
 .agent-card:hover {
@@ -310,12 +310,12 @@
   }
 
   .agents-grid {
-    grid-template-columns: 1fr;
     padding: 16px;
     gap: 12px;
   }
 
   .agent-card {
+    width: 100%;
     padding: 14px;
   }
 }
