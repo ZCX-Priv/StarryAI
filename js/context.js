@@ -86,6 +86,9 @@ const Context = {
   buildSystemPrompt() {
     const templatePrompt = Prompts.buildSystemPromptFromTemplate();
     if (templatePrompt) {
+      if (state.modePrompt) {
+        return templatePrompt + '\n\n' + state.modePrompt;
+      }
       return templatePrompt;
     }
 
@@ -107,6 +110,11 @@ const Context = {
     p += memHasLang
       ? `## Language: Use the language recorded in context. Maintain it even if the user writes in another language.\n`
       : `## Language: Respond in ${langName} by default. Switch immediately if the user writes in a different language.\n`;
+    
+    if (state.modePrompt) {
+      p += '\n\n' + state.modePrompt;
+    }
+    
     return p;
   },
 

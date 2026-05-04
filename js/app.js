@@ -11,6 +11,13 @@ const App = {
     UI.initDropdowns(); UI.initInputListeners(); UI.updateSendButton();
     requestAnimationFrame(drawChatHoneycomb);
     window.addEventListener('resize', ()=>requestAnimationFrame(drawChatHoneycomb),{passive:true});
+    
+    const createAgentBtn = document.querySelector('.create-agent-btn');
+    if (createAgentBtn) {
+      createAgentBtn.addEventListener('click', () => {
+        Agents.openCreateModal();
+      });
+    }
   }
 };
 
@@ -39,6 +46,10 @@ async function init() {
   
   const currentAgentId = await IDBStore.getAgentConfig('currentAgentId');
   if (currentAgentId) state.currentAgentId = currentAgentId;
+  
+  const currentMode = await Store.loadConfig('currentMode', 'fast');
+  state.currentMode = currentMode;
+  await Prompts.loadModePrompt(currentMode);
   
   await Prompts.loadMainPrompt();
   await Prompts.loadMemoryPrompts();

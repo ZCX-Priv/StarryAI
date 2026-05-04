@@ -98,5 +98,21 @@ const Prompts = {
       : `## Language: Respond in ${langName} by default. Switch immediately if the user writes in a different language.\n`;
     
     return prompt;
+  },
+
+  async loadModePrompt(mode) {
+    try {
+      const response = await fetch(`prompts/mode/${mode}.md`);
+      if (!response.ok) {
+        console.warn(`Failed to load ${mode}.md`);
+        return null;
+      }
+      const text = await response.text();
+      state.modePrompt = text;
+      return text;
+    } catch (error) {
+      console.warn(`Error loading ${mode}.md:`, error);
+      return null;
+    }
   }
 };

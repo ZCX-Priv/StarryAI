@@ -1,12 +1,18 @@
 /* ─── API ────────────────────────────────────────────── */
 const API = {
   _params(msgs, model, stream) {
-    return {
+    const baseParams = {
       model: model || state.model,
       messages: Context.buildMessages(msgs),
       stream,
-      temperature: 0.8,
       seed: Math.floor(Math.random() * 2147483647)
+    };
+    
+    const modeConfig = state.modeConfig[state.currentMode];
+    
+    return {
+      ...baseParams,
+      ...modeConfig
     };
   },
   async fetch(msgs, model) {

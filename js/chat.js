@@ -56,7 +56,12 @@ const Chat = {
   async _streamResponse() {
     const chat=Chat.getActive();
     const msgs=chat.messages.filter(m=>m.role!=='system').map(m=>({role:m.role,content:m.content}));
-    const modelToUse=chat.model||state.model;
+    
+    let modelToUse=chat.model||state.model;
+    if (state.currentMode === 'expert' && state.modeConfig.expert.model) {
+      modelToUse = state.modeConfig.expert.model;
+    }
+    
     const typingRow=UI.addTypingIndicator();
     state.autoScroll=true; UI.scrollToBottom(false); UI.setStreaming(true); state.stopRequested=false;
     let fullResp='', aiBubble=null, streamFailed=false;
@@ -86,6 +91,27 @@ const Chat = {
         UI.setStreaming(false); UI.focusInput(); return;
       }
     }
+    
+    if (state.currentMode === 'expert' && state.modeConfig.expert.useTools && fullResp) {
+      const tools = Tools.parseToolTags(fullResp);
+      if (tools.length > 0) {
+        const toolResults = [];
+        for (const tool of tools) {
+          const result = await Tools.executeTool(tool);
+          if (result) {
+            toolResults.push(result);
+          }
+        }
+        
+        if (toolResults.length > 0) {
+          fullResp = Tools.replaceToolTags(fullResp, toolResults);
+          if (aiBubble) {
+            aiBubble.innerHTML = Renderer.parseMarkdown(fullResp);
+          }
+        }
+      }
+    }
+    
     if (fullResp) {
       Chat.addMsg('assistant',fullResp); Store.saveChats(); UI.renderChatList(); UI.updateTopbar();
       const lastRow=document.getElementById('messages').lastElementChild;

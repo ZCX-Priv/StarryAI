@@ -216,7 +216,17 @@ const UI = {
     if (quickBtn&&quickMenu) {
       quickBtn.addEventListener('click', (e)=>{e.stopPropagation();UI.toggleDropdown(quickMenu, quickBtn);});
       quickMenu.querySelectorAll('.dropdown-item').forEach(item=>{
-        item.addEventListener('click', function() {
+        item.addEventListener('click', async function() {
+          const mode = this.getAttribute('data-mode');
+          
+          if (mode) {
+            state.currentMode = mode;
+            await Prompts.loadModePrompt(mode);
+            if (window.Store) {
+              Store.saveConfig('currentMode', mode);
+            }
+          }
+          
           quickMenu.querySelectorAll('.dropdown-item').forEach(i=>{
             i.classList.remove('active');
             const check=i.querySelector('.dropdown-check');

@@ -397,3 +397,43 @@
     padding: 14px;
   }
 }
+
+/* ── Custom Agent Delete Button ────────────────────────── */
+.agent-delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all .2s;
+}
+
+.agent-card {
+  position: relative;
+}
+
+.agent-card:hover .agent-delete-btn {
+  opacity: 1;
+}
+
+.agent-delete-btn:hover {
+  background: rgba(248,113,113,.1);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.custom-agent .card-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

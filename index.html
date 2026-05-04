@@ -124,7 +124,7 @@
               </svg>
             </button>
             <div class="dropdown-menu quick-menu" id="quickMenu">
-              <div class="dropdown-item active" data-mode="quick" data-icon='<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'>
+              <div class="dropdown-item active" data-mode="fast" data-icon='<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'>
                 <div class="dropdown-item-header">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -138,7 +138,7 @@
                   </svg>
                 </div>
               </div>
-              <div class="dropdown-item" data-mode="think" data-icon='<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'>
+              <div class="dropdown-item" data-mode="thinking" data-icon='<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'>
                 <div class="dropdown-item-header">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -269,9 +269,27 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="create-agent-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-hd">
+      <span class="modal-title">创建智能体</span>
+      <button class="icon-btn" onclick="UI.closeModal('create-agent-modal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="create-agent-body"></div>
+    <div class="modal-footer">
+      <button class="btn-sm ghost" onclick="UI.closeModal('create-agent-modal')">取消</button>
+      <button class="btn-sm primary" onclick="Agents.createAgent()">创建</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── JavaScript (load order matters) ───────────────── -->
 <script src="js/config.js"></script>
 <script src="js/state.js"></script>
+<script src="js/mode/fast.js"></script>
+<script src="js/mode/thinking.js"></script>
+<script src="js/mode/expert.js"></script>
+<script src="js/mode/tools.js"></script>
 <script src="js/store-idb.js"></script>
 <script src="js/store-migrate.js"></script>
 <script src="js/agents.js"></script>
