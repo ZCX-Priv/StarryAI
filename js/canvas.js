@@ -43,7 +43,7 @@ function drawChatHoneycomb() {
 }
 function setHoneycomb(on) {
   state.honeycomb=on;
-  localStorage.setItem('pollen_honeycomb', on?'1':'0');
+  Store.saveConfig('honeycomb', on);
   const c=document.getElementById('chat-honeycomb');
   if(c) c.style.opacity=on?'0.18':'0';
 }

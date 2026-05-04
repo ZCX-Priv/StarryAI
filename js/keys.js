@@ -1,6 +1,6 @@
 /* ─── Keys ──────────────────────────────────────────── */
 const Keys = {
-  activate(key) { state.activeKey=key; localStorage.setItem(KEYS.KEYS_MAP.ACTIVE_KEY,key); Modals.renderSettings(); UI.showToast('密钥已保存！'); },
+  activate(key) { state.activeKey=key; Store.saveActiveKey(key); Modals.renderSettings(); UI.showToast('密钥已保存！'); },
   async add() {
     const inp=document.getElementById('new-key-input');
     const key=inp.value.trim(); if (!key) return;
@@ -9,11 +9,11 @@ const Keys = {
   },
   delete(key) {
     state.keys=state.keys.filter(k=>k!==key);
-    if (state.activeKey===key) { state.activeKey=state.keys[0]||null; localStorage.setItem(KEYS.KEYS_MAP.ACTIVE_KEY,state.activeKey||''); }
+    if (state.activeKey===key) { state.activeKey=state.keys[0]||null; Store.saveActiveKey(state.activeKey||''); }
     Store.saveKeys(); Modals.renderSettings(); UI.showToast('密钥已删除');
   },
-  setModel(id) { state.model=id; localStorage.setItem(KEYS.KEYS_MAP.MODEL,id); UI.renderModelPill(); Modals.renderSettings(); },
-  setModelAndUpdate(id) { state.model=id; localStorage.setItem(KEYS.KEYS_MAP.MODEL,id); UI.renderModelPill(); Account.invalidate(); Modals.renderModelPicker(); },
+  setModel(id) { state.model=id; Store.saveConfig('model', id); UI.renderModelPill(); Modals.renderSettings(); },
+  setModelAndUpdate(id) { state.model=id; Store.saveConfig('model', id); UI.renderModelPill(); Account.invalidate(); Modals.renderModelPicker(); },
   async _loadModels() {
     try {
       const headers = state.activeKey ? {'Authorization':`Bearer ${state.activeKey}`} : {};
@@ -39,12 +39,12 @@ const Keys = {
           state.models = models;
           if (!state.models.find(m => m.id === state.model)) {
             state.model = state.models[0]?.id || 'nova-fast';
-            localStorage.setItem(KEYS.KEYS_MAP.MODEL, state.model);
+            Store.saveConfig('model', state.model);
           }
         }
       }
     } catch {}
-    if (!localStorage.getItem(KEYS.KEYS_MAP.MODEL)) {
+    if (!state.model) {
       state.model = state.models[0]?.id || 'nova-fast';
     }
     UI.renderModelPill();

@@ -14,23 +14,24 @@ const Chat = {
     const id=Date.now().toString(36)+Math.random().toString(36).slice(2);
     const chat={id,title:'新对话',messages:[],createdAt:Date.now(),model:state.model,agentId:state.currentAgentId};
     state.chats.unshift(chat); state.activeChatId=chat.id;
-    Store.saveChats(); localStorage.setItem(KEYS.KEYS_MAP.ACTIVE_CHAT,chat.id);
+    Store.saveChats(); Store.saveConfig('activeChatId', chat.id);
     UI.renderChatList(); UI.renderMessages(); UI.updateTopbar();
     UI.focusInput();
     UI._closeSidebarMobile();
   },
   switchTo(id) {
-    state.activeChatId=id; localStorage.setItem(KEYS.KEYS_MAP.ACTIVE_CHAT,id);
+    state.activeChatId=id; Store.saveConfig('activeChatId', id);
     UI.renderChatList(); UI.renderMessages(); UI.updateTopbar();
     UI._closeSidebarMobile();
   },
   delete(id, e) {
     e.stopPropagation();
     state.chats=state.chats.filter(c=>c.id!==id);
+    Store.deleteChat(id);
     if (state.activeChatId===id) {
       state.activeChatId=state.chats[0]?.id||null;
       if (!state.activeChatId) Chat.create();
-      else localStorage.setItem(KEYS.KEYS_MAP.ACTIVE_CHAT,state.activeChatId);
+      else Store.saveConfig('activeChatId', state.activeChatId);
     }
     Store.saveChats(); UI.renderChatList(); UI.renderMessages(); UI.updateTopbar();
   },

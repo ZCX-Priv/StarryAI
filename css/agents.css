@@ -141,6 +141,100 @@
 }
 
 /* ── Agents Tabs ──────────────────────────────────────── */
+.agents-search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 20px 0;
+}
+
+.agents-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  padding: 10px 14px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all .2s;
+}
+
+.agents-search:focus-within {
+  border-color: var(--accent);
+  background: var(--bg3);
+}
+
+.agents-search .search-icon {
+  color: var(--text3);
+  flex-shrink: 0;
+}
+
+.agents-search input {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--text);
+  font-family: var(--font);
+}
+
+.agents-search input::placeholder {
+  color: var(--text3);
+}
+
+.search-clear-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: var(--bg4);
+  border: none;
+  border-radius: 50%;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+
+.search-clear-btn:hover {
+  background: var(--text3);
+  color: var(--bg);
+}
+
+.search-clear-btn.visible {
+  display: flex;
+}
+
+.create-agent-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.create-agent-btn:hover {
+  background: var(--accent2);
+}
+
+.create-agent-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
 .agents-tabs {
   display: flex;
   justify-content: space-between;
@@ -154,31 +248,6 @@
 .agents-tabs-left {
   display: flex;
   gap: 8px;
-}
-
-.agents-tabs .btn-sm.primary {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all .2s;
-  flex-shrink: 0;
-}
-
-.agents-tabs .btn-sm.primary:hover {
-  background: var(--accent2);
-}
-
-.agents-tabs .btn-sm.primary svg {
-  width: 14px;
-  height: 14px;
 }
 
 .agent-tab {
@@ -292,6 +361,19 @@
     padding: 12px 16px;
   }
 
+  .agents-search-wrapper {
+    margin: 12px 16px 0;
+  }
+
+  .create-agent-btn {
+    padding: 10px;
+    border-radius: var(--radius);
+  }
+
+  .create-agent-btn span {
+    display: none;
+  }
+
   .agents-tabs {
     flex-direction: column;
     align-items: stretch;
@@ -303,10 +385,6 @@
     overflow-x: auto;
     flex-wrap: nowrap;
     padding-bottom: 4px;
-  }
-
-  .agents-tabs .btn-sm.primary {
-    justify-content: center;
   }
 
   .agents-grid {

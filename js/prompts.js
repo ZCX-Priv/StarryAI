@@ -65,14 +65,8 @@ const Prompts = {
       return null;
     }
 
-    const langNames = {
-      pt:'Portuguese (Brazilian)', en:'English', es:'Spanish', fr:'French',
-      de:'German', it:'Italian', ja:'Japanese', zh:'Chinese (Simplified)', ko:'Korean', ru:'Russian'
-    };
-    const langName = langNames[state.lang] || 'English';
-    const memHasLang = state.memory.some(m =>
-      /\b(language|idioma|l[íi]ngua|sprache|langue|lingua|言語|语言|언어|язык|prefer.*speak|speak.*prefer|fala|gosta.*escrever)\b/i.test(m)
-    );
+    const langName = Context.getLanguageName();
+    const memHasLang = Context.hasLanguagePreference();
 
     let prompt = '';
     
@@ -104,27 +98,5 @@ const Prompts = {
       : `## Language: Respond in ${langName} by default. Switch immediately if the user writes in a different language.\n`;
     
     return prompt;
-  },
-
-  buildMemoryExtractPrompt(existingMemory, conversation) {
-    if (!state.memoryExtractTemplate) {
-      return `You are a memory manager for an AI assistant. Extract only truly new and durable personal facts about the USER.\n\nSTRICT RULES:\n1. Only facts about the USER — never AI responses.\n2. Only NEW facts NOT already in existing memory.\n3. If a topic already exists (e.g. "user likes anime"), do NOT add more about that same topic unless it is a completely different type of fact.\n4. Skip transient/task info. Only durable: name, language, tone, profession, core interests (one per topic), habits.\n5. Max 10 words per fact.\n6. If nothing new: return exactly []\n7. Return ONLY a valid JSON array of strings.\n\nExisting memory — do NOT duplicate these topics:\n${existingMemory}`;
-    }
-    
-    return this.parsePromptTemplate(state.memoryExtractTemplate, {
-      existing_memory: existingMemory,
-      conversation: JSON.stringify(conversation)
-    });
-  },
-
-  buildMemoryDeduplicatePrompt(memoryList, maxEntries) {
-    if (!state.memoryDeduplicateTemplate) {
-      return `You are a memory optimizer. Clean and deduplicate a list of user facts.\n\nRULES:\n- Merge all facts about the same topic into ONE concise entry. Keep only the ESSENCE.\n- Remove redundant, overly specific, or repetitive entries.\n- Limit to ONE entry per topic/interest area.\n- Keep ONLY high-value durable facts: name, language preference, tone, profession, core interests (one per area), habits.\n- Max ${maxEntries} entries. Max 12 words each.\n- Return ONLY a valid JSON array of strings. Nothing else.`;
-    }
-    
-    return this.parsePromptTemplate(state.memoryDeduplicateTemplate, {
-      memory_list: JSON.stringify(memoryList),
-      max_entries: maxEntries
-    });
   }
 };

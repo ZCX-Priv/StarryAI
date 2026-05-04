@@ -5,7 +5,7 @@ description: "Generate images using Pollinations AI API. Invoke when user asks t
 
 # Pollinations Image Generator
 
-This skill generates images using the Pollinations AI API and saves them to a specified location.
+Generate images using Pollinations AI API and save them to a specified location.
 
 ## When to Use
 
@@ -14,248 +14,168 @@ Invoke this skill when:
 - User wants to create artwork, illustrations, or pictures
 - User needs AI-generated visual content
 
-## API Information
+## CRITICAL: Pre-Flight Checklist
 
-**Base URL:** `https://gen.pollinations.ai` (already configured in `js/config.js`)
+**Before generating any image, you MUST check these conditions in order:**
 
-**Endpoint:** `GET /image/{prompt}`
+### Step 1: Check API Key
 
-**Authentication:** Uses existing `state.activeKey` from localStorage
+**IMPORTANT: You must ask the user for their API key BEFORE attempting to generate images.**
+
+Ask the user: "请提供您的Pollinations API密钥（格式：pk_ 或 sk_ 开头）。您可以在 [enter.pollinations.ai](https://enter.pollinations.ai) 获取密钥。"
+
+Wait for the user to provide the key before proceeding.
+
+### Step 2: Confirm Parameters
+
+Confirm with the user:
+- Prompt (required): What image to generate
+- Output path (required): Where to save the image
+- Model: Default is `zimage`
+- Size: Default is `1024x1024`
+
+### Step 3: Generate Image
+
+Use curl command to download the image. **DO NOT retry on failure - report error and stop.**
+
+## Default Settings
+
+| Parameter | Default Value |
+|-----------|---------------|
+| `model` | `zimage` |
+| `width` | `1024` |
+| `height` | `1024` |
+| `enhance` | `true` |
+| `safe` | `false` (no censorship) |
+| `quality` | `high` |
+| `seed` | `-1` (random) |
+
+## How to Generate Images
+
+### Method: Use curl Command
+
+**Always use curl to download images. This is the most reliable method.**
+
+```bash
+curl -o "<output_path>" "https://gen.pollinations.ai/image/<encoded_prompt>?model=zimage&width=1024&height=1024&enhance=true&safe=false&quality=high&seed=-1" -H "Authorization: Bearer <API_KEY>"
+```
+
+### Example curl Command
+
+For prompt "a beautiful sunset over mountains" saving to "sunset.png":
+
+```bash
+curl -o "sunset.png" "https://gen.pollinations.ai/image/a%20beautiful%20sunset%20over%20mountains?model=zimage&width=1024&height=1024&enhance=true&safe=false&quality=high&seed=-1" -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Step-by-Step Execution Guide
+
+### Step 1: Ask for API Key (if not provided)
+
+```
+请提供您的Pollinations API密钥以生成图片。密钥格式为 pk_ 或 sk_ 开头。
+获取密钥：https://enter.pollinations.ai
+```
+
+**DO NOT proceed without the API key.**
+
+### Step 2: Construct the curl Command
+
+Replace placeholders:
+- `<API_KEY>`: User's API key
+- `<prompt>`: URL-encoded prompt text
+- `<output_path>`: Full path to save the image
+
+### Step 3: Execute curl Command
+
+Use RunCommand tool with:
+- `command`: The curl command
+- `blocking`: true
+- `requires_approval`: false
+
+### Step 4: Check Result
+
+**On Success:**
+- Tell user: "图片已生成并保存到: <output_path>"
+- Show the image path
+- STOP - do not make additional requests
+
+**On Failure:**
+- Report the exact error message
+- DO NOT retry automatically
+- DO NOT loop
+- Ask user if they want to try again with different parameters
+
+## Error Handling - IMPORTANT
+
+**When an error occurs:**
+1. Report the error message to the user
+2. STOP immediately
+3. DO NOT retry without user confirmation
+4. DO NOT enter any loop
+
+| HTTP Status | Meaning | Action |
+|-------------|---------|--------|
+| 400 | Bad Request | Check prompt encoding, report to user |
+| 401 | Invalid API Key | Ask user to verify their key |
+| 402 | Insufficient Balance | Tell user to add pollen |
+| 403 | Forbidden | Check API key permissions |
+| 429 | Rate Limited | Wait and ask user to retry later |
+| 500 | Server Error | Report to user, suggest retrying later |
 
 ## Available Models
 
 | Model | Description |
 |-------|-------------|
+| `zimage` | **DEFAULT** - Balanced quality |
 | `flux` | High quality, fast generation |
-| `zimage` | Default model, balanced quality |
 | `gptimage` | GPT-based image generation |
 | `gptimage-large` | Larger GPT image model |
 | `gpt-image-2` | GPT Image 2 model |
 | `kontext` | Context-aware generation |
 | `seedream` | Dreamy artistic style |
-| `seedream-pro` | Professional seedream |
 | `nanobanana` | Fast lightweight model |
-| `nanobanana-pro` | Professional lightweight |
 | `klein` | Compact efficient model |
-| `qwen-image` | Qwen image model |
-| `grok-imagine` | Grok imagination model |
-| `nova-canvas` | Nova canvas model |
 
-## Parameters
+## Complete Example
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `prompt` | string | required | Text description of the image to generate |
-| `model` | string | `zimage` | Model to use for generation |
-| `width` | integer | 1024 | Image width in pixels |
-| `height` | integer | 1024 | Image height in pixels |
-| `seed` | integer | 0 | Seed for reproducible results (-1 for random) |
-| `enhance` | boolean | true | Let AI improve prompt for better results |
-| `negative_prompt` | string | "worst quality, blurry" | What to avoid in the image |
-| `safe` | boolean | false | Enable safety content filters |
-| `quality` | string | "high" | Quality level: low, medium, high, hd |
-| `transparent` | boolean | false | Generate with transparent background |
+**User request:** "生成一张猫在太空的图片"
 
-## Implementation for This Project
+**Your response:**
 
-Add the following code to `js/api.js` or create a new `js/image-api.js` file:
+1. First, ask for API key if not already provided:
+   "请提供您的Pollinations API密钥（pk_ 或 sk_ 开头）"
 
-```javascript
-const ImageAPI = {
-  async generate(options) {
-    const {
-      prompt,
-      model = 'zimage',
-      width = 1024,
-      height = 1024,
-      seed = -1,
-      enhance = true,
-      negative_prompt = 'worst quality, blurry',
-      safe = false,
-      quality = 'high',
-      transparent = false
-    } = options;
+2. After receiving key, ask for save location:
+   "请告诉我图片保存的路径，例如: C:\Users\xxx\Desktop\space-cat.png"
 
-    if (!state.activeKey) {
-      throw new Error('请先添加API密钥');
-    }
+3. Execute the command:
+   ```bash
+   curl -o "C:\Users\xxx\Desktop\space-cat.png" "https://gen.pollinations.ai/image/a%20cat%20in%20space?model=zimage&width=1024&height=1024&enhance=true&safe=false&quality=high&seed=-1" -H "Authorization: Bearer pk_xxx"
+   ```
 
-    const params = new URLSearchParams({
-      model,
-      width: width.toString(),
-      height: height.toString(),
-      seed: seed.toString(),
-      enhance: enhance.toString(),
-      negative_prompt,
-      safe: safe.toString(),
-      quality,
-      transparent: transparent.toString()
-    });
+4. Report result:
+   - Success: "图片已生成: C:\Users\xxx\Desktop\space-cat.png"
+   - Failure: "生成失败: [error message]"
 
-    const encodedPrompt = encodeURIComponent(prompt);
-    const url = `${API_BASE}/image/${encodedPrompt}?${params.toString()}`;
+## Quick Reference
 
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${state.activeKey}`
-      }
-    });
-
-    if (response.status === 401) {
-      throw new Error('认证失败，请检查API密钥');
-    }
-    if (response.status === 402) {
-      throw new Error('花粉余额不足');
-    }
-    if (response.status === 403) {
-      throw new Error('没有访问权限');
-    }
-    if (!response.ok) {
-      throw new Error(`生成失败: HTTP ${response.status}`);
-    }
-
-    const blob = await response.blob();
-    return blob;
-  },
-
-  async generateAndDownload(options, filename = 'generated-image.png') {
-    const blob = await this.generate(options);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    return filename;
-  },
-
-  async generateAndDisplay(options, imgElement) {
-    const blob = await this.generate(options);
-    const url = URL.createObjectURL(blob);
-    imgElement.src = url;
-    return url;
-  },
-
-  generateUrl(options) {
-    const {
-      prompt,
-      model = 'zimage',
-      width = 1024,
-      height = 1024,
-      seed = -1,
-      enhance = true,
-      safe = false,
-      quality = 'high'
-    } = options;
-
-    const params = new URLSearchParams({
-      model,
-      width: width.toString(),
-      height: height.toString(),
-      seed: seed.toString(),
-      enhance: enhance.toString(),
-      safe: safe.toString(),
-      quality
-    });
-
-    const encodedPrompt = encodeURIComponent(prompt);
-    return `${API_BASE}/image/${encodedPrompt}?${params.toString()}`;
-  }
-};
 ```
-
-## Usage Examples
-
-### Generate and Download Image
-
-```javascript
-await ImageAPI.generateAndDownload({
-  prompt: '一只在太空中漂浮的猫'
-}, 'space-cat.png');
+API Base URL: https://gen.pollinations.ai
+Endpoint: GET /image/{prompt}
+Auth: Bearer token in Authorization header
+Default Model: zimage
+Default Size: 1024x1024
+Enhance: true (auto-improve prompt)
+Safe: false (no censorship)
+Quality: high
 ```
-
-### Generate and Display in Chat
-
-```javascript
-const img = document.createElement('img');
-img.style.maxWidth = '100%';
-img.style.borderRadius = '8px';
-await ImageAPI.generateAndDisplay({
-  prompt: '美丽的日落风景'
-}, img);
-chatContainer.appendChild(img);
-```
-
-### Get Image URL (for preview)
-
-```javascript
-const url = ImageAPI.generateUrl({
-  prompt: 'a beautiful sunset over mountains'
-});
-```
-
-## Integration with Chat
-
-To integrate image generation into the chat interface, add a command handler:
-
-```javascript
-const ImageCommands = {
-  patterns: [
-    /^\/image\s+(.+)$/i,
-    /^生成图片[：:]\s*(.+)$/i,
-    /^画[一张]?(.+)$/i
-  ],
-  
-  async handle(input) {
-    for (const pattern of this.patterns) {
-      const match = input.match(pattern);
-      if (match) {
-        const prompt = match[1].trim();
-        return await this.generateImage(prompt);
-      }
-    }
-    return null;
-  },
-  
-  async generateImage(prompt) {
-    try {
-      UI.showToast('正在生成图片...');
-      const blob = await ImageAPI.generate({
-        prompt
-      });
-      const url = URL.createObjectURL(blob);
-      return {
-        type: 'image',
-        url,
-        prompt
-      };
-    } catch (error) {
-      UI.showToast(`生成失败: ${error.message}`);
-      return null;
-    }
-  }
-};
-```
-
-## Error Handling
-
-| Status Code | Meaning | User Message |
-|-------------|---------|--------------|
-| 400 | Bad Request | 请求参数无效 |
-| 401 | Unauthorized | 请检查API密钥 |
-| 402 | Payment Required | 花粉余额不足 |
-| 403 | Forbidden | 没有访问权限 |
-| 429 | Rate Limited | 请求过于频繁，请稍后再试 |
-| 500 | Server Error | 服务器错误，请稍后再试 |
 
 ## Notes
 
-1. API密钥通过设置页面添加，存储在localStorage中
-2. 密钥格式：`pk_` (可发布密钥) 或 `sk_` (密钥密钥)
-3. 获取密钥：访问 [enter.pollinations.ai](https://enter.pollinations.ai)
-4. 使用 `seed` 参数可复现相同结果
-5. `enhance` 选项可自动优化提示词
-6. 生成的图片格式为 JPEG 或 PNG
-7. 默认设置：zimage模型、1024x1024尺寸、高质量、增强模式、无审查、无水印
+1. Always ask for API key first - NEVER assume it exists
+2. Use curl command - it's the most reliable method
+3. Default to zimage model
+4. On failure: report error and STOP - no automatic retries
+5. No watermark on generated images
+6. Images are JPEG or PNG format

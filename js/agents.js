@@ -2,6 +2,7 @@
 const Agents = {
   config: null,
   currentCategory: 'all',
+  searchKeyword: '',
   
   async loadConfig() {
     try {
@@ -32,7 +33,7 @@ const Agents = {
     if (!agent) return;
     
     state.currentAgentId = agentId;
-    localStorage.setItem('pollen_agent', agentId);
+    IDBStore.setAgentConfig('currentAgentId', agentId);
     
     const prompt = await this.loadPrompt(agent.prompt);
     state.agentPrompt = prompt;
@@ -49,7 +50,7 @@ const Agents = {
     const loaded = await this.loadConfig();
     if (!loaded) return;
 
-    const savedAgentId = localStorage.getItem('pollen_agent');
+    const savedAgentId = await IDBStore.getAgentConfig('currentAgentId');
     if (savedAgentId && this.config.agents.find(a => a.id === savedAgentId)) {
       await this.select(savedAgentId);
     } else if (this.config.agents.length > 0) {
@@ -68,12 +69,13 @@ const Agents = {
     this.initTabs();
   },
 
-  renderPlaza() {
+  async renderPlaza() {
     const grid = document.getElementById('agents-grid');
     if (!grid || !this.config?.agents) return;
 
     this.renderCategories();
     this.renderAgents(this.config.agents);
+    this.initSearch();
   },
 
   renderAgents(agents) {
@@ -92,22 +94,70 @@ const Agents = {
     `).join('');
   },
 
-  filterByCategory(categoryId) {
+  async filterByCategory(categoryId) {
     if (!this.config?.agents) return;
 
     this.currentCategory = categoryId;
 
+    let agents;
     if (categoryId === 'all') {
-      this.renderAgents(this.config.agents);
+      agents = this.config.agents;
     } else if (categoryId === 'mine') {
-      const recentIds = JSON.parse(localStorage.getItem('pollen_recent_agents') || '[]');
-      const mineAgents = recentIds
+      const recentIds = await IDBStore.getAgentConfig('recentAgents') || [];
+      agents = recentIds
         .map(id => this.config.agents.find(a => a.id === id))
         .filter(Boolean);
-      this.renderAgents(mineAgents);
     } else {
-      const filtered = this.config.agents.filter(a => a.category === categoryId);
-      this.renderAgents(filtered);
+      agents = this.config.agents.filter(a => a.category === categoryId);
+    }
+
+    if (this.searchKeyword) {
+      agents = this.searchAgents(agents, this.searchKeyword);
+    }
+
+    this.renderAgents(agents);
+  },
+
+  searchAgents(agents, keyword) {
+    if (!keyword) return agents;
+    const lowerKeyword = keyword.toLowerCase();
+    return agents.filter(agent => 
+      agent.name.toLowerCase().includes(lowerKeyword) ||
+      agent.description.toLowerCase().includes(lowerKeyword)
+    );
+  },
+
+  initSearch() {
+    const searchInput = document.getElementById('agents-search-input');
+    const clearBtn = document.getElementById('agents-search-clear');
+    if (!searchInput) return;
+
+    searchInput.value = this.searchKeyword;
+    this.updateClearButton(clearBtn, this.searchKeyword);
+
+    searchInput.addEventListener('input', (e) => {
+      this.searchKeyword = e.target.value.trim();
+      this.updateClearButton(clearBtn, this.searchKeyword);
+      this.filterByCategory(this.currentCategory);
+    });
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        this.searchKeyword = '';
+        this.updateClearButton(clearBtn, '');
+        this.filterByCategory(this.currentCategory);
+        searchInput.focus();
+      });
+    }
+  },
+
+  updateClearButton(btn, keyword) {
+    if (!btn) return;
+    if (keyword) {
+      btn.classList.add('visible');
+    } else {
+      btn.classList.remove('visible');
     }
   },
 
@@ -132,11 +182,11 @@ const Agents = {
     UI.showPage('chat');
   },
 
-  addToRecent(agentId) {
-    let recent = JSON.parse(localStorage.getItem('pollen_recent_agents') || '[]');
+  async addToRecent(agentId) {
+    let recent = await IDBStore.getAgentConfig('recentAgents') || [];
     recent = recent.filter(id => id !== agentId);
     recent.unshift(agentId);
     recent = recent.slice(0, 10);
-    localStorage.setItem('pollen_recent_agents', JSON.stringify(recent));
+    IDBStore.setAgentConfig('recentAgents', recent);
   }
 };

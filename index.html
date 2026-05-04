@@ -188,10 +188,28 @@
   </div>
   <div id="agents-content">
     <div id="my-agents-container"></div>
+    <div class="agents-search-wrapper">
+      <div class="agents-search">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="agents-search-input" placeholder="搜索智能体..." />
+        <button class="search-clear-btn" id="agents-search-clear" title="清除">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <button class="btn-sm primary create-agent-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>创建 AI 智能体</span>
+      </button>
+    </div>
     <div class="agents-tabs">
       <div class="agents-tabs-left" id="agents-tabs-container">
       </div>
-      <button class="btn-sm primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>创建 AI 智能体</button>
     </div>
     <div class="agents-grid" id="agents-grid"></div>
   </div>
@@ -254,15 +272,17 @@
 <!-- ── JavaScript (load order matters) ───────────────── -->
 <script src="js/config.js"></script>
 <script src="js/state.js"></script>
+<script src="js/store-idb.js"></script>
+<script src="js/store-migrate.js"></script>
 <script src="js/agents.js"></script>
 <script src="js/banner.js"></script>
 <script src="js/store-theme-account.js"></script>
 <script src="js/prompts.js"></script>
+<script src="js/context.js"></script>
 <script src="js/api.js"></script>
 <script src="js/renderer.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/chat.js"></script>
-<script src="js/memory.js"></script>
 <script src="js/modals.js"></script>
 <script src="js/keys.js"></script>
 <script src="js/canvas.js"></script>

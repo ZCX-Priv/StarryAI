@@ -16,13 +16,30 @@ const App = {
 
 /* ─── Bootstrap ─────────────────────────────────────── */
 async function init() {
-  Theme.apply(localStorage.getItem(KEYS.KEYS_MAP.THEME)||'auto');
-  state.honeycomb = localStorage.getItem('pollen_honeycomb') !== '0';
-  state.keys   = Store.load(KEYS.KEYS_MAP.KEYS, []);
-  state.memory = Store.load(KEYS.KEYS_MAP.MEMORY, []);
-  state.chats  = Store.load(KEYS.KEYS_MAP.CHATS, []);
-  state.model  = localStorage.getItem(KEYS.KEYS_MAP.MODEL)||'nova-fast';
-  state.activeChatId = localStorage.getItem(KEYS.KEYS_MAP.ACTIVE_CHAT);
+  try {
+    await IDBStore.init();
+    await Migration.run();
+  } catch (error) {
+    console.error('IndexedDB 初始化失败，使用 localStorage 模式:', error);
+    Store._useIDB = false;
+  }
+
+  const theme = await Store.loadConfig('theme', 'auto');
+  Theme.apply(theme);
+  
+  const honeycomb = await Store.loadConfig('honeycomb', true);
+  state.honeycomb = honeycomb === true || honeycomb === 'true' || honeycomb === '1';
+  
+  state.keys = await Store.loadKeys();
+  state.memory = await Store.loadMemory();
+  state.chats = await Store.loadChats();
+  state.model = await Store.loadConfig('model', 'nova-fast');
+  state.activeChatId = await Store.loadConfig('activeChatId', null);
+  state.activeKey = await Store.loadActiveKey();
+  
+  const currentAgentId = await IDBStore.getAgentConfig('currentAgentId');
+  if (currentAgentId) state.currentAgentId = currentAgentId;
+  
   await Prompts.loadMainPrompt();
   await Prompts.loadMemoryPrompts();
   await Agents.init();
