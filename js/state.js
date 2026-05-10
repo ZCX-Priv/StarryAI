@@ -14,7 +14,7 @@ let state = {
   stopRequested: false,
   autoScroll:    true,
   honeycomb:     true,
-  settingsTab:   'keys',
+  settingsTab:   'appearance',
   currentBannerMode: null,
   bannerPrompt:  null,
   mainPromptTemplate: null,

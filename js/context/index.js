@@ -1,14 +1,4 @@
 const Context = {
-  LANG_NAMES: Language.LANG_NAMES,
-  
-  hasLanguagePreference() {
-    return Language.hasLanguagePreference();
-  },
-  
-  getLanguageName() {
-    return Language.getLanguageName();
-  },
-  
   Memory: MemoryManager,
   
   buildSystemPrompt() {

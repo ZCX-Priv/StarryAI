@@ -186,7 +186,29 @@ const UI = {
       const displayTitle=(chat.title==='新对话'||!chat.title)?'新对话':chat.title;
       item.innerHTML=`<div class="ci-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
         <div class="ci-title">${Renderer.escHtml(displayTitle)}</div>
-        <button class="ci-del" onclick="Chat.delete('${chat.id}',event)" title="删除"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+        <button class="ci-menu-btn" onclick="Chat.toggleMenu('${chat.id}',event)" title="更多操作">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="2"/>
+            <circle cx="12" cy="12" r="2"/>
+            <circle cx="19" cy="12" r="2"/>
+          </svg>
+        </button>
+        <div class="ci-dropdown" id="menu-${chat.id}">
+          <button class="ci-dropdown-item" onclick="Chat.openRename('${chat.id}',event)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <span>编辑名称</span>
+          </button>
+          <button class="ci-dropdown-item ci-dropdown-danger" onclick="Chat.confirmDelete('${chat.id}',event)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            <span>删除对话</span>
+          </button>
+        </div>`;
       list.appendChild(item);
     });
   },

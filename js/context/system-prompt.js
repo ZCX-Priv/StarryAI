@@ -8,8 +8,6 @@ const SystemPrompt = {
       return templatePrompt;
     }
 
-    const langName = Language.getLanguageName();
-    const memHasLang = Language.hasLanguagePreference();
     let p = `You are 星语, a thoughtful and adaptive AI assistant.\n\n`;
     p += `## Core behavior:\n`;
     p += `- Be genuinely helpful and direct. Adapt tone naturally.\n`;
@@ -23,9 +21,6 @@ const SystemPrompt = {
       p += `- If user asks about a topic overlapping their interests, acknowledge naturally — do not bring up interests unless the conversation opens that door.\n`;
       p += `- Adapt depth and style to what you know — but respond to what they ASKED.\n\n`;
     }
-    p += memHasLang
-      ? `## Language: Use the language recorded in context. Maintain it even if the user writes in another language.\n`
-      : `## Language: Respond in ${langName} by default. Switch immediately if the user writes in a different language.\n`;
     
     if (state.modePrompt) {
       p += '\n\n' + state.modePrompt;

@@ -55,5 +55,9 @@ async function init() {
   await Prompts.loadMemoryPrompts();
   await Agents.init();
   App.enter();
+  
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.ci-dropdown.show').forEach(m => m.classList.remove('show'));
+  });
 }
 init();

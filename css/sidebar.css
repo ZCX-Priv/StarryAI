@@ -73,13 +73,39 @@
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .chat-item.active .ci-title { color: var(--accent2); font-weight: 500; }
-.ci-del {
-  opacity: 0; background: none; border: none; cursor: pointer;
-  color: var(--text3); padding: 3px; border-radius: 4px;
-  display: flex; align-items: center; transition: opacity .15s, color .15s; flex-shrink: 0;
+.ci-menu-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); padding: 4px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s; flex-shrink: 0;
+  position: relative;
 }
-.chat-item:hover .ci-del { opacity: 1; }
-.ci-del:hover             { color: var(--danger); }
+.ci-menu-btn:hover { background: var(--bg4); color: var(--text); }
+
+/* Chat Item Dropdown Menu */
+.ci-dropdown {
+  position: absolute; right: 0; top: 100%;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: 0 8px 32px rgba(0,0,0,.3);
+  padding: 6px; min-width: 140px; z-index: 100;
+  opacity: 0; visibility: hidden; transform: translateY(-4px);
+  transition: all 0.15s ease;
+}
+.ci-dropdown.show {
+  opacity: 1; visibility: visible; transform: translateY(4px);
+}
+.ci-dropdown-item {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 8px 10px; border: none; background: none;
+  border-radius: var(--radius-sm); cursor: pointer;
+  font-family: var(--font); font-size: 13px; color: var(--text);
+  transition: background .15s;
+}
+.ci-dropdown-item:hover { background: var(--bg3); }
+.ci-dropdown-item svg { flex-shrink: 0; color: var(--text2); }
+.ci-dropdown-danger { color: var(--danger); }
+.ci-dropdown-danger svg { color: var(--danger); }
+.ci-dropdown-danger:hover { background: rgba(248,113,113,.1); }
 
 /* Sidebar Bottom */
 .sb-bottom {
@@ -129,3 +155,6 @@
 [data-theme="light"] .sb-pollen-link   { border-color: rgba(180,100,0,.3); background: rgba(255,140,0,.07); }
 [data-theme="light"] .sb-pollen-name   { color: rgba(150,75,0,.95); }
 [data-theme="light"] .sb-pollen-built  { color: rgba(0,0,0,.5); }
+[data-theme="light"] .ci-menu-btn:hover { background: var(--bg4); }
+[data-theme="light"] .ci-dropdown { background: var(--bg2); border-color: var(--border); }
+[data-theme="light"] .ci-dropdown-item:hover { background: var(--bg4); }

@@ -35,6 +35,76 @@ const Chat = {
     }
     Store.saveChats(); UI.renderChatList(); UI.renderMessages(); UI.updateTopbar();
   },
+  toggleMenu(id, e) {
+    e.stopPropagation();
+    const menu = document.getElementById(`menu-${id}`);
+    if (!menu) return;
+    
+    document.querySelectorAll('.ci-dropdown.show').forEach(m => {
+      if (m.id !== `menu-${id}`) m.classList.remove('show');
+    });
+    
+    menu.classList.toggle('show');
+  },
+  openRename(id, e) {
+    e.stopPropagation();
+    const chat = state.chats.find(c => c.id === id);
+    if (!chat) return;
+    
+    document.getElementById(`menu-${id}`)?.classList.remove('show');
+    
+    const modal = document.getElementById('rename-modal');
+    const input = document.getElementById('rename-input');
+    input.value = chat.title === '新对话' ? '' : chat.title;
+    modal.classList.add('visible');
+    modal.dataset.chatId = id;
+    input.focus();
+    input.select();
+  },
+  rename() {
+    const modal = document.getElementById('rename-modal');
+    const input = document.getElementById('rename-input');
+    const chatId = modal.dataset.chatId;
+    const newTitle = input.value.trim() || '新对话';
+    
+    const chat = state.chats.find(c => c.id === chatId);
+    if (chat) {
+      chat.title = newTitle;
+      Store.saveChats();
+      UI.renderChatList();
+      UI.updateTopbar();
+    }
+    
+    UI.closeModal('rename-modal');
+  },
+  confirmDelete(id, e) {
+    e.stopPropagation();
+    
+    document.getElementById(`menu-${id}`)?.classList.remove('show');
+    
+    const modal = document.getElementById('confirm-delete-modal');
+    modal.classList.add('visible');
+    modal.dataset.chatId = id;
+  },
+  executeDelete() {
+    const modal = document.getElementById('confirm-delete-modal');
+    const chatId = modal.dataset.chatId;
+    
+    state.chats = state.chats.filter(c => c.id !== chatId);
+    Store.deleteChat(chatId);
+    
+    if (state.activeChatId === chatId) {
+      state.activeChatId = state.chats[0]?.id || null;
+      if (!state.activeChatId) Chat.create();
+      else Store.saveConfig('activeChatId', state.activeChatId);
+    }
+    
+    Store.saveChats();
+    UI.renderChatList();
+    UI.renderMessages();
+    UI.updateTopbar();
+    UI.closeModal('confirm-delete-modal');
+  },
   async send() {
     const input=document.getElementById('msg-input');
     const text=input.value.trim();
@@ -44,12 +114,7 @@ const Chat = {
     UI.collapseAllUserMsgs();
     input.value=''; UI.autoResize(input);
     
-    let messageText = text;
-    if (state.bannerPrompt) {
-      messageText = state.bannerPrompt.replace('{user_input}', text);
-    }
-    
-    Chat.addMsg('user',messageText); UI.addBubble('user',text);
+    Chat.addMsg('user',text); UI.addBubble('user',text);
     UI.renderChatList(); UI.updateTopbar();
     await Chat._streamResponse();
   },

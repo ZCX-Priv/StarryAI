@@ -65,24 +65,22 @@ const Prompts = {
       return null;
     }
 
-    const langName = Context.getLanguageName();
-    const memHasLang = Context.hasLanguagePreference();
-
     let prompt = '';
+    
+    if (state.mainPromptTemplate) {
+      prompt += state.mainPromptTemplate + '\n\n';
+    }
+    
+    if (state.bannerPrompt) {
+      prompt += state.bannerPrompt + '\n\n';
+    }
+    
+    if (state.modePrompt) {
+      prompt += state.modePrompt + '\n\n';
+    }
     
     if (state.agentPrompt) {
       prompt += state.agentPrompt + '\n\n';
-    }
-    
-    const identitySection = this.extractSection(state.mainPromptTemplate, '基本身份');
-    if (identitySection) {
-      prompt += identitySection + '\n\n';
-    }
-    
-    const coreBehaviorSection = this.extractSection(state.mainPromptTemplate, '核心行为准则');
-    if (coreBehaviorSection) {
-      prompt += '## Core behavior:\n';
-      prompt += coreBehaviorSection.replace(/^- /gm, '- ') + '\n\n';
     }
     
     if (state.memory.length) {
@@ -93,9 +91,10 @@ const Prompts = {
       prompt += `- Adapt depth and style to what you know — but respond to what they ASKED.\n\n`;
     }
     
-    prompt += memHasLang
-      ? `## Language: Use the language recorded in context. Maintain it even if the user writes in another language.\n`
-      : `## Language: Respond in ${langName} by default. Switch immediately if the user writes in a different language.\n`;
+    const timeInfo = Time.getCurrentTimeInfo();
+    if (timeInfo) {
+      prompt += timeInfo + '\n';
+    }
     
     return prompt;
   },

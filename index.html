@@ -223,8 +223,8 @@
       <button class="icon-btn" onclick="UI.closeModal('settings-modal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-tabs">
-      <button class="modal-tab active" id="tab-keys" onclick="Modals.switchTab('keys')"><span id="txt-tab-keys">密钥</span></button>
-      <button class="modal-tab" id="tab-appearance" onclick="Modals.switchTab('appearance')"><span id="txt-tab-appearance">外观</span></button>
+      <button class="modal-tab active" id="tab-appearance" onclick="Modals.switchTab('appearance')"><span id="txt-tab-appearance">外观</span></button>
+      <button class="modal-tab" id="tab-keys" onclick="Modals.switchTab('keys')"><span id="txt-tab-keys">密钥</span></button>
     </div>
     <div class="modal-body" id="settings-body"></div>
   </div>
@@ -283,6 +283,50 @@
   </div>
 </div>
 
+<!-- Rename Modal -->
+<div class="modal-overlay" id="rename-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-hd">
+      <span class="modal-title">编辑对话名称</span>
+      <button class="icon-btn" onclick="UI.closeModal('rename-modal')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="text" id="rename-input" class="form-input" placeholder="输入对话名称..." onkeydown="if(event.key==='Enter')Chat.rename()">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm ghost" onclick="UI.closeModal('rename-modal')">取消</button>
+      <button class="btn-sm primary" onclick="Chat.rename()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal-overlay" id="confirm-delete-modal">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-hd">
+      <span class="modal-title">确认删除</span>
+      <button class="icon-btn" onclick="UI.closeModal('confirm-delete-modal')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p style="text-align:center;color:var(--text2);font-size:14px;margin:8px 0">确定要删除这个对话吗？此操作无法撤销。</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm ghost" onclick="UI.closeModal('confirm-delete-modal')">取消</button>
+      <button class="btn-sm danger" onclick="Chat.executeDelete()">删除</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── JavaScript (load order matters) ───────────────── -->
 <script src="js/config.js"></script>
 <script src="js/state.js"></script>
@@ -301,7 +345,7 @@
 <script src="js/banner.js"></script>
 <script src="js/store-theme-account.js"></script>
 <script src="js/prompts.js"></script>
-<script src="js/context/language.js"></script>
+<script src="js/context/time.js"></script>
 <script src="js/context/memory.js"></script>
 <script src="js/context/system-prompt.js"></script>
 <script src="js/context/index.js"></script>
