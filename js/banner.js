@@ -126,12 +126,7 @@ const Banner = {
     const prompt = await this.loadPrompt(action.prompt);
     if (prompt) {
       if (fromMoreMenu) {
-        const moreBtn = document.getElementById('moreBtn');
-        if (moreBtn) {
-          this.clearSelection();
-          moreBtn.classList.add('selected');
-          this.hideOtherButtons('moreBtn');
-        }
+        this.createTempButton(action);
       } else {
         this.setSelectedButton(action.id);
       }
@@ -140,6 +135,32 @@ const Banner = {
       input.placeholder = `在${action.name}模式下发消息...`;
       UI.showToast(`已切换到${action.name}模式`);
     }
+  },
+  
+  createTempButton(action) {
+    this.clearSelection();
+    
+    const existingTemp = document.getElementById('temp-banner-btn');
+    if (existingTemp) existingTemp.remove();
+    
+    const btn = document.createElement('button');
+    btn.className = 'action-btn selected';
+    btn.id = 'temp-banner-btn';
+    btn.title = action.name;
+    btn.setAttribute('data-action', action.id);
+    btn.innerHTML = `
+      ${action.iconSvg}
+      <span>${action.name}</span>
+    `;
+    
+    btn.addEventListener('click', () => this.handleAction(action));
+    
+    const moreWrapper = document.querySelector('.more-dropdown-wrapper');
+    if (moreWrapper) {
+      moreWrapper.parentNode.insertBefore(btn, moreWrapper);
+    }
+    
+    this.hideOtherButtons(action.id);
   },
   
   setSelectedButton(actionId) {
@@ -158,6 +179,9 @@ const Banner = {
       btn.classList.remove('selected');
     });
     
+    const tempBtn = document.getElementById('temp-banner-btn');
+    if (tempBtn) tempBtn.remove();
+    
     this.showAllButtons();
     
     state.currentBannerMode = null;
@@ -172,6 +196,9 @@ const Banner = {
       }
     });
     
+    const moreWrapper = document.querySelector('.more-dropdown-wrapper');
+    if (moreWrapper) moreWrapper.style.display = 'none';
+    
     const divider = document.querySelector('.input-actions .divider');
     if (divider) divider.style.display = 'none';
   },
@@ -181,6 +208,9 @@ const Banner = {
     allButtons.forEach(btn => {
       btn.style.display = '';
     });
+    
+    const moreWrapper = document.querySelector('.more-dropdown-wrapper');
+    if (moreWrapper) moreWrapper.style.display = '';
     
     const divider = document.querySelector('.input-actions .divider');
     if (divider) divider.style.display = '';

@@ -8,7 +8,7 @@ let state = {
   theme:         'auto',
   model:         'openai-fast',
   models:        DEFAULT_MODELS,
-  lang:          'pt',
+  lang:          'zh',
   translations:  {},
   isStreaming:   false,
   stopRequested: false,
