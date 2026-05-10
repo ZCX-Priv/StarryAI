@@ -2,16 +2,16 @@
 const Prompts = {
   async loadMainPrompt() {
     try {
-      const response = await fetch('prompts/main.md');
+      const response = await fetch('prompts/soul.md');
       if (!response.ok) {
-        console.warn('Failed to load main.md, using fallback');
+        console.warn('Failed to load soul.md, using fallback');
         return null;
       }
       const text = await response.text();
       state.mainPromptTemplate = text;
       return text;
     } catch (error) {
-      console.warn('Error loading main.md:', error);
+      console.warn('Error loading soul.md:', error);
       return null;
     }
   },
@@ -84,11 +84,11 @@ const Prompts = {
     }
     
     if (state.memory.length) {
-      prompt += `## Background context about this user:\n${state.memory.map(m=>`- ${m}`).join('\n')}\n\n`;
-      prompt += `## How to apply this context:\n`;
-      prompt += `- Use preferred name/tone naturally if known.\n`;
-      prompt += `- If user asks about a topic overlapping their interests, acknowledge naturally — do not bring up interests unless the conversation opens that door.\n`;
-      prompt += `- Adapt depth and style to what you know — but respond to what they ASKED.\n\n`;
+      prompt += `## 关于用户的背景信息:\n${state.memory.map(m=>`- ${m}`).join('\n')}\n\n`;
+      prompt += `## 如何应用这些信息:\n`;
+      prompt += `- 如果知道用户偏好的称呼或语气，自然地使用。\n`;
+      prompt += `- 如果用户询问的话题与其兴趣相关，自然地回应——除非对话涉及到，否则不要主动提起兴趣话题。\n`;
+      prompt += `- 根据你了解的信息调整深度和风格——但要回应用户实际询问的内容。\n\n`;
     }
     
     const timeInfo = Time.getCurrentTimeInfo();

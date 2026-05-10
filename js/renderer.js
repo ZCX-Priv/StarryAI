@@ -119,7 +119,7 @@ const Renderer = {
       const codeContent = nlPos>-1 ? afterTick.slice(nlPos+1) : '';
       const stableHtml = before ? Renderer.parseMarkdown(before, false) : '';
       if (stable.dataset.key !== stableHtml) { stable.innerHTML=stableHtml; stable.dataset.key=stableHtml; }
-      live.innerHTML = `<div class="code-block-wrap"><div class="code-block-header"><span class="code-block-lang">${lang||'code'}</span></div><div class="code-block-body"><pre><code class="hljs">${Renderer.escHtml(codeContent)}</code></pre></div></div>`;
+      live.innerHTML = `<div class="code-block-wrap"><div class="code-block-header"><span class="code-block-lang">${lang||'代码'}</span></div><div class="code-block-body"><pre><code class="hljs">${Renderer.escHtml(codeContent)}</code></pre></div></div>`;
       return;
     }
     const lastNL = text.lastIndexOf('\n');

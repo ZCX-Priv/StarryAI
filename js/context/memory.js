@@ -2,7 +2,7 @@ const MemoryManager = {
   async extract(recentMsgs) {
     if (!state.activeKey||recentMsgs.length<2) return;
     try {
-      const existing=state.memory.length ? state.memory.map((m,i)=>`${i+1}. ${m}`).join('\n') : '(vazia)';
+      const existing=state.memory.length ? state.memory.map((m,i)=>`${i+1}. ${m}`).join('\n') : '(空)';
       const systemPrompt = SystemPrompt.buildMemoryExtractPrompt(existing, recentMsgs);
       const r=await fetch(`${API_BASE}/v1/chat/completions`,{
         method:'POST',
@@ -12,7 +12,7 @@ const MemoryManager = {
           seed:Math.floor(Math.random()*2147483647),
           messages:[
             {role:'system', content:systemPrompt},
-            {role:'user', content:`Conversation:\n${JSON.stringify(recentMsgs)}`}
+            {role:'user', content:`对话:\n${JSON.stringify(recentMsgs)}`}
           ]
         })
       });
@@ -41,7 +41,7 @@ const MemoryManager = {
           seed:Math.floor(Math.random()*2147483647),
           messages:[
             {role:'system', content:systemPrompt},
-            {role:'user', content:`Memory to clean:\n${JSON.stringify(state.memory)}`}
+            {role:'user', content:`待清理记忆:\n${JSON.stringify(state.memory)}`}
           ]
         })
       });
