@@ -39,12 +39,17 @@ const Renderer = {
     Modals.openHtmlPreview(pre.textContent, lang);
   },
 
+  _setCodeToggleState(btn, collapsed) {
+    if (!btn) return;
+    const pts = collapsed ? '6 9 12 15 18 9' : '18 15 12 9 6 15';
+    btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="${pts}"/></svg> ${collapsed ? '展开' : '收起'}`;
+  },
+
   toggleBlock(btn, e) {
     if (e) e.stopPropagation();
     const body = btn.closest('.code-block-wrap').querySelector('.code-block-body');
     const collapsed = body.classList.toggle('collapsed');
-    const pts = collapsed ? '6 9 12 15 18 9' : '18 15 12 9 6 15';
-    btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="${pts}"/></svg> ${collapsed ? '展开' : '收起'}`;
+    this._setCodeToggleState(btn, collapsed);
   },
 
   toggleBlockWrap(wrap, e) {
@@ -52,10 +57,7 @@ const Renderer = {
     if (!body) return;
     const btn = wrap.querySelector('.code-block-toggle');
     const collapsed = body.classList.toggle('collapsed');
-    if (btn) {
-      const pts = collapsed ? '6 9 12 15 18 9' : '18 15 12 9 6 15';
-      btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="${pts}"/></svg> ${collapsed ? '展开' : '收起'}`;
-    }
+    this._setCodeToggleState(btn, collapsed);
   },
 
   _zones(bubble) {
@@ -73,6 +75,37 @@ const Renderer = {
     return { stable, live };
   },
 
+  _setHtmlIfChanged(element, html) {
+    const next = html || '';
+    if (element.dataset.htmlKey === next) return false;
+    element.innerHTML = next;
+    element.dataset.htmlKey = next;
+    return true;
+  },
+
+  _setParagraphText(live, text) {
+    const next = text || '';
+    if (live.dataset.textKey === next) return;
+
+    let paragraph = live.querySelector(':scope > p');
+    if (!paragraph || live.children.length > 1) {
+      live.innerHTML = '';
+      paragraph = document.createElement('p');
+      live.appendChild(paragraph);
+    }
+
+    paragraph.textContent = next;
+    live.dataset.textKey = next;
+    live.dataset.htmlKey = '';
+  },
+
+  _clearLive(live) {
+    if (!live.dataset.textKey && !live.dataset.htmlKey && !live.innerHTML) return;
+    live.innerHTML = '';
+    live.dataset.textKey = '';
+    live.dataset.htmlKey = '';
+  },
+
   scheduleStream(text, bubble) {
     this._rafPending = { text, bubble };
     if (!this._rafId) {
@@ -81,9 +114,7 @@ const Renderer = {
         if (this._rafPending) {
           this.renderStream(this._rafPending.text, this._rafPending.bubble);
           this._rafPending = null;
-          if (state.autoScroll) {
-            UI.maybeScroll();
-          }
+          UI.maybeScroll();
         }
       });
     }
@@ -142,14 +173,64 @@ const Renderer = {
       stable.dataset.key = stableHtml;
     }
 
-    const currentBody = live.querySelector('.code-block-body');
-    const shouldCollapse = currentBody
-      ? currentBody.classList.contains('collapsed')
-      : true;
+    const normalizedLang = (lang || 'text').toLowerCase();
+    const existingWrap = live.querySelector(':scope > .code-block-wrap');
 
-    live.innerHTML = CodeRenderer.renderCodeBlock(codeContent, lang, {
-      collapsed: shouldCollapse
-    });
+    if (!existingWrap) {
+      this._setHtmlIfChanged(live, CodeRenderer.renderCodeBlock(codeContent, normalizedLang, {
+        collapsed: false,
+        applyHljs: true
+      }));
+      return;
+    }
+
+    const body = existingWrap.querySelector('.code-block-body');
+    const pre = existingWrap.querySelector('pre');
+    const codeEl = existingWrap.querySelector('pre code');
+    const langEl = existingWrap.querySelector('.code-block-lang');
+    const actions = existingWrap.querySelector('.code-block-actions');
+    const copyBtn = existingWrap.querySelector('.code-copy-btn');
+    const toggleBtn = existingWrap.querySelector('.code-block-toggle');
+    const codeId = pre?.id || ('cb' + (CodeRenderer._blockId++));
+    const trimmedCode = codeContent.trim();
+
+    if (pre && !pre.id) {
+      pre.id = codeId;
+    }
+    if (langEl) {
+      langEl.textContent = normalizedLang;
+    }
+    if (codeEl) {
+      codeEl.className = `hljs language-${normalizedLang}`;
+      const highlightedCode = CodeRenderer.highlight(trimmedCode, normalizedLang);
+      if (codeEl.innerHTML !== highlightedCode) {
+        codeEl.innerHTML = highlightedCode;
+      }
+    }
+    if (copyBtn) {
+      copyBtn.setAttribute('onclick', `Renderer.copyCode('${codeId}',event)`);
+    }
+
+    let previewBtn = existingWrap.querySelector('.code-preview-btn');
+    if (this.canPreviewCode(normalizedLang)) {
+      if (!previewBtn && actions) {
+        previewBtn = document.createElement('button');
+        previewBtn.className = 'code-preview-btn';
+        previewBtn.title = '预览 HTML';
+        previewBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="8,6 19,12 8,18"/></svg>';
+        actions.insertBefore(previewBtn, copyBtn || null);
+      }
+      if (previewBtn) {
+        previewBtn.setAttribute('onclick', `Renderer.previewCode('${codeId}','${normalizedLang}',event)`);
+      }
+    } else if (previewBtn) {
+      previewBtn.remove();
+    }
+
+    if (body) {
+      body.classList.remove('collapsed');
+    }
+    this._setCodeToggleState(toggleBtn, false);
   },
 
   _renderOpenFormula(text, stable, live) {
@@ -165,22 +246,22 @@ const Renderer = {
         stable.dataset.key = stableHtml;
       }
 
-      live.innerHTML = `<p>${this.escHtml(after)}</p>`;
+      this._setParagraphText(live, after);
     } else {
       if (stable.dataset.key !== '') {
         stable.innerHTML = '';
         stable.dataset.key = '';
       }
-      live.innerHTML = `<p>${this.escHtml(text)}</p>`;
+      this._setParagraphText(live, text);
     }
   },
 
   _renderOpenThinkingBlock(text, stable, live) {
-    const openPos = ThinkingRenderer.findOpenThinkingPosition(text);
+    const openInfo = ThinkingRenderer.findOpenThinkingInfo(text);
 
-    if (openPos >= 0) {
-      const before = text.slice(0, openPos);
-      const after = text.slice(openPos + 2);
+    if (openInfo) {
+      const before = text.slice(0, openInfo.start);
+      const after = text.slice(openInfo.contentStart);
 
       const stableHtml = before ? this.parseMarkdown(before, false) : '';
       if (stable.dataset.key !== stableHtml) {
@@ -188,13 +269,13 @@ const Renderer = {
         stable.dataset.key = stableHtml;
       }
 
-      live.innerHTML = ThinkingRenderer.renderStreamingThinkingBlock(after);
+      this._setHtmlIfChanged(live, ThinkingRenderer.renderStreamingThinkingBlock(after));
     } else {
       if (stable.dataset.key !== '') {
         stable.innerHTML = '';
         stable.dataset.key = '';
       }
-      live.innerHTML = ThinkingRenderer.renderStreamingThinkingBlock(text);
+      this._setHtmlIfChanged(live, ThinkingRenderer.renderStreamingThinkingBlock(text));
     }
   },
 
@@ -203,7 +284,8 @@ const Renderer = {
       stable.innerHTML = '';
       stable.dataset.key = '';
     }
-    live.innerHTML = text ? `<p>${this.escHtml(text)}</p>` : '';
+    if (text) this._setParagraphText(live, text);
+    else this._clearLive(live);
   },
 
   _renderMultiLine(text, lastNL, stable, live) {
@@ -217,7 +299,8 @@ const Renderer = {
       this._scheduleRender(stable);
     }
 
-    live.innerHTML = incompletePart ? `<p>${this.escHtml(incompletePart)}</p>` : '';
+    if (incompletePart) this._setParagraphText(live, incompletePart);
+    else this._clearLive(live);
   },
 
   _scheduleRender(element) {

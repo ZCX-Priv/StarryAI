@@ -1,5 +1,50 @@
 /* ─── API ────────────────────────────────────────────── */
 const API = {
+  _normalizeReasoningValue(value, trimStrings = true) {
+    if (!value) return '';
+    if (typeof value === 'string') {
+      return trimStrings ? value.trim() : value;
+    }
+    if (Array.isArray(value)) {
+      const merged = value
+        .map(item => API._normalizeReasoningValue(item, trimStrings))
+        .filter(Boolean)
+        .join('\n');
+      return trimStrings ? merged.trim() : merged;
+    }
+    if (typeof value === 'object') {
+      const candidates = [
+        value.text,
+        value.content,
+        value.reasoning,
+        value.reasoning_content,
+        value.summary
+      ];
+      const normalized = candidates
+        .map(item => API._normalizeReasoningValue(item, trimStrings))
+        .filter(Boolean)
+        .join('\n');
+      const result = trimStrings ? normalized.trim() : normalized;
+      if (result) return result;
+    }
+    return '';
+  },
+  _extractReasoning(source, trimStrings = true) {
+    if (!source || typeof source !== 'object') return '';
+    return API._normalizeReasoningValue(
+      source.reasoning_content ?? source.reasoning ?? source.reasoning_details,
+      trimStrings
+    );
+  },
+  _mergeReasoningAndContent(reasoning, content) {
+    const normalizedReasoning = API._normalizeReasoningValue(reasoning);
+    const normalizedContent = typeof content === 'string' ? content : '';
+
+    if (!normalizedReasoning) return normalizedContent || null;
+    if (normalizedContent.includes('<think>')) return normalizedContent;
+
+    return `<think>\n${normalizedReasoning}\n</think>${normalizedContent ? `\n${normalizedContent}` : ''}`;
+  },
   _params(msgs, model, stream) {
     const baseParams = {
       model: model || state.model,
@@ -30,7 +75,8 @@ const API = {
       throw new Error(msg);
     }
     const d = await r.json();
-    return d.choices?.[0]?.message?.content || null;
+    const message = d.choices?.[0]?.message;
+    return API._mergeReasoningAndContent(API._extractReasoning(message, true), message?.content);
   },
   async *stream(msgs, model) {
     const r = await fetch(`${API_BASE}/v1/chat/completions`, {
@@ -46,11 +92,17 @@ const API = {
     }
     if (!r.body) {
       const txt = await r.text();
-      try { const d=JSON.parse(txt); const c=d.choices?.[0]?.message?.content; if(c) yield c; } catch {}
+      try {
+        const d = JSON.parse(txt);
+        const message = d.choices?.[0]?.message;
+        const merged = API._mergeReasoningAndContent(API._extractReasoning(message, true), message?.content);
+        if (merged) yield merged;
+      } catch {}
       return;
     }
     const reader=r.body.getReader(), dec=new TextDecoder();
     let buf='';
+    let inThinking = false;
     while (true) {
       if (state.stopRequested) { try{reader.cancel();}catch{} return; }
       const {done,value} = await reader.read();
@@ -61,10 +113,40 @@ const API = {
         if (state.stopRequested) return;
         if (!line.startsWith('data: ')) continue;
         const data = line.slice(6).trim();
-        if (data==='[DONE]') return;
-        try { const p=JSON.parse(data); const c=p.choices?.[0]?.delta?.content; if(c) yield c; } catch {}
+        if (data==='[DONE]') {
+          if (inThinking) yield '</think>';
+          return;
+        }
+        try {
+          const p = JSON.parse(data);
+          const delta = p.choices?.[0]?.delta;
+          const reasoning = API._extractReasoning(delta, false);
+          const content = delta?.content;
+
+          if (reasoning) {
+            if (!inThinking) {
+              yield '<think>';
+              inThinking = true;
+            }
+            yield reasoning;
+          }
+
+          if (content) {
+            if (inThinking && !content.includes('</think>')) {
+              yield '</think>';
+              inThinking = false;
+            }
+            yield content;
+            if (content.includes('</think>')) {
+              inThinking = false;
+            } else if (content.includes('<think>')) {
+              inThinking = true;
+            }
+          }
+        } catch {}
       }
     }
+    if (inThinking) yield '</think>';
   },
   async validateKey(key) {
     key = key.trim();

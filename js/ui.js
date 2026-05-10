@@ -46,14 +46,27 @@ const UI = {
     sendBtn.classList.toggle('active',hasText);
   },
   chatArea() { return document.getElementById('chat-area'); },
+  _pinToBottom(area = UI.chatArea()) {
+    if (!area) return;
+    area.scrollTop = area.scrollHeight;
+  },
   scrollToBottom(force=true) {
     const area=UI.chatArea(); if (!area) return;
     if (force) state.autoScroll=true;
-    area.scrollTo({top:area.scrollHeight, behavior:force?'smooth':'instant'});
+    area.scrollTo({top:area.scrollHeight, behavior:force?'smooth':'auto'});
+    UI._pinToBottom(area);
+    requestAnimationFrame(() => UI._pinToBottom(area));
     document.getElementById('scroll-btn').classList.remove('visible');
   },
   maybeScroll() {
-    if (state.autoScroll) { const a=UI.chatArea(); if (a) a.scrollTop=a.scrollHeight; }
+    if (state.autoScroll) {
+      const area = UI.chatArea();
+      if (!area) return;
+      UI._pinToBottom(area);
+      requestAnimationFrame(() => {
+        if (state.autoScroll) UI._pinToBottom(area);
+      });
+    }
   },
   initScrollDetection() {
     let _scrollTick=false;
@@ -103,6 +116,8 @@ const UI = {
     if (isAI) {
       FormulaRenderer.typeset(row.querySelector('.ai-msg-content'));
     }
+
+    if (state.autoScroll) UI.maybeScroll();
     
     return row.querySelector(isAI?'.ai-msg-content':'.msg-bubble');
   },

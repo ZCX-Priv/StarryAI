@@ -71,9 +71,6 @@
 }
 .msg-row.ai { align-items: flex-start; }
 .msg-row.ai .ai-msg-content.streaming { position: relative; }
-@keyframes revealLine { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-.ai-msg-content.streaming p:last-child,
-.ai-msg-content.streaming li:last-child { animation: revealLine .18s ease-out both; }
 
 /* Collapse button on user messages */
 .msg-collapse-btn {
@@ -307,9 +304,7 @@
 }
 
 .thinking-thread {
-  position: relative;
   margin-top: 12px;
-  padding-left: 24px;
   max-height: 1000px;
   overflow: hidden;
   transition: max-height .3s ease, opacity .3s ease;
@@ -321,39 +316,15 @@
   margin-top: 0;
 }
 
-.thinking-thread::before {
-  content: "";
-  position: absolute;
-  left: 5px;
-  top: 8px;
-  bottom: 8px;
-  width: 1.5px;
-  background: var(--border2);
-}
-
 .thinking-step {
-  position: relative;
   margin-bottom: 12px;
   font-size: 14px;
   line-height: 1.6;
   color: var(--text);
-  padding-left: 4px;
 }
 
 .thinking-step:last-child {
   margin-bottom: 0;
-}
-
-.thinking-step::before {
-  content: "";
-  position: absolute;
-  left: -24px;
-  top: 8px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--text3);
-  border: 1.5px solid var(--bg2);
 }
 
 .thinking-step code {
@@ -387,10 +358,6 @@
 
 .thinking-block.streaming .thinking-status {
   color: var(--accent);
-}
-
-.thinking-block.streaming .thinking-step:last-child {
-  animation: revealLine .18s ease-out both;
 }
 
 [data-theme="light"] .thinking-block {
