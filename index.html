@@ -20,6 +20,25 @@
   <!-- highlight.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- MathJax -->
+  <script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      packages: {'[+]': ['mhchem']}
+    },
+    svg: { fontCache: 'global' },
+    startup: {
+      pageReady: () => {
+        return MathJax.startup.defaultPageReady();
+      }
+    }
+  };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
 </head>
 <body>
 
@@ -330,6 +349,10 @@
 <!-- ── JavaScript (load order matters) ───────────────── -->
 <script src="js/config.js"></script>
 <script src="js/state.js"></script>
+<script src="js/render/code.js"></script>
+<script src="js/render/formula.js"></script>
+<script src="js/render/markdown.js"></script>
+<script src="js/render/index.js"></script>
 <script src="js/tools/parser.js"></script>
 <script src="js/tools/search.js"></script>
 <script src="js/tools/image.js"></script>

@@ -220,3 +220,41 @@
 [data-theme="light"] .code-block-body pre     { background: #e8e8f2; }
 [data-theme="light"] .hljs                    { background: #e8e8f2 !important; }
 [data-theme="light"] .msg-collapse-btn        { background: rgba(37,99,235,.12); color: var(--accent); }
+
+/* ── Formula Styles ───────────────────────────────────── */
+.formula-inline {
+  display: inline;
+  vertical-align: middle;
+}
+.formula-display {
+  display: block;
+  text-align: center;
+  margin: 16px 0;
+  overflow-x: auto;
+  padding: 8px 0;
+}
+.ai-msg-content .formula-display,
+.msg-bubble .formula-display {
+  background: rgba(59,130,246,.05);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+.ai-msg-content mjx-container,
+.msg-bubble mjx-container {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* ── Stream Rendering Zones ───────────────────────────── */
+.sb-stable { contain: content; }
+.sb-live { contain: content; }
+
+/* ── Task List Styles ─────────────────────────────────── */
+.task-item {
+  list-style: none;
+  margin-left: -20px;
+}
+.task-item input[type="checkbox"] {
+  margin-right: 8px;
+  vertical-align: middle;
+}
