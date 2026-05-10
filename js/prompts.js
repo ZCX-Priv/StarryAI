@@ -71,16 +71,16 @@ const Prompts = {
       prompt += state.mainPromptTemplate + '\n\n';
     }
     
-    if (state.bannerPrompt) {
-      prompt += state.bannerPrompt + '\n\n';
-    }
-    
     if (state.modePrompt) {
       prompt += state.modePrompt + '\n\n';
     }
     
     if (state.agentPrompt) {
       prompt += state.agentPrompt + '\n\n';
+    }
+    
+    if (state.bannerPrompt) {
+      prompt += state.bannerPrompt + '\n\n';
     }
     
     if (state.memory.length) {
