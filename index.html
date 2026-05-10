@@ -322,6 +322,32 @@
   </div>
 </div>
 
+<!-- Create Category Modal -->
+<div class="modal-overlay" id="create-category-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-hd">
+      <span class="modal-title">创建分类</span>
+      <button class="icon-btn" onclick="UI.closeModal('create-category-modal')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">分类名称 <span class="required">*</span></label>
+        <input type="text" id="category-name-input" class="form-input" placeholder="输入分类名称..." maxlength="10" onkeydown="if(event.key==='Enter')Agents.createCategory()">
+        <div class="form-hint">最多10个字符</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm ghost" onclick="UI.closeModal('create-category-modal')">取消</button>
+      <button class="btn-sm primary" onclick="Agents.createCategory()">创建</button>
+    </div>
+  </div>
+</div>
+
 <!-- Rename Modal -->
 <div class="modal-overlay" id="rename-modal">
   <div class="modal" style="max-width:400px">

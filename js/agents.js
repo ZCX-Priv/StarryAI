@@ -9,6 +9,7 @@ const Agents = {
       const response = await fetch('config/agents.json');
       if (!response.ok) throw new Error('Failed to load agents config');
       this.config = await response.json();
+      await this.loadCustomCategories();
       await this.loadCustomAgents();
       return true;
     } catch (error) {
@@ -68,9 +69,17 @@ const Agents = {
     const container = document.getElementById('agents-tabs-container');
     if (!container || !this.config?.categories) return;
 
-    container.innerHTML = this.config.categories.map((cat, index) => `
-      <button class="agent-tab ${index === 0 ? 'active' : ''}" data-category="${cat.id}">${cat.name}</button>
-    `).join('');
+    container.innerHTML = this.config.categories.map((cat, index) => {
+      const deleteBtn = cat.isCustom 
+        ? `<button class="category-delete-btn" onclick="Agents.deleteCategory('${cat.id}')" title="删除分类">×</button>` 
+        : '';
+      return `<div class="agent-tab-wrapper">
+        <button class="agent-tab ${index === 0 ? 'active' : ''}" data-category="${cat.id}">${cat.name}</button>
+        ${deleteBtn}
+      </div>`;
+    }).join('') + `
+      <button class="agent-tab-add" onclick="Agents.openAddCategoryModal()" title="创建分类">+</button>
+    `;
 
     this.initTabs();
   },
@@ -424,6 +433,104 @@ const Agents = {
     } catch (error) {
       console.error('删除智能体失败:', error);
       UI.showToast('删除失败，请重试');
+    }
+  },
+
+  openAddCategoryModal() {
+    const input = document.getElementById('category-name-input');
+    if (input) input.value = '';
+    document.getElementById('create-category-modal').classList.add('visible');
+    setTimeout(() => input?.focus(), 100);
+  },
+
+  async createCategory() {
+    const input = document.getElementById('category-name-input');
+    const name = input?.value.trim();
+
+    if (!name || name.length < 1 || name.length > 10) {
+      UI.showToast('请输入1-10个字符的分类名称');
+      input?.focus();
+      return;
+    }
+
+    const existingNames = this.config?.categories?.map(c => c.name) || [];
+    if (existingNames.includes(name)) {
+      UI.showToast('该分类名称已存在');
+      input?.focus();
+      return;
+    }
+
+    const category = {
+      id: 'custom_category_' + Date.now(),
+      name: name,
+      isCustom: true
+    };
+
+    try {
+      let customCategories = await IDBStore.getAgentConfig('customCategories') || [];
+      customCategories.push(category);
+      await IDBStore.setAgentConfig('customCategories', customCategories);
+
+      if (this.config && this.config.categories) {
+        const insertIndex = this.config.categories.findIndex(c => c.id === 'mine');
+        if (insertIndex > 0) {
+          this.config.categories.splice(insertIndex, 0, category);
+        } else {
+          this.config.categories.push(category);
+        }
+      }
+
+      UI.closeModal('create-category-modal');
+      UI.showToast(`分类"${name}"创建成功！`);
+      
+      this.renderCategories();
+    } catch (error) {
+      console.error('创建分类失败:', error);
+      UI.showToast('创建失败，请重试');
+    }
+  },
+
+  async loadCustomCategories() {
+    try {
+      const customCategories = await IDBStore.getAgentConfig('customCategories') || [];
+      if (this.config && this.config.categories) {
+        const existingIds = new Set(this.config.categories.map(c => c.id));
+        customCategories.forEach(category => {
+          if (!existingIds.has(category.id)) {
+            const insertIndex = this.config.categories.findIndex(c => c.id === 'mine');
+            if (insertIndex > 0) {
+              this.config.categories.splice(insertIndex, 0, category);
+            } else {
+              this.config.categories.push(category);
+            }
+          }
+        });
+      }
+    } catch (error) {
+      console.error('加载自定义分类失败:', error);
+    }
+  },
+
+  async deleteCategory(categoryId) {
+    try {
+      let customCategories = await IDBStore.getAgentConfig('customCategories') || [];
+      customCategories = customCategories.filter(c => c.id !== categoryId);
+      await IDBStore.setAgentConfig('customCategories', customCategories);
+
+      if (this.config && this.config.categories) {
+        this.config.categories = this.config.categories.filter(c => c.id !== categoryId);
+      }
+
+      UI.showToast('分类已删除');
+      this.renderCategories();
+      
+      if (this.currentCategory === categoryId) {
+        this.filterByCategory('all');
+        document.querySelector('.agent-tab[data-category="all"]')?.classList.add('active');
+      }
+    } catch (error) {
+      console.error('删除分类失败:', error);
+      UI.showToast('删除失败,请重试');
     }
   }
 };
