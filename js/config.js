@@ -28,3 +28,15 @@ const DEFAULT_MODELS = [
   { id: 'mistral',      label: 'Mistral'         },
   { id: 'llama',        label: 'Llama'           },
 ];
+
+function formatContextLength(length) {
+  if (!length) return null;
+  if (length >= 1000000) {
+    const m = length / 1000000;
+    return (m % 1 === 0 ? m.toFixed(0) : m.toFixed(1)) + 'M';
+  }
+  if (length >= 1000) {
+    return Math.round(length / 1000) + 'K';
+  }
+  return length.toString();
+}

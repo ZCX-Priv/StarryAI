@@ -165,7 +165,17 @@ const UI = {
   },
   renderModelPill() {
     const lbl = document.getElementById('model-pill-label');
-    if (lbl) lbl.textContent = state.model;
+    if (lbl) {
+      const currentModel = state.models.find(m => m.id === state.model);
+      lbl.textContent = currentModel ? currentModel.label : state.model;
+    }
+  },
+  updateThinkingModeVisibility() {
+    const currentModel = state.models.find(m => m.id === state.model);
+    const thinkingModeItem = document.querySelector('#quickMenu .dropdown-item[data-mode="thinking"]');
+    if (thinkingModeItem) {
+      thinkingModeItem.style.display = (currentModel && currentModel.reasoning) ? '' : 'none';
+    }
   },
   renderChatList() {
     const list=document.getElementById('chat-list'); list.innerHTML='';

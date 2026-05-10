@@ -98,6 +98,17 @@
 }
 .action-btn svg { flex-shrink: 0; }
 
+.action-btn.selected {
+  border: 2px solid var(--accent);
+  background: var(--accent-glow);
+  color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+
+.action-btn.selected svg {
+  color: var(--accent);
+}
+
 /* Quick Button */
 .quick-btn span {
   color: var(--text); font-weight: 500;

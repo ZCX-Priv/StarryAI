@@ -99,8 +99,8 @@ const Banner = {
       
       item.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.handleAction(action);
         UI.closeAllDropdowns();
+        this.handleAction(action, true);
       });
       
       menu.appendChild(item);
@@ -112,16 +112,77 @@ const Banner = {
     return wrapper;
   },
   
-  async handleAction(action) {
+  async handleAction(action, fromMoreMenu = false) {
     const input = document.getElementById('msg-input');
     if (!input) return;
     
+    if (state.currentBannerMode === action.id) {
+      this.clearSelection();
+      input.placeholder = '发消息...';
+      UI.showToast(`已退出${action.name}模式`);
+      return;
+    }
+    
     const prompt = await this.loadPrompt(action.prompt);
     if (prompt) {
+      if (fromMoreMenu) {
+        const moreBtn = document.getElementById('moreBtn');
+        if (moreBtn) {
+          this.clearSelection();
+          moreBtn.classList.add('selected');
+          this.hideOtherButtons('moreBtn');
+        }
+      } else {
+        this.setSelectedButton(action.id);
+      }
       state.currentBannerMode = action.id;
       state.bannerPrompt = prompt;
       input.placeholder = `在${action.name}模式下发消息...`;
       UI.showToast(`已切换到${action.name}模式`);
     }
+  },
+  
+  setSelectedButton(actionId) {
+    this.clearSelection();
+    
+    const btn = document.querySelector(`[data-action="${actionId}"]`);
+    if (btn) {
+      btn.classList.add('selected');
+    }
+    
+    this.hideOtherButtons(actionId);
+  },
+  
+  clearSelection() {
+    document.querySelectorAll('.action-btn.selected').forEach(btn => {
+      btn.classList.remove('selected');
+    });
+    
+    this.showAllButtons();
+    
+    state.currentBannerMode = null;
+    state.bannerPrompt = null;
+  },
+  
+  hideOtherButtons(selectedActionId) {
+    const allButtons = document.querySelectorAll('.input-actions .action-btn[data-action]');
+    allButtons.forEach(btn => {
+      if (btn.getAttribute('data-action') !== selectedActionId) {
+        btn.style.display = 'none';
+      }
+    });
+    
+    const divider = document.querySelector('.input-actions .divider');
+    if (divider) divider.style.display = 'none';
+  },
+  
+  showAllButtons() {
+    const allButtons = document.querySelectorAll('.input-actions .action-btn[data-action]');
+    allButtons.forEach(btn => {
+      btn.style.display = '';
+    });
+    
+    const divider = document.querySelector('.input-actions .divider');
+    if (divider) divider.style.display = '';
   }
 };

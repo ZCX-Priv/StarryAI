@@ -12,41 +12,38 @@ const Keys = {
     if (state.activeKey===key) { state.activeKey=state.keys[0]||null; Store.saveActiveKey(state.activeKey||''); }
     Store.saveKeys(); Modals.renderSettings(); UI.showToast('密钥已删除');
   },
-  setModel(id) { state.model=id; Store.saveConfig('model', id); UI.renderModelPill(); Modals.renderSettings(); },
-  setModelAndUpdate(id) { state.model=id; Store.saveConfig('model', id); UI.renderModelPill(); Account.invalidate(); Modals.renderModelPicker(); },
+  setModel(id) { state.model=id; Store.saveConfig('model', id); UI.renderModelPill(); UI.updateThinkingModeVisibility(); Modals.renderSettings(); },
+  setModelAndUpdate(id) { state.model=id; Store.saveConfig('model', id); UI.renderModelPill(); UI.updateThinkingModeVisibility(); Chat.handleModelChange(); Account.invalidate(); Modals.renderModelPicker(); },
   async _loadModels() {
     try {
-      const headers = state.activeKey ? {'Authorization':`Bearer ${state.activeKey}`} : {};
-      const r = await fetch(`${API_BASE}/v1/models`, {headers});
+      const r = await fetch('https://gen.pollinations.ai/models');
       if (r.ok) {
         const data = await r.json();
-        const exclKeywords = [
-          'flux','image','gptimage','tts','whisper','audio','video',
-          'speech','scribe','music','veo','seedance','wan','ltx',
-          'nanobanana','kontext','seedream','grok-video','grok-imagine',
-          'imagen','klein','zimage','elevenlabs'
-        ];
-        const models = (data.data || [])
-          .filter(m => !exclKeywords.some(kw => m.id.toLowerCase().includes(kw)))
+        const models = data
+          .filter(m => m.input_modalities && m.input_modalities.includes('text'))
+          .filter(m => m.output_modalities && m.output_modalities.includes('text'))
+          .filter(m => m.aliases && m.aliases.length > 0)
           .map(m => ({
-            id: m.id,
-            label: m.id,
-            pollen: (m.pollen !== undefined && m.pollen !== null) ? Number(m.pollen)
-                  : (m.cost   !== undefined && m.cost   !== null) ? Number(m.cost)
-                  : null
+            id: m.name,
+            label: m.aliases[0],
+            pollen: m.pricing ? parseFloat(m.pricing.completionTextTokens) : null,
+            paidOnly: m.paid_only || false,
+            reasoning: m.reasoning || false,
+            contextLength: m.context_length || null
           }));
         if (models.length > 0) {
           state.models = models;
           if (!state.models.find(m => m.id === state.model)) {
-            state.model = state.models[0]?.id || 'nova-fast';
+            state.model = state.models[0]?.id || 'openai';
             Store.saveConfig('model', state.model);
           }
         }
       }
     } catch {}
     if (!state.model) {
-      state.model = state.models[0]?.id || 'nova-fast';
+      state.model = state.models[0]?.id || 'openai';
     }
     UI.renderModelPill();
+    UI.updateThinkingModeVisibility();
   }
 };

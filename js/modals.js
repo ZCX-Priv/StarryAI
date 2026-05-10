@@ -1,14 +1,5 @@
 /* ─── Modals ────────────────────────────────────────── */
 const Modals = {
-  _credit() {
-    return `<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
-      <a href="https://pollinations.ai" target="_blank" style="display:flex;align-items:center;gap:10px;text-decoration:none;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,120,20,.25);background:rgba(255,100,10,.05);transition:background .2s" onmouseover="this.style.background='rgba(255,100,10,.1)'" onmouseout="this.style.background='rgba(255,100,10,.05)'">
-        <img src="https://raw.githubusercontent.com/pollinations/pollinations/main/assets/logo.svg" alt="Pollinations.ai" height="18" style="filter:invert(60%) sepia(80%) saturate(300%) hue-rotate(5deg) brightness(1.2);opacity:.9;flex-shrink:0">
-        <div><div style="font-size:12.5px;font-weight:600;color:rgba(255,140,30,.9)">由 Pollinations.ai</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:1px">免费开源 AI API</div></div>
-        <svg style="margin-left:auto;flex-shrink:0;opacity:.4" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </a></div>`;
-  },
   renderSettings() {
     const body=document.getElementById('settings-body');
     if (state.settingsTab==='keys') {
@@ -25,7 +16,7 @@ const Modals = {
         <div class="add-form">
           <input type="password" id="new-key-input" placeholder="pk_…" autocomplete="off">
           <button class="btn-sm" onclick="Keys.add()">添加</button>
-        </div>${Modals._credit()}`;
+        </div>`;
     } else {
       body.innerHTML=`<div class="sec-title">主题</div>
         <div class="sec-card" style="margin-bottom:20px">
@@ -43,11 +34,16 @@ const Modals = {
         </div>
         <div class="sec-title">默认模型</div>
         <div class="sec-card">
-          ${state.models.map(m=>`<div class="sec-row" style="cursor:pointer" onclick="Keys.setModel('${m.id}')">
-            <div class="sec-row-label">${Renderer.escHtml(m.label||m.id)}</div>
-            ${state.model===m.id?`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`:''}
-          </div>`).join('')}
-        </div>${Modals._credit()}`;
+          <div class="sec-row">
+            <select class="model-selector" onchange="Keys.setModel(this.value)">
+              ${state.models.map(m=>`
+                <option value="${m.id}" ${state.model===m.id?'selected':''}>
+                  ${Renderer.escHtml(m.label||m.id)}
+                </option>
+              `).join('')}
+            </select>
+          </div>
+        </div>`;
     }
   },
   renderMemory() {
@@ -74,12 +70,17 @@ const Modals = {
     const body = document.getElementById('model-body'); if(!body) return;
     const modelRows = state.models.map(m => {
       const active = m.id === state.model;
+      const diamondIcon = m.paidOnly ? `<svg style="flex-shrink:0;margin-left:4px;color:#9CA3AF" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 15 10-15-10-5zm0 2.5L18.5 7 12 18.5 5.5 7 12 4.5z"/></svg>` : '';
+      const contextTag = m.contextLength ? `<span class="mp-context-tag">${formatContextLength(m.contextLength)}</span>` : '';
       return `<div class="mp-model-row${active?' mp-active':''}" onclick="Keys.setModelAndUpdate('${m.id}')">
         <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
           ${active?`<div style="width:6px;height:6px;background:var(--accent2);border-radius:50%;flex-shrink:0"></div>`:`<div style="width:6px;height:6px;border-radius:50%;flex-shrink:0"></div>`}
-          <span style="font-size:13.5px;font-weight:${active?'600':'400'};color:${active?'var(--accent2)':'var(--text)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Renderer.escHtml(m.label||m.id)}</span>
+          <span style="font-size:13.5px;font-weight:${active?'600':'400'};color:${active?'var(--accent2)':'var(--text)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Renderer.escHtml(m.label||m.id)}</span>${diamondIcon}
         </div>
-        ${active?`<svg style="flex-shrink:0;color:var(--accent2)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`:'<div style="width:14px"></div>'}
+        <div style="display:flex;align-items:center;gap:6px">
+          ${contextTag}
+          ${active?`<svg style="flex-shrink:0;color:var(--accent2)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`:'<div style="width:14px"></div>'}
+        </div>
       </div>`;
     }).join('');
     body.innerHTML = `<div class="mp-models-wrap"><div class="sec-card" style="margin:0">${modelRows}</div></div>`;
@@ -101,7 +102,7 @@ const Modals = {
           <div style="font-size:14px;font-weight:600;color:var(--text)">${s.title}</div>
         </div>
         <div style="font-size:13px;color:var(--text2);line-height:1.7;padding-left:41px">${s.text}</div>
-      </div>`).join('<div style="height:1px;background:var(--border);margin:4px 0 20px"></div>') + Modals._credit();
+      </div>`).join('<div style="height:1px;background:var(--border);margin:4px 0 20px"></div>');
   },
   switchTab(tab) {
     state.settingsTab=tab;
