@@ -24,6 +24,9 @@ let state = {
   agentPrompt:   null,
   currentMode: 'fast',
   modePrompt: null,
+  temperature: 0.7,
+  topP: 0.95,
+  contextLength: 10,
   modeConfig: {
     fast: {
       reasoning_effort: "none",

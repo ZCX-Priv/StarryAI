@@ -10,6 +10,9 @@ const KEYS = {
     MEMORY:      'pollen_memory',
     THEME:       'pollen_theme',
     MODEL:       'pollen_model',
+    TEMPERATURE: 'pollen_temperature',
+    TOP_P:       'pollen_top_p',
+    CONTEXT_LENGTH: 'pollen_context_length',
   }
 };
 

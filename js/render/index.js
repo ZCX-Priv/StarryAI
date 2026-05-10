@@ -9,6 +9,10 @@ const RenderModule = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    RenderModule.init();
+  });
+} else {
   RenderModule.init();
-});
+}

@@ -79,6 +79,8 @@
     </div>
   </aside>
 
+  <!-- Main content wrapper -->
+  <div id="main-wrapper">
   <!-- Main content -->
   <main id="main">
     <!-- Topbar -->
@@ -194,43 +196,45 @@
       <div class="input-hint" id="txt-input-hint">回复可能包含错误</div>
     </div>
   </main>
-</div>
 
-<!-- Agents Page -->
-<div id="agents-page" class="hidden">
-  <div id="agents-topbar">
-    <button class="agents-back-btn" onclick="UI.showPage('chat')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      返回
-    </button>
-    <span class="page-title">智能体广场</span>
-  </div>
-  <div id="agents-content">
-    <div id="my-agents-container"></div>
-    <div class="agents-search-wrapper">
-      <div class="agents-search">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input type="text" id="agents-search-input" placeholder="搜索智能体..." />
-        <button class="search-clear-btn" id="agents-search-clear" title="清除">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
+  <!-- Agents Page -->
+  <div id="agents-page" class="hidden">
+    <div id="agents-topbar">
+      <div class="tb-left">
+        <button class="tb-toggle" onclick="toggleSidebar()" id="agents-sb-toggle-btn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="tb-title">智能体广场</span>
+      </div>
+    </div>
+    <div id="agents-content">
+      <div id="my-agents-container"></div>
+      <div class="agents-search-wrapper">
+        <div class="agents-search">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
+          <input type="text" id="agents-search-input" placeholder="搜索智能体..." />
+          <button class="search-clear-btn" id="agents-search-clear" title="清除">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <button class="btn-sm primary create-agent-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>创建 AI 智能体</span>
         </button>
       </div>
-      <button class="btn-sm primary create-agent-btn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span>创建 AI 智能体</span>
-      </button>
-    </div>
-    <div class="agents-tabs">
-      <div class="agents-tabs-left" id="agents-tabs-container">
+      <div class="agents-tabs">
+        <div class="agents-tabs-left" id="agents-tabs-container">
+        </div>
       </div>
+      <div class="agents-grid" id="agents-grid"></div>
     </div>
-    <div class="agents-grid" id="agents-grid"></div>
+  </div>
   </div>
 </div>
 
@@ -243,6 +247,7 @@
     </div>
     <div class="modal-tabs">
       <button class="modal-tab active" id="tab-appearance" onclick="Modals.switchTab('appearance')"><span id="txt-tab-appearance">外观</span></button>
+      <button class="modal-tab" id="tab-model" onclick="Modals.switchTab('model')"><span id="txt-tab-model">模型</span></button>
       <button class="modal-tab" id="tab-keys" onclick="Modals.switchTab('keys')"><span id="txt-tab-keys">密钥</span></button>
     </div>
     <div class="modal-body" id="settings-body"></div>

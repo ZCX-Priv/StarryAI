@@ -14,6 +14,27 @@ const Keys = {
   },
   setModel(id) { state.model=id; Store.saveConfig('model', id); UI.renderModelPill(); UI.updateThinkingModeVisibility(); Modals.renderSettings(); },
   setModelAndUpdate(id) { state.model=id; Store.saveConfig('model', id); UI.renderModelPill(); UI.updateThinkingModeVisibility(); Chat.handleModelChange(); Account.invalidate(); Modals.renderModelPicker(); },
+  setTemperature(value) {
+    const v = parseFloat(value);
+    state.temperature = v;
+    Store.saveConfig('temperature', v.toString());
+    const el = document.getElementById('temperature-value');
+    if (el) el.textContent = v.toFixed(1);
+  },
+  setTopP(value) {
+    const v = parseFloat(value);
+    state.topP = v;
+    Store.saveConfig('topP', v.toString());
+    const el = document.getElementById('topp-value');
+    if (el) el.textContent = v.toFixed(2);
+  },
+  setContextLength(value) {
+    const v = parseInt(value);
+    state.contextLength = v;
+    Store.saveConfig('contextLength', v.toString());
+    const el = document.getElementById('context-value');
+    if (el) el.textContent = v + ' 条';
+  },
   async _loadModels() {
     try {
       const r = await fetch('https://gen.pollinations.ai/models');

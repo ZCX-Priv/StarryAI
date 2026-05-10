@@ -3,7 +3,10 @@ const Chat = {
   getActive() { return state.chats.find(c=>c.id===state.activeChatId); },
   addMsg(role, content) {
     const chat=Chat.getActive(); if (!chat) return;
-    chat.messages.push({role,content,ts:Date.now()});
+    
+    const rendered = role === 'assistant' ? Renderer.parseMarkdown(content) : Renderer.escHtml(content);
+    
+    chat.messages.push({role,content,rendered,ts:Date.now()});
     if (chat.messages.length===2&&role==='assistant') {
       const u=chat.messages[0]?.content||'';
       chat.title=u.slice(0,42)+(u.length>42?'…':'');
@@ -120,7 +123,8 @@ const Chat = {
   },
   async _streamResponse() {
     const chat=Chat.getActive();
-    const msgs=chat.messages.filter(m=>m.role!=='system').map(m=>({role:m.role,content:m.content}));
+    const allMsgs=chat.messages.filter(m=>m.role!=='system').map(m=>({role:m.role,content:m.content}));
+    const msgs = state.contextLength > 0 ? allMsgs.slice(-state.contextLength) : [];
     
     let modelToUse=chat.model||state.model;
     if (state.currentMode === 'expert' && state.modeConfig.expert.model) {
@@ -138,7 +142,18 @@ const Chat = {
         if (aiBubble) Renderer.scheduleStream(fullResp, aiBubble);
         if (state.stopRequested) break;
       }
-      if (aiBubble) { aiBubble.classList.remove('streaming'); aiBubble.innerHTML=Renderer.parseMarkdown(fullResp); }
+      if (aiBubble) { 
+        aiBubble.classList.remove('streaming');
+        
+        const codeBlocks = aiBubble.querySelectorAll('.code-block-wrap');
+        codeBlocks.forEach(wrap => {
+          const body = wrap.querySelector('.code-block-body');
+          const lines = body ? body.querySelectorAll('pre code').textContent?.split('\n').length || 0 : 0;
+          if (lines > 8) {
+            body.classList.add('collapsed');
+          }
+        });
+      }
       if (first&&!state.stopRequested) { typingRow.remove(); streamFailed=true; }
       else if (first) { typingRow.remove(); }
     } catch { streamFailed=!state.stopRequested; typingRow?.remove(); }
@@ -171,7 +186,16 @@ const Chat = {
         if (toolResults.length > 0) {
           fullResp = Tools.replaceToolTags(fullResp, toolResults);
           if (aiBubble) {
-            aiBubble.innerHTML = Renderer.parseMarkdown(fullResp);
+            aiBubble.classList.remove('streaming');
+            
+            const codeBlocks = aiBubble.querySelectorAll('.code-block-wrap');
+            codeBlocks.forEach(wrap => {
+              const body = wrap.querySelector('.code-block-body');
+              const lines = body ? body.querySelectorAll('pre code').textContent?.split('\n').length || 0 : 0;
+              if (lines > 8) {
+                body.classList.add('collapsed');
+              }
+            });
           }
         }
       }
@@ -190,7 +214,8 @@ const Chat = {
     const chat=Chat.getActive(); if (!chat||state.isStreaming) return;
     if (chat.messages[chat.messages.length-1]?.role==='assistant') { chat.messages.pop(); Store.saveChats(); }
     UI.renderMessages();
-    const msgs=chat.messages.map(m=>({role:m.role,content:m.content}));
+    const allMsgs=chat.messages.map(m=>({role:m.role,content:m.content}));
+    const msgs = state.contextLength > 0 ? allMsgs.slice(-state.contextLength) : [];
     const modelToUse=chat.model||state.model;
     document.querySelector('.msg-actions')?.remove();
     const typingRow=UI.addTypingIndicator();
@@ -204,7 +229,18 @@ const Chat = {
         if (aiBubble) Renderer.scheduleStream(fullResp, aiBubble);
         if (state.stopRequested) break;
       }
-      if (aiBubble) { aiBubble.classList.remove('streaming'); aiBubble.innerHTML=Renderer.parseMarkdown(fullResp); }
+      if (aiBubble) { 
+        aiBubble.classList.remove('streaming');
+        
+        const codeBlocks = aiBubble.querySelectorAll('.code-block-wrap');
+        codeBlocks.forEach(wrap => {
+          const body = wrap.querySelector('.code-block-body');
+          const lines = body ? body.querySelectorAll('pre code').textContent?.split('\n').length || 0 : 0;
+          if (lines > 8) {
+            body.classList.add('collapsed');
+          }
+        });
+      }
       if (first) typingRow.remove();
     } catch(e) { typingRow?.remove(); UI.addBubble('assistant',`⚠ ${Renderer.escHtml(e?.message||'Error')}`); }
     if (fullResp) {

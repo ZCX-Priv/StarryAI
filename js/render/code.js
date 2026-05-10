@@ -48,8 +48,19 @@ const CodeRenderer = {
 
   renderStreamingCodeBlock(code, lang) {
     const langLabel = lang || '代码';
-    const escaped = CodeRenderer.escHtml(code);
-    return `<div class="code-block-wrap"><div class="code-block-header"><span class="code-block-lang">${langLabel}</span></div><div class="code-block-body"><pre><code class="hljs">${escaped}</code></pre></div></div>`;
+    
+    let highlighted;
+    if (typeof hljs !== 'undefined' && lang && lang !== 'text') {
+      try {
+        highlighted = hljs.highlight(code, { language: lang }).value;
+      } catch {
+        highlighted = this.escHtml(code);
+      }
+    } else {
+      highlighted = this.escHtml(code);
+    }
+    
+    return `<div class="code-block-wrap"><div class="code-block-header"><span class="code-block-lang">${langLabel}</span></div><div class="code-block-body"><pre><code class="hljs language-${langLabel}">${highlighted}</code></pre></div></div>`;
   },
 
   extractCodeBlocks(text) {

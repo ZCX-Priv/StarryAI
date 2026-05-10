@@ -165,13 +165,43 @@ const Renderer = window.Renderer || {
     if (stable.dataset.key !== completePart) {
       stable.innerHTML = this.parseMarkdown(completePart, false);
       stable.dataset.key = completePart;
+      
+      this._scheduleRender(stable);
     }
 
     live.innerHTML = incompletePart ? `<p>${this.escHtml(incompletePart)}</p>` : '';
   },
 
+  _scheduleRender(element) {
+    if (this._renderTimer) {
+      clearTimeout(this._renderTimer);
+    }
+    
+    this._renderTimer = setTimeout(() => {
+      FormulaRenderer.typeset(element);
+      
+      this._highlightCodeBlocks(element);
+      
+      this._renderTimer = null;
+    }, 100);
+  },
+
+  _highlightCodeBlocks(element) {
+    if (typeof hljs === 'undefined') return;
+    
+    const codeBlocks = element.querySelectorAll('pre code:not(.hljs)');
+    codeBlocks.forEach(block => {
+      try {
+        hljs.highlightElement(block);
+      } catch (e) {
+        console.warn('Code highlight error:', e);
+      }
+    });
+  },
+
   finalizeRender(bubble, text) {
     bubble.innerHTML = this.parseMarkdown(text);
     FormulaRenderer.typeset(bubble);
+    this._highlightCodeBlocks(bubble);
   }
 };

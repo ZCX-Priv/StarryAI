@@ -7,6 +7,10 @@
 - top_p 调节
 - 上下文长度调节（0-25条）
 
+**重要说明：**
+1. **实时生效**：所有参数调整后立即应用到下一次 API 请求，无需保存按钮
+2. **上下文长度**：指发送给 AI 的历史消息数量（向前数多少条），不是限制对话次数
+
 ## 实现步骤
 
 ### 1. 修改 `js/state.js`
@@ -32,20 +36,24 @@
 - 修改 `renderSettings()` 函数：
   - 添加 `model` 标签页的渲染逻辑
   - 从外观标签页移除默认模型选择，移到模型标签页
-  - 添加温度、top_p、上下文长度的滑块控件
+  - 添加温度、top_p、上下文长度的滑块控件（实时更新）
 - 修改 `switchTab()` 函数，支持新的模型标签页
 
 ### 6. 修改 `js/keys.js`
-- 添加保存模型参数的方法：
-  - `setTemperature(value)`
-  - `setTopP(value)`
-  - `setContextLength(value)`
+- 添加保存模型参数的方法（调整即保存并应用）：
+  - `setTemperature(value)` - 保存并立即生效
+  - `setTopP(value)` - 保存并立即生效
+  - `setContextLength(value)` - 保存并立即生效
 
 ### 7. 修改 `js/api.js`
-- 修改 `_params()` 方法，使用用户配置的 temperature 和 top_p 参数
+- 修改 `_params()` 方法：
+  - 使用 `state.temperature` 替代硬编码的 temperature
+  - 使用 `state.topP` 作为 top_p 参数
 
 ### 8. 修改 `js/chat.js`
-- 修改消息构建逻辑，根据 `contextLength` 限制发送的消息数量
+- 修改 `_streamResponse()` 和 `regenerate()` 方法：
+  - 根据 `state.contextLength` 截取最近 N 条消息发送给 API
+  - 例如：contextLength=10 时，只发送最近 10 条消息
 
 ### 9. 修改 `css/modals.css`
 - 添加滑块（range input）样式
@@ -60,9 +68,9 @@
 | `js/app.js` | 加载新配置项 |
 | `index.html` | 添加模型标签按钮 |
 | `js/modals.js` | 添加模型标签页渲染 |
-| `js/keys.js` | 添加参数设置方法 |
+| `js/keys.js` | 添加参数设置方法（实时保存） |
 | `js/api.js` | 使用自定义参数 |
-| `js/chat.js` | 限制上下文消息数量 |
+| `js/chat.js` | 根据上下文长度截取消息 |
 | `css/modals.css` | 添加滑块样式 |
 
 ## UI 设计
@@ -99,3 +107,9 @@
 - **温度 (temperature)**: 0.0 - 2.0，步进 0.1，默认 0.7
 - **Top P**: 0.0 - 1.0，步进 0.05，默认 1.0
 - **上下文长度**: 0 - 25 条，步进 1，默认 10 条
+
+## 实时生效机制
+所有滑块使用 `oninput` 事件：
+1. 用户拖动滑块 → 立即更新 `state` 中的值
+2. 同时调用 `Store.saveConfig()` 持久化
+3. 下一次 API 请求自动使用新值

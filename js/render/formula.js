@@ -3,12 +3,15 @@ const FormulaRenderer = {
   _initialized: false,
   _pendingTypeset: null,
   _formulaId: 0,
+  _mathJaxReady: false,
+  _mathJaxQueue: [],
 
   init() {
     if (this._initialized) return;
     this._initialized = true;
 
-    if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+    if (typeof MathJax !== 'undefined') {
+      this._mathJaxReady = true;
       return;
     }
 
@@ -25,6 +28,8 @@ window.MathJax = {
   svg: { fontCache: 'global' },
   startup: {
     pageReady: () => {
+      FormulaRenderer._mathJaxReady = true;
+      FormulaRenderer._processQueue();
       return MathJax.startup.defaultPageReady();
     }
   }
@@ -34,7 +39,20 @@ window.MathJax = {
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js';
       script.async = true;
+      script.onload = () => {
+        if (typeof MathJax !== 'undefined') {
+          this._mathJaxReady = true;
+          this._processQueue();
+        }
+      };
       document.head.appendChild(script);
+    }
+  },
+
+  _processQueue() {
+    while (this._mathJaxQueue.length > 0) {
+      const element = this._mathJaxQueue.shift();
+      this._doTypeset(element);
     }
   },
 
@@ -90,8 +108,22 @@ window.MathJax = {
     }).join('');
   },
 
-  async typeset(element) {
+  async _doTypeset(element) {
     if (typeof MathJax === 'undefined' || !MathJax.typesetPromise) {
+      return;
+    }
+
+    try {
+      await MathJax.typesetPromise(element ? [element] : undefined);
+    } catch (e) {
+      console.warn('MathJax typeset error:', e);
+    }
+  },
+
+  async typeset(element) {
+    if (!this._mathJaxReady) {
+      this._mathJaxQueue.push(element);
+      this.init();
       return;
     }
 
@@ -100,11 +132,7 @@ window.MathJax = {
     }
 
     this._pendingTypeset = setTimeout(async () => {
-      try {
-        await MathJax.typesetPromise(element ? [element] : undefined);
-      } catch (e) {
-        console.warn('MathJax typeset error:', e);
-      }
+      this._doTypeset(element);
       this._pendingTypeset = null;
     }, 50);
   },

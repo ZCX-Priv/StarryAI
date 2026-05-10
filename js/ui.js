@@ -78,13 +78,13 @@ const UI = {
     if (state.autoScroll) UI.scrollToBottom(false);
     return row;
   },
-  addBubble(role, content) {
+  addBubble(role, content, rendered = null) {
     const c=document.getElementById('messages');
     c.querySelector('.empty-state')?.remove();
     const isAI=role==='assistant';
     const row=document.createElement('div');
     row.className=`msg-row ${role}`;
-    let bubbleContent = isAI ? Renderer.parseMarkdown(content) : Renderer.escHtml(content);
+    let bubbleContent = rendered || (isAI ? Renderer.parseMarkdown(content) : Renderer.escHtml(content));
     let collapseHtml='';
     if (!isAI && content.length>80) {
       const prev=Renderer.escHtml(content.slice(0,80));
@@ -99,6 +99,11 @@ const UI = {
       <div class="msg-avatar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
     }
     c.appendChild(row);
+    
+    if (isAI) {
+      FormulaRenderer.typeset(row.querySelector('.ai-msg-content'));
+    }
+    
     return row.querySelector(isAI?'.ai-msg-content':'.msg-bubble');
   },
   toggleMsgCollapse(btn) {
@@ -132,13 +137,13 @@ const UI = {
     else { document.getElementById('memory-modal').classList.add('visible'); Modals.renderMemory(); }
   },
   showPage(page) {
-    const app = document.getElementById('app');
+    const main = document.getElementById('main');
     const agentsPage = document.getElementById('agents-page');
     if (page === 'chat') {
-      app.classList.remove('hidden');
+      main.classList.remove('hidden');
       agentsPage.classList.add('hidden');
     } else if (page === 'agents') {
-      app.classList.add('hidden');
+      main.classList.add('hidden');
       agentsPage.classList.remove('hidden');
       Agents.renderPlaza();
       UI._closeSidebarMobile();
@@ -158,7 +163,7 @@ const UI = {
       return;
     }
     chat.messages.forEach((msg,i)=>{
-      UI.addBubble(msg.role, msg.content);
+      UI.addBubble(msg.role, msg.content, msg.rendered);
       if (msg.role==='assistant'&&i===chat.messages.length-1) UI.addMessageActions(c.lastElementChild);
     });
     UI.scrollToBottom(false);

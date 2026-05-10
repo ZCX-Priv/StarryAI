@@ -44,6 +44,10 @@ async function init() {
   state.activeChatId = await Store.loadConfig('activeChatId', null);
   state.activeKey = await Store.loadActiveKey();
   
+  state.temperature = parseFloat(await Store.loadConfig('temperature', '0.7')) || 0.7;
+  state.topP = parseFloat(await Store.loadConfig('topP', '0.95')) || 0.95;
+  state.contextLength = parseInt(await Store.loadConfig('contextLength', '10')) || 10;
+  
   const currentAgentId = await IDBStore.getAgentConfig('currentAgentId');
   if (currentAgentId) state.currentAgentId = currentAgentId;
   

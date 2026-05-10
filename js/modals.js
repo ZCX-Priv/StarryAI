@@ -17,6 +17,55 @@ const Modals = {
           <input type="password" id="new-key-input" placeholder="pk_…" autocomplete="off">
           <button class="btn-sm" onclick="Keys.add()">添加</button>
         </div>`;
+    } else if (state.settingsTab==='model') {
+      body.innerHTML=`<div class="sec-title">默认模型</div>
+        <div class="sec-card" style="margin-bottom:20px">
+          <div class="sec-row">
+            <select class="model-selector" onchange="Keys.setModel(this.value)">
+              ${state.models.map(m=>`
+                <option value="${m.id}" ${state.model===m.id?'selected':''}>
+                  ${Renderer.escHtml(m.label||m.id)}
+                </option>
+              `).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="sec-title">温度</div>
+        <div class="sec-card" style="margin-bottom:20px">
+          <div class="sec-row slider-row">
+            <div class="slider-container">
+              <input type="range" class="slider" id="temperature-slider" min="0" max="2" step="0.1" value="${state.temperature}" oninput="Keys.setTemperature(this.value)">
+              <div class="slider-info">
+                <span class="slider-desc">控制回复的随机性，值越高越随机</span>
+                <span class="slider-value" id="temperature-value">${state.temperature.toFixed(1)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sec-title">Top P</div>
+        <div class="sec-card" style="margin-bottom:20px">
+          <div class="sec-row slider-row">
+            <div class="slider-container">
+              <input type="range" class="slider" id="topp-slider" min="0" max="1" step="0.05" value="${state.topP}" oninput="Keys.setTopP(this.value)">
+              <div class="slider-info">
+                <span class="slider-desc">核采样参数，控制词汇多样性</span>
+                <span class="slider-value" id="topp-value">${state.topP.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sec-title">上下文长度</div>
+        <div class="sec-card">
+          <div class="sec-row slider-row">
+            <div class="slider-container">
+              <input type="range" class="slider" id="context-slider" min="0" max="25" step="1" value="${state.contextLength}" oninput="Keys.setContextLength(this.value)">
+              <div class="slider-info">
+                <span class="slider-desc">发送给 AI 的历史消息数量</span>
+                <span class="slider-value" id="context-value">${state.contextLength} 条</span>
+              </div>
+            </div>
+          </div>
+        </div>`;
     } else {
       body.innerHTML=`<div class="sec-title">主题</div>
         <div class="sec-card" style="margin-bottom:20px">
@@ -26,22 +75,10 @@ const Modals = {
           </div>`).join('')}
         </div>
         <div class="sec-title">背景</div>
-        <div class="sec-card" style="margin-bottom:20px">
+        <div class="sec-card">
           <div class="sec-row" style="cursor:pointer" onclick="setHoneycomb(!state.honeycomb);Modals.renderSettings()">
             <div class="sec-row-l"><div class="sec-row-label">动态蜂巢</div><div class="sec-row-desc">聊天界面背景装饰画布</div></div>
             <button class="toggle ${state.honeycomb?'on':''}" style="pointer-events:none"></button>
-          </div>
-        </div>
-        <div class="sec-title">默认模型</div>
-        <div class="sec-card">
-          <div class="sec-row">
-            <select class="model-selector" onchange="Keys.setModel(this.value)">
-              ${state.models.map(m=>`
-                <option value="${m.id}" ${state.model===m.id?'selected':''}>
-                  ${Renderer.escHtml(m.label||m.id)}
-                </option>
-              `).join('')}
-            </select>
           </div>
         </div>`;
     }
@@ -108,6 +145,7 @@ const Modals = {
     state.settingsTab=tab;
     document.getElementById('tab-keys').classList.toggle('active',tab==='keys');
     document.getElementById('tab-appearance').classList.toggle('active',tab==='appearance');
+    document.getElementById('tab-model').classList.toggle('active',tab==='model');
     Modals.renderSettings();
   }
 };

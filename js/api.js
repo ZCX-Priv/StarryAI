@@ -5,7 +5,9 @@ const API = {
       model: model || state.model,
       messages: Context.buildMessages(msgs),
       stream,
-      seed: Math.floor(Math.random() * 2147483647)
+      seed: Math.floor(Math.random() * 2147483647),
+      temperature: state.temperature,
+      top_p: state.topP
     };
     
     const modeConfig = state.modeConfig[state.currentMode];
