@@ -18,12 +18,14 @@ const Chat = {
     const chat={id,title:'新对话',messages:[],createdAt:Date.now(),model:state.model,agentId:state.currentAgentId};
     state.chats.unshift(chat); state.activeChatId=chat.id;
     Store.saveChats(); Store.saveConfig('activeChatId', chat.id);
+    UI.showPage('chat');
     UI.renderChatList(); UI.renderMessages(); UI.updateTopbar();
     UI.focusInput();
     UI._closeSidebarMobile();
   },
   switchTo(id) {
     state.activeChatId=id; Store.saveConfig('activeChatId', id);
+    UI.showPage('chat');
     UI.renderChatList(); UI.renderMessages(); UI.updateTopbar();
     UI._closeSidebarMobile();
   },
