@@ -46,6 +46,24 @@
   display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0;
 }
 
+.preview-modal {
+  width: calc(100% - 32px);
+  max-height: min(86vh, 820px);
+}
+
+.preview-modal-body {
+  padding: 14px 18px 18px;
+}
+
+.code-preview-frame {
+  display: block;
+  width: 100%;
+  height: min(70vh, 640px);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  background: #fff;
+}
+
 /* ── Settings Sections ───────────────────────────────── */
 .sec-title {
   font-size: 11px; font-weight: 600; letter-spacing: .07em;
@@ -94,6 +112,65 @@
 .mem-btn.del:hover { background: rgba(248,113,113,.1); color: var(--danger); }
 
 /* ── Model Picker ────────────────────────────────────── */
+.mp-search-wrapper {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.mp-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  pointer-events: none;
+}
+
+.mp-search-input {
+  width: 100%;
+  padding: 10px 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  font-family: var(--font);
+  font-size: 13.5px;
+  color: var(--text);
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.mp-search-input:focus {
+  outline: none;
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.mp-search-input::placeholder {
+  color: var(--text3);
+}
+
+.mp-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text3);
+  transition: background .15s, color .15s;
+}
+
+.mp-search-clear:hover {
+  background: var(--bg4);
+  color: var(--text);
+}
+
 .mp-models-wrap { max-height: 240px; overflow-y: auto; border-radius: var(--radius); margin-bottom: 4px; }
 .mp-models-wrap::-webkit-scrollbar       { width: 3px; }
 .mp-models-wrap::-webkit-scrollbar-thumb { background: var(--border2); }

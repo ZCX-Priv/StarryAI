@@ -182,6 +182,44 @@ const UI = {
       thinkingModeItem.style.display = (currentModel && currentModel.reasoning) ? '' : 'none';
     }
   },
+  updateModeButton() {
+    const quickBtn = document.getElementById('quickBtn');
+    const quickMenu = document.getElementById('quickMenu');
+    if (!quickBtn || !quickMenu) return;
+    
+    const currentItem = quickMenu.querySelector(`.dropdown-item[data-mode="${state.currentMode}"]`);
+    if (!currentItem) return;
+    
+    quickMenu.querySelectorAll('.dropdown-item').forEach(i => {
+      i.classList.remove('active');
+      const check = i.querySelector('.dropdown-check');
+      if (check) check.remove();
+    });
+    currentItem.classList.add('active');
+    const checkHtml = '<div class="dropdown-check"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+    currentItem.insertAdjacentHTML('beforeend', checkHtml);
+    
+    const label = currentItem.querySelector('.dropdown-item-header span').textContent;
+    quickBtn.querySelector('span').textContent = label;
+    
+    const iconSvg = currentItem.getAttribute('data-icon');
+    if (iconSvg) {
+      const firstSvg = quickBtn.querySelector('svg[data-icon]');
+      if (firstSvg) {
+        firstSvg.outerHTML = iconSvg;
+        const newSvg = quickBtn.querySelector('svg');
+        if (newSvg) newSvg.setAttribute('data-icon', 'mode');
+      }
+    }
+  },
+  async resetModeToFast() {
+    state.currentMode = 'fast';
+    await Prompts.loadModePrompt('fast');
+    if (window.Store) {
+      Store.saveConfig('currentMode', 'fast');
+    }
+    UI.updateModeButton();
+  },
   renderChatList() {
     const list=document.getElementById('chat-list'); list.innerHTML='';
     state.chats.forEach(chat => {
@@ -264,21 +302,7 @@ const UI = {
             }
           }
           
-          quickMenu.querySelectorAll('.dropdown-item').forEach(i=>{
-            i.classList.remove('active');
-            const check=i.querySelector('.dropdown-check');
-            if (check) check.remove();
-          });
-          this.classList.add('active');
-          const checkHtml='<div class="dropdown-check"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
-          this.insertAdjacentHTML('beforeend', checkHtml);
-          const label=this.querySelector('.dropdown-item-header span').textContent;
-          quickBtn.querySelector('span').textContent=label;
-          const iconSvg=this.getAttribute('data-icon');
-          if (iconSvg) {
-            const firstSvg=quickBtn.querySelector('svg[data-icon]');
-            if (firstSvg) firstSvg.outerHTML=iconSvg;
-          }
+          UI.updateModeButton();
           UI.closeAllDropdowns();
         });
       });

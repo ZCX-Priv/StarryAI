@@ -153,14 +153,14 @@
   color: rgba(255,255,255,.35); font-family: 'SF Mono','Fira Code',monospace; flex: 1;
 }
 .code-block-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-.code-block-toggle,.code-copy-btn {
+.code-block-toggle,.code-preview-btn,.code-copy-btn {
   display: inline-flex; align-items: center; gap: 3px;
   background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
   border-radius: 5px; padding: 3px 8px;
   font-size: 10.5px; font-family: var(--font);
   color: rgba(255,255,255,.45); cursor: pointer; transition: all .15s; white-space: nowrap;
 }
-.code-block-toggle:hover,.code-copy-btn:hover { background: rgba(255,255,255,.12); color: rgba(255,255,255,.75); }
+.code-block-toggle:hover,.code-preview-btn:hover,.code-copy-btn:hover { background: rgba(255,255,255,.12); color: rgba(255,255,255,.75); }
 .code-block-body { overflow: hidden; transition: max-height .35s cubic-bezier(0.4,0,0.2,1); }
 .code-block-body.collapsed {
   max-height: 120px;
@@ -213,8 +213,10 @@
 [data-theme="light"] .code-block-header       { background: rgba(0,0,0,.05); border-bottom-color: rgba(0,0,0,.10); }
 [data-theme="light"] .code-block-lang         { color: rgba(0,0,0,.45); }
 [data-theme="light"] .code-block-toggle,
+[data-theme="light"] .code-preview-btn,
 [data-theme="light"] .code-copy-btn           { background: rgba(0,0,0,.06); border-color: rgba(0,0,0,.12); color: rgba(0,0,0,.55); }
 [data-theme="light"] .code-block-toggle:hover,
+[data-theme="light"] .code-preview-btn:hover,
 [data-theme="light"] .code-copy-btn:hover     { background: rgba(0,0,0,.12); color: rgba(0,0,0,.8); }
 [data-theme="light"] .code-block-body pre code { color: #1e1e2e; }
 [data-theme="light"] .code-block-body pre     { background: #e8e8f2; }
@@ -257,4 +259,147 @@
 .task-item input[type="checkbox"] {
   margin-right: 8px;
   vertical-align: middle;
+}
+
+/* ── Thinking Block Styles ─────────────────────────────── */
+.thinking-block {
+  margin: 12px 0;
+  padding: 12px 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  position: relative;
+}
+
+.thinking-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  color: var(--text2);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: color .2s;
+}
+
+.thinking-summary:hover {
+  color: var(--text);
+}
+
+.thinking-status {
+  flex: 1;
+}
+
+.thinking-caret {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-right: 1.6px solid var(--text3);
+  border-bottom: 1.6px solid var(--text3);
+  transform: rotate(45deg) translateY(-1px);
+  transition: transform .2s;
+}
+
+.thinking-block.collapsed .thinking-caret {
+  transform: rotate(-45deg) translateY(-1px);
+}
+
+.thinking-thread {
+  position: relative;
+  margin-top: 12px;
+  padding-left: 24px;
+  max-height: 1000px;
+  overflow: hidden;
+  transition: max-height .3s ease, opacity .3s ease;
+}
+
+.thinking-block.collapsed .thinking-thread {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+}
+
+.thinking-thread::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 8px;
+  bottom: 8px;
+  width: 1.5px;
+  background: var(--border2);
+}
+
+.thinking-step {
+  position: relative;
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  padding-left: 4px;
+}
+
+.thinking-step:last-child {
+  margin-bottom: 0;
+}
+
+.thinking-step::before {
+  content: "";
+  position: absolute;
+  left: -24px;
+  top: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text3);
+  border: 1.5px solid var(--bg2);
+}
+
+.thinking-step code {
+  background: rgba(59,130,246,.15);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+  font-family: 'SF Mono','Fira Code',monospace;
+  color: #93c5fd;
+  border: 1px solid rgba(59,130,246,.2);
+}
+
+.thinking-step strong {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.thinking-step em {
+  font-style: italic;
+}
+
+.thinking-step a {
+  color: var(--accent2);
+  text-decoration: underline;
+}
+
+.thinking-block.streaming {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-glow);
+}
+
+.thinking-block.streaming .thinking-status {
+  color: var(--accent);
+}
+
+.thinking-block.streaming .thinking-step:last-child {
+  animation: revealLine .18s ease-out both;
+}
+
+[data-theme="light"] .thinking-block {
+  background: var(--bg3);
+  border-color: rgba(0,0,0,.1);
+}
+
+[data-theme="light"] .thinking-step code {
+  background: rgba(59,130,246,.12);
+  color: #2563eb;
+  border-color: rgba(59,130,246,.15);
 }

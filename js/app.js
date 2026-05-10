@@ -60,6 +60,8 @@ async function init() {
   await Agents.init();
   App.enter();
   
+  UI.updateModeButton();
+  
   document.addEventListener('click', () => {
     document.querySelectorAll('.ci-dropdown.show').forEach(m => m.classList.remove('show'));
   });

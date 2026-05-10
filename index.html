@@ -293,6 +293,21 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="html-preview-modal">
+  <div class="modal preview-modal" style="max-width:960px">
+    <div class="modal-hd">
+      <span class="modal-title" id="html-preview-title">HTML 预览</span>
+      <button class="icon-btn" onclick="Modals.closeHtmlPreview()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body preview-modal-body">
+      <iframe id="html-preview-frame" class="code-preview-frame" sandbox="allow-scripts allow-forms allow-modals"></iframe>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm ghost" onclick="Modals.closeHtmlPreview()">关闭</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="create-agent-modal">
   <div class="modal" style="max-width:520px">
     <div class="modal-hd">
@@ -357,6 +372,7 @@
 <script src="js/render/code.js"></script>
 <script src="js/render/formula.js"></script>
 <script src="js/render/markdown.js"></script>
+<script src="js/render/thinking-content.js"></script>
 <script src="js/render/index.js"></script>
 <script src="js/tools/parser.js"></script>
 <script src="js/tools/search.js"></script>
@@ -378,7 +394,6 @@
 <script src="js/context/system-prompt.js"></script>
 <script src="js/context/index.js"></script>
 <script src="js/api.js"></script>
-<script src="js/renderer.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/chat.js"></script>
 <script src="js/modals.js"></script>

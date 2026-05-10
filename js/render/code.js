@@ -29,11 +29,12 @@ const CodeRenderer = {
   renderCodeBlock(code, lang, options = {}) {
     const trimmed = code.trim();
     const langLabel = (lang || 'text').toLowerCase();
-    const isLong = trimmed.split('\n').length > 8;
     const id = 'cb' + (CodeRenderer._blockId++);
-
-    const collapseBtn = isLong
-      ? `<button class="code-block-toggle" onclick="Renderer.toggleBlock(this,event)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> 展开</button>`
+    const isCollapsed = options.collapsed !== false;
+    const togglePoints = isCollapsed ? '6 9 12 15 18 9' : '18 15 12 9 6 15';
+    const toggleLabel = isCollapsed ? '展开' : '收起';
+    const previewButton = Renderer.canPreviewCode(langLabel)
+      ? `<button class="code-preview-btn" onclick="Renderer.previewCode('${id}','${langLabel}',event)" title="预览 HTML"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="8,6 19,12 8,18"/></svg></button>`
       : '';
 
     const highlighted = options.applyHljs !== false
@@ -41,26 +42,9 @@ const CodeRenderer = {
       : CodeRenderer.escHtml(trimmed);
 
     return `<div class="code-block-wrap" onclick="Renderer.toggleBlockWrap(this,event)">
-<div class="code-block-header"><span class="code-block-lang">${langLabel}</span><div class="code-block-actions">${collapseBtn}<button class="code-copy-btn" onclick="Renderer.copyCode('${id}',event)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-<div class="${isLong ? 'code-block-body collapsed' : 'code-block-body'}"><pre id="${id}"><code class="hljs language-${langLabel}">${highlighted}</code></pre></div>
+<div class="code-block-header"><span class="code-block-lang">${langLabel}</span><div class="code-block-actions"><button class="code-block-toggle" onclick="Renderer.toggleBlock(this,event)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="${togglePoints}"/></svg> ${toggleLabel}</button>${previewButton}<button class="code-copy-btn" onclick="Renderer.copyCode('${id}',event)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
+<div class="code-block-body${isCollapsed ? ' collapsed' : ''}"><pre id="${id}"><code class="hljs language-${langLabel}">${highlighted}</code></pre></div>
 </div>`;
-  },
-
-  renderStreamingCodeBlock(code, lang) {
-    const langLabel = lang || '代码';
-    
-    let highlighted;
-    if (typeof hljs !== 'undefined' && lang && lang !== 'text') {
-      try {
-        highlighted = hljs.highlight(code, { language: lang }).value;
-      } catch {
-        highlighted = this.escHtml(code);
-      }
-    } else {
-      highlighted = this.escHtml(code);
-    }
-    
-    return `<div class="code-block-wrap"><div class="code-block-header"><span class="code-block-lang">${langLabel}</span></div><div class="code-block-body"><pre><code class="hljs language-${langLabel}">${highlighted}</code></pre></div></div>`;
   },
 
   extractCodeBlocks(text) {

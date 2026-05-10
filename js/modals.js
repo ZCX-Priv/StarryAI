@@ -105,14 +105,34 @@ const Modals = {
   },
   async renderModelPicker() {
     const body = document.getElementById('model-body'); if(!body) return;
-    const modelRows = state.models.map(m => {
+    const searchHTML = `<div class="mp-search-wrapper">
+      <svg class="mp-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" class="mp-search-input" id="model-search-input" placeholder="搜索模型..." oninput="Modals.filterModels(this.value)">
+      <button class="mp-search-clear" id="model-search-clear" onclick="Modals.clearModelSearch()" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>`;
+    body.innerHTML = searchHTML + `<div class="mp-models-wrap"><div class="sec-card" style="margin:0" id="model-list-container"></div></div>`;
+    Modals._renderModelList(state.models);
+  },
+  _renderModelList(models) {
+    const container = document.getElementById('model-list-container');
+    if (!container) return;
+    const modelRows = models.map(m => {
       const active = m.id === state.model;
-      const diamondIcon = m.paidOnly ? `<svg style="flex-shrink:0;margin-left:4px;color:#9CA3AF" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 15 10-15-10-5zm0 2.5L18.5 7 12 18.5 5.5 7 12 4.5z"/></svg>` : '';
+      const diamondIcon = m.paidOnly ? `<svg style="flex-shrink:0;margin-left:4px;color:#9CA3AF" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 2,7 12,22 22,7"/><line x1="2" y1="7" x2="22" y2="7"/><line x1="12" y1="2" x2="12" y2="22"/></svg>` : '';
+      const reasoningIcon = m.reasoning ? `<svg style="flex-shrink:0;margin-left:4px;color:var(--accent2)" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg>` : '';
       const contextTag = m.contextLength ? `<span class="mp-context-tag">${formatContextLength(m.contextLength)}</span>` : '';
       return `<div class="mp-model-row${active?' mp-active':''}" onclick="Keys.setModelAndUpdate('${m.id}')">
         <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
           ${active?`<div style="width:6px;height:6px;background:var(--accent2);border-radius:50%;flex-shrink:0"></div>`:`<div style="width:6px;height:6px;border-radius:50%;flex-shrink:0"></div>`}
-          <span style="font-size:13.5px;font-weight:${active?'600':'400'};color:${active?'var(--accent2)':'var(--text)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Renderer.escHtml(m.label||m.id)}</span>${diamondIcon}
+          <span style="font-size:13.5px;font-weight:${active?'600':'400'};color:${active?'var(--accent2)':'var(--text)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Renderer.escHtml(m.label||m.id)}</span>${diamondIcon}${reasoningIcon}
         </div>
         <div style="display:flex;align-items:center;gap:6px">
           ${contextTag}
@@ -120,7 +140,26 @@ const Modals = {
         </div>
       </div>`;
     }).join('');
-    body.innerHTML = `<div class="mp-models-wrap"><div class="sec-card" style="margin:0">${modelRows}</div></div>`;
+    container.innerHTML = modelRows;
+  },
+  filterModels(searchTerm) {
+    const clearBtn = document.getElementById('model-search-clear');
+    if (clearBtn) {
+      clearBtn.style.display = searchTerm ? 'flex' : 'none';
+    }
+    const filteredModels = state.models.filter(m => {
+      const label = (m.label || m.id).toLowerCase();
+      const term = searchTerm.toLowerCase();
+      return label.includes(term) || m.id.toLowerCase().includes(term);
+    });
+    Modals._renderModelList(filteredModels);
+  },
+  clearModelSearch() {
+    const input = document.getElementById('model-search-input');
+    if (input) {
+      input.value = '';
+      Modals.filterModels('');
+    }
   },
   renderHelp() {
     const body = document.getElementById('help-body');
@@ -147,5 +186,24 @@ const Modals = {
     document.getElementById('tab-appearance').classList.toggle('active',tab==='appearance');
     document.getElementById('tab-model').classList.toggle('active',tab==='model');
     Modals.renderSettings();
+  },
+  openHtmlPreview(code, lang = 'html') {
+    const modal = document.getElementById('html-preview-modal');
+    const frame = document.getElementById('html-preview-frame');
+    const title = document.getElementById('html-preview-title');
+    if (!modal || !frame || !title) return;
+    title.textContent = `${String(lang || 'html').toUpperCase()} 预览`;
+    frame.srcdoc = code || '<!doctype html><html><body></body></html>';
+    modal.classList.add('visible');
+  },
+  closeHtmlPreview() {
+    const modal = document.getElementById('html-preview-modal');
+    const frame = document.getElementById('html-preview-frame');
+    if (frame) {
+      frame.srcdoc = '<!doctype html><html><body></body></html>';
+    }
+    if (modal) {
+      modal.classList.remove('visible');
+    }
   }
 };

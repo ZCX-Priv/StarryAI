@@ -14,6 +14,7 @@ const MarkdownRenderer = {
     if (!s.trim()) return '';
     s = s.replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br>');
     if (!s.match(/^<(h[1-6]|ul|ol|blockquote|hr|p|div|table)/)) s = `<p>${s}</p>`;
+    s = this.fixBlockSpacing(s);
     return s;
   },
 
@@ -110,6 +111,11 @@ const MarkdownRenderer = {
     const formulas = formulaResult.formulas;
     const formulaPlaceholder = formulaResult.placeholder;
 
+    const thinkingResult = ThinkingRenderer.extractThinkingBlocks(s);
+    s = thinkingResult.text;
+    const thinkingBlocks = thinkingResult.blocks;
+    const thinkingPlaceholder = thinkingResult.placeholder;
+
     s = this.escHtml(s);
 
     s = this.parseBlock(s);
@@ -118,6 +124,8 @@ const MarkdownRenderer = {
     s = FormulaRenderer.restoreFormulas(s, formulas, formulaPlaceholder);
 
     s = CodeRenderer.restoreCodeBlocks(s, codeBlocks, codePlaceholder, options);
+
+    s = ThinkingRenderer.restoreThinkingBlocks(s, thinkingBlocks, thinkingPlaceholder);
 
     s = this.formatText(s);
 
@@ -132,6 +140,18 @@ const MarkdownRenderer = {
     s = s.replace(/<\/blockquote><blockquote>/g, '\n');
     s = s.replace(/<\/ul><ul>/g, '\n');
     s = s.replace(/<\/ol><ol>/g, '\n');
+
+    return s;
+  },
+
+  fixBlockSpacing(text) {
+    let s = text;
+    const blockTag = '(?:div|table|blockquote|ul|ol|h[1-6]|hr)';
+
+    s = s.replace(new RegExp(`<br>\\s*(<${blockTag}\\b[^>]*>)`, 'g'), '$1');
+    s = s.replace(new RegExp(`(<\\/${blockTag}>|<hr[^>]*>)\\s*<br>`, 'g'), '$1');
+    s = s.replace(new RegExp(`<p>\\s*(<${blockTag}\\b[^>]*>)`, 'g'), '$1');
+    s = s.replace(new RegExp(`(<\\/${blockTag}>|<hr[^>]*>)\\s*<\\/p>`, 'g'), '$1');
 
     return s;
   }

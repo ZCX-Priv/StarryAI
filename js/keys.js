@@ -13,7 +13,17 @@ const Keys = {
     Store.saveKeys(); Modals.renderSettings(); UI.showToast('密钥已删除');
   },
   setModel(id) { state.model=id; Store.saveConfig('model', id); UI.renderModelPill(); UI.updateThinkingModeVisibility(); Modals.renderSettings(); },
-  setModelAndUpdate(id) { state.model=id; Store.saveConfig('model', id); UI.renderModelPill(); UI.updateThinkingModeVisibility(); Chat.handleModelChange(); Account.invalidate(); Modals.renderModelPicker(); },
+  async setModelAndUpdate(id) { 
+    state.model = id; 
+    Store.saveConfig('model', id); 
+    UI.renderModelPill(); 
+    UI.updateThinkingModeVisibility(); 
+    Chat.handleModelChange(); 
+    Account.invalidate(); 
+    Modals.renderModelPicker();
+    await UI.resetModeToFast();
+    UI.closeModal('model-modal');
+  },
   setTemperature(value) {
     const v = parseFloat(value);
     state.temperature = v;

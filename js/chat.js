@@ -146,15 +146,6 @@ const Chat = {
       }
       if (aiBubble) { 
         aiBubble.classList.remove('streaming');
-        
-        const codeBlocks = aiBubble.querySelectorAll('.code-block-wrap');
-        codeBlocks.forEach(wrap => {
-          const body = wrap.querySelector('.code-block-body');
-          const lines = body ? body.querySelectorAll('pre code').textContent?.split('\n').length || 0 : 0;
-          if (lines > 8) {
-            body.classList.add('collapsed');
-          }
-        });
       }
       if (first&&!state.stopRequested) { typingRow.remove(); streamFailed=true; }
       else if (first) { typingRow.remove(); }
@@ -187,22 +178,14 @@ const Chat = {
         
         if (toolResults.length > 0) {
           fullResp = Tools.replaceToolTags(fullResp, toolResults);
-          if (aiBubble) {
-            aiBubble.classList.remove('streaming');
-            
-            const codeBlocks = aiBubble.querySelectorAll('.code-block-wrap');
-            codeBlocks.forEach(wrap => {
-              const body = wrap.querySelector('.code-block-body');
-              const lines = body ? body.querySelectorAll('pre code').textContent?.split('\n').length || 0 : 0;
-              if (lines > 8) {
-                body.classList.add('collapsed');
-              }
-            });
-          }
         }
       }
     }
     
+    if (aiBubble && fullResp) {
+      Renderer.finalizeRender(aiBubble, fullResp);
+    }
+
     if (fullResp) {
       Chat.addMsg('assistant',fullResp); Store.saveChats(); UI.renderChatList(); UI.updateTopbar();
       const lastRow=document.getElementById('messages').lastElementChild;
@@ -233,18 +216,12 @@ const Chat = {
       }
       if (aiBubble) { 
         aiBubble.classList.remove('streaming');
-        
-        const codeBlocks = aiBubble.querySelectorAll('.code-block-wrap');
-        codeBlocks.forEach(wrap => {
-          const body = wrap.querySelector('.code-block-body');
-          const lines = body ? body.querySelectorAll('pre code').textContent?.split('\n').length || 0 : 0;
-          if (lines > 8) {
-            body.classList.add('collapsed');
-          }
-        });
       }
       if (first) typingRow.remove();
     } catch(e) { typingRow?.remove(); UI.addBubble('assistant',`⚠ ${Renderer.escHtml(e?.message||'Error')}`); }
+    if (aiBubble && fullResp && !state.stopRequested) {
+      Renderer.finalizeRender(aiBubble, fullResp);
+    }
     if (fullResp) {
       Chat.addMsg('assistant',fullResp); Store.saveChats();
       const lastRow=document.getElementById('messages').lastElementChild;
