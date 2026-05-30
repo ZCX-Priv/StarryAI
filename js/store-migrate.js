@@ -1,4 +1,4 @@
-/* ─── Migration ───────────────────────────────────────── */
+/* ─── 数据迁移 ───────────────────────────────────────── */
 const Migration = {
   MIGRATION_KEY: 'aichat_idb_migrated',
   MIGRATION_VERSION: 1,

@@ -1,4 +1,4 @@
-/* ─── Chat ──────────────────────────────────────────── */
+/* ─── 对话 ──────────────────────────────────────────── */
 const Chat = {
   getActive() { return state.chats.find(c=>c.id===state.activeChatId); },
   addMsg(role, content) {

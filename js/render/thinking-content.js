@@ -1,4 +1,4 @@
-/* ─── Thinking Content Renderer ─────────────────────────── */
+/* ─── 思考内容渲染器 ─────────────────────────── */
 const ThinkingRenderer = {
   _blockId: 0,
   _pairedTagPattern: /<think(?:\s[^>]*)?>([\s\S]*?)<\/think>/gi,

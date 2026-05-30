@@ -1,4 +1,4 @@
-/* ─── Store ─────────────────────────────────────────── */
+/* ─── 存储 ─────────────────────────────────────────── */
 const Store = {
   _useIDB: true,
 
@@ -224,7 +224,7 @@ const Store = {
   }
 };
 
-/* ─── Theme ─────────────────────────────────────────── */
+/* ─── 主题 ─────────────────────────────────────────── */
 const Theme = {
   apply(theme) {
     state.theme = theme;
@@ -244,7 +244,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
   if (state.theme === 'auto') Theme.apply('auto');
 });
 
-/* ─── Account ───────────────────────────────────────── */
+/* ─── 账户 ───────────────────────────────────────── */
 const Account = {
   _cache: null, _cacheTs: 0,
 

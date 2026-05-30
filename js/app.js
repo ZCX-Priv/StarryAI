@@ -1,4 +1,4 @@
-/* ─── App ────────────────────────────────────────────── */
+/* ─── 应用 ────────────────────────────────────────────── */
 const App = {
   async enter() {
     document.getElementById('app').classList.add('visible');
@@ -21,7 +21,7 @@ const App = {
   }
 };
 
-/* ─── Bootstrap ─────────────────────────────────────── */
+/* ─── 启动 ─────────────────────────────────────────────── */
 async function init() {
   try {
     await IDBStore.init();

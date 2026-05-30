@@ -1,5 +1,5 @@
-/* ─── Render Module Entry ────────────────────────────────
- * This file provides the main Renderer object for the application.
+/* ─── 渲染模块入口 ────────────────────────────────
+ * 此文件为应用提供主要的渲染器对象。
  * ─────────────────────────────────────────────────────── */
 
 const Renderer = {

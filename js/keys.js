@@ -1,4 +1,4 @@
-/* ─── Keys ──────────────────────────────────────────── */
+/* ─── 密钥 ──────────────────────────────────────────── */
 const Keys = {
   activate(key) { state.activeKey=key; Store.saveActiveKey(key); Modals.renderSettings(); UI.showToast('密钥已保存！'); },
   async add() {

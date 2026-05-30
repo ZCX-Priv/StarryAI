@@ -1,4 +1,4 @@
-/* ─── Formula Renderer (MathJax) ──────────────────────── */
+/* ─── 公式渲染器 (MathJax) ──────────────────────── */
 const FormulaRenderer = {
   _initialized: false,
   _pendingTypeset: null,

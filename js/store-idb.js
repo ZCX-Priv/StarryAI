@@ -1,4 +1,4 @@
-/* ─── IndexedDB Store ────────────────────────────────── */
+/* ─── IndexedDB 存储管理 ────────────────────────────────── */
 const IDBStore = {
   DB_NAME: 'AIChatDB',
   DB_VERSION: 1,

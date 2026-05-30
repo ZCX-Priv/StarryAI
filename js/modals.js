@@ -1,4 +1,4 @@
-/* ─── Modals ────────────────────────────────────────── */
+/* ─── 模态框 ────────────────────────────────────────── */
 const Modals = {
   renderSettings() {
     const body=document.getElementById('settings-body');

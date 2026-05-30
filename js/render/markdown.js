@@ -1,4 +1,4 @@
-/* ─── Markdown Renderer ───────────────────────────────── */
+/* ─── Markdown 渲染器 ───────────────────────────────── */
 const MarkdownRenderer = {
 
   escHtml(s) {

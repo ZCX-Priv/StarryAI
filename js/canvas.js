@@ -1,4 +1,4 @@
-/* ─── Sidebar ───────────────────────────────────────── */
+/* ─── 侧边栏 ───────────────────────────────────────── */
 let sidebarOpen=true;
 function toggleSidebar() {
   if (window.innerWidth<=680) {
@@ -11,7 +11,7 @@ function toggleSidebar() {
 }
 function closeSidebar() { UI._closeSidebarMobile(); }
 
-/* ─── Canvas ────────────────────────────────────────── */
+/* ─── 画布 ────────────────────────────────────────── */
 function _drawHex(ctx, cx, cy, s, strokeColor) {
   const pts=[];
   for (let i=0;i<6;i++){const a=(Math.PI/3)*i-Math.PI/6;pts.push([cx+Math.round(s*Math.cos(a)),cy+Math.round(s*Math.sin(a))]);}
