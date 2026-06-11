@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Plus, Users, Settings, MessageSquare, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
 import useAppStore from '@/store/useAppStore';
+import EmptyState from '@/components/ui/EmptyState';
 
 export default function Sidebar({ onOpenModal, onToggleSidebar }) {
   const chats = useAppStore(s => s.chats);
@@ -78,19 +79,23 @@ export default function Sidebar({ onOpenModal, onToggleSidebar }) {
         </div>
         <div className="sb-section">对话</div>
         <div className="chat-list">
-          {chats.map(chat => (
-            <ChatItem
-              key={chat.id}
-              chat={chat}
-              isActive={chat.id === activeChatId}
-              onSwitch={handleSwitchChat}
-              onDelete={deleteChat}
-              onRename={renameChat}
-              openMenuId={openMenuId}
-              setOpenMenuId={setOpenMenuId}
-              onOpenModal={onOpenModal}
-            />
-          ))}
+          {chats.length === 0 ? (
+            <EmptyState icon={MessageSquare} title="暂无对话" description="点击上方按钮开始新对话" compact />
+          ) : (
+            chats.map(chat => (
+              <ChatItem
+                key={chat.id}
+                chat={chat}
+                isActive={chat.id === activeChatId}
+                onSwitch={handleSwitchChat}
+                onDelete={deleteChat}
+                onRename={renameChat}
+                openMenuId={openMenuId}
+                setOpenMenuId={setOpenMenuId}
+                onOpenModal={onOpenModal}
+              />
+            ))
+          )}
         </div>
         <div className="sb-bottom">
           <button className="sb-btn" onClick={() => onOpenModal('settings')}>

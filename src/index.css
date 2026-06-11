@@ -122,14 +122,19 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 #chat-honeycomb { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; image-rendering: pixelated; transition: opacity .4s; opacity: 0; }
 #chat-area::-webkit-scrollbar { width: 5px; }
 #chat-area::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 5px; }
-.messages-inner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 4px; }
+.messages-inner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 4px; min-height: 100%; }
 
 /* Empty State */
-.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 10px; text-align: center; animation: fadeUp .4s var(--ease); }
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; gap: 10px; text-align: center; padding: 24px 16px; }
 .empty-icon { width: 52px; height: 52px; background: var(--bg3); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--text3); margin-bottom: 4px; }
 .empty-icon img { width: 100%; height: 100%; object-fit: contain; }
 .empty-state h2 { font-size: 19px; font-weight: 600; color: var(--text2); }
 .empty-state p { font-size: 13.5px; color: var(--text3); max-width: 280px; }
+.empty-state.compact { padding: 30px 16px; gap: 6px; }
+.empty-state.compact .empty-icon { width: 40px; height: 40px; border-radius: 12px; }
+.empty-state.compact h2 { font-size: 15px; }
+.empty-state.compact p { font-size: 12.5px; }
+.empty-state .empty-action { margin-top: 4px; }
 
 /* Messages */
 .msg-row { display: flex; align-items: flex-end; gap: 0; margin: 3px 0; animation: msgIn .25s var(--ease); }

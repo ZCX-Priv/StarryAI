@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { X, Search, Gem, Atom } from 'lucide-react';
 import useAppStore from '@/store/useAppStore';
 import { formatContextLength } from '@/lib/config';
+import EmptyState from '@/components/ui/EmptyState';
 
 export default function ModelPickerDialog({ visible, onClose }) {
   const model = useAppStore(s => s.model);
@@ -48,6 +49,9 @@ export default function ModelPickerDialog({ visible, onClose }) {
             )}
           </div>
           <div className="mp-models-wrap">
+            {filteredModels.length === 0 ? (
+              <EmptyState icon={Search} title="未找到匹配的模型" description="尝试其他关键词" compact />
+            ) : (
             <div className="sec-card" style={{ margin: 0 }}>
               {filteredModels.map(m => {
                 const active = m.id === model;
@@ -84,6 +88,7 @@ export default function ModelPickerDialog({ visible, onClose }) {
                 );
               })}
             </div>
+            )}
           </div>
         </div>
       </div>

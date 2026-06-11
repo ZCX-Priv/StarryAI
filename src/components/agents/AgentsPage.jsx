@@ -1,10 +1,11 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { Menu, Plus } from 'lucide-react';
+import { Menu, Plus, Search, Users } from 'lucide-react';
 import useAppStore from '@/store/useAppStore';
 import { IDBStore } from '@/services/storage';
 import AgentSearch from './AgentSearch';
 import CategoryTabs from './CategoryTabs';
 import AgentCard from './AgentCard';
+import EmptyState from '@/components/ui/EmptyState';
 
 export default function AgentsPage({ onOpenModal, onToggleSidebar }) {
   const agentsConfig = useAppStore(s => s.agentsConfig);
@@ -139,16 +140,26 @@ export default function AgentsPage({ onOpenModal, onToggleSidebar }) {
           onAddCategory={() => onOpenModal('createCategory')}
           onDeleteCategory={handleDeleteCategory}
         />
+        {filteredAgents.length === 0 ? (
+          searchKeyword ? (
+            <EmptyState icon={Search} title="未找到匹配的智能体" description="尝试其他关键词" />
+          ) : currentCategory === 'mine' ? (
+            <EmptyState icon={Users} title="暂无智能体" description="创建一个专属 AI 智能体" />
+          ) : (
+            <EmptyState icon={Users} title="该分类暂无智能体" />
+          )
+        ) : (
         <div className="agents-grid">
           {filteredAgents.map(agent => (
             <AgentCard
-              key={agent.id}
-              agent={agent}
-              onSelect={handleSelectAgent}
-              onDelete={handleDeleteAgent}
-            />
-          ))}
+                key={agent.id}
+                agent={agent}
+                onSelect={handleSelectAgent}
+                onDelete={handleDeleteAgent}
+              />
+            ))}
         </div>
+        )}
       </div>
     </>
   );
