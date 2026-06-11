@@ -49,7 +49,10 @@ export default function useStore() {
         store.setKeys(keys || []);
         store.setMemory(memory || []);
         if (activeKey) store.setActiveKey(activeKey);
-        if (theme) store.setTheme(theme);
+        const effectiveTheme = theme || 'auto';
+        store.setTheme(effectiveTheme);
+        const dark = effectiveTheme === 'dark' || (effectiveTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
         if (model) store.setModel(model);
         if (activeChatId) store.setActiveChatId(activeChatId);
         store.setHoneycomb(honeycomb === true || honeycomb === 'true' || honeycomb === '1');

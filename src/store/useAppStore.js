@@ -39,6 +39,7 @@ const useAppStore = create((set, get) => ({
   toastMessage: null,
   toastVisible: false,
   streamingText: '',
+  honeycombNeedsRedraw: false,
 
   // Actions
   setKeys: (keys) => set({ keys }),
@@ -70,6 +71,8 @@ const useAppStore = create((set, get) => ({
   setAgentsConfig: (config) => set({ agentsConfig: config }),
   setBannerConfig: (config) => set({ bannerConfig: config }),
   setStreamingText: (text) => set({ streamingText: text }),
+  triggerHoneycombRedraw: () => set({ honeycombNeedsRedraw: true }),
+  clearHoneycombRedraw: () => set({ honeycombNeedsRedraw: false }),
 
   showToast: (msg) => {
     set({ toastMessage: msg, toastVisible: true });

@@ -8,9 +8,7 @@ export default function Topbar({ onOpenModal, onToggleSidebar }) {
   const model = useAppStore(s => s.model);
   const models = useAppStore(s => s.models);
   const memory = useAppStore(s => s.memory);
-  const { theme, toggle } = useTheme();
-
-  const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const { isDark, toggle } = useTheme();
 
   const activeChat = chats.find(c => c.id === activeChatId);
   const chatTitle = (!activeChat?.title || activeChat.title === '新对话') ? '新对话' : activeChat.title;

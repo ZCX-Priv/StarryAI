@@ -34,6 +34,7 @@ function drawHoneycomb(canvas) {
 export default function HoneycombCanvas() {
   const canvasRef = useRef(null);
   const honeycomb = useAppStore(s => s.honeycomb);
+  const honeycombNeedsRedraw = useAppStore(s => s.honeycombNeedsRedraw);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -41,6 +42,13 @@ export default function HoneycombCanvas() {
     canvas.style.opacity = honeycomb ? '0.18' : '0';
     drawHoneycomb(canvas);
   }, [honeycomb]);
+
+  // 主题切换时重绘
+  useEffect(() => {
+    if (!honeycombNeedsRedraw) return;
+    drawHoneycomb(canvasRef.current);
+    useAppStore.getState().clearHoneycombRedraw();
+  }, [honeycombNeedsRedraw]);
 
   useEffect(() => {
     const handler = () => {

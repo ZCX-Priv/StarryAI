@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { X, Trash2 } from 'lucide-react';
+import { X, Trash2, Monitor, Sun, Moon } from 'lucide-react';
 import useAppStore from '@/store/useAppStore';
 import useTheme from '@/hooks/useTheme';
 import { IDBStore } from '@/services/storage';
@@ -67,7 +67,8 @@ export default function SettingsDialog({ visible, onClose }) {
             style={{ cursor: 'pointer' }}
             onClick={() => { apply(th); }}
           >
-            <div className="sec-row-label">
+            <div className="sec-row-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {th === 'auto' ? <Monitor size={14} /> : th === 'dark' ? <Moon size={14} /> : <Sun size={14} />}
               {th === 'auto' ? '自动' : th === 'dark' ? '深色' : '浅色'}
             </div>
             {theme === th && (
