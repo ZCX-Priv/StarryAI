@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
-import { ArrowUp, Square, Paperclip } from 'lucide-react';
+import { ArrowUp, Paperclip } from 'lucide-react';
 import useAppStore from '@/store/useAppStore';
 import { API } from '@/services/api';
 import ModeSelector from './ModeSelector';
@@ -318,7 +318,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
   }, [inputValue, isStreaming, activeChatId, createChat, addMessage, setIsStreaming, setStopRequested, model, contextLength, currentMode, modeConfig]);
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && e.ctrlKey) {
       e.preventDefault();
       handleSend();
     }
@@ -400,7 +400,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
               onClick={handleStop}
               type="button"
             >
-              <Square size={14} />
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
             </button>
           </div>
         </div>
@@ -423,7 +423,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
           </button>
         </div>
       </div>
-      <div className="input-hint">回复可能包含错误</div>
+      <div className="input-hint">Ctrl+Enter 发送，回复可能包含错误</div>
     </div>
   );
 }
