@@ -33,7 +33,7 @@ export default function Topbar({ onOpenModal, onToggleSidebar }) {
           <Brain size={16} />
         </button>
         <button className="model-pill" onClick={() => onOpenModal('model')} title="">
-          <Bot size={12} />
+          <Bot size={16} />
           <span>{modelLabel}</span>
           <ChevronDown size={10} style={{ opacity: 0.5 }} />
         </button>

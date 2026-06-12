@@ -109,7 +109,8 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 .tb-toggle { width: 34px; height: 34px; background: none; border: none; border-radius: var(--radius-sm); cursor: pointer; color: var(--text2); display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; }
 .tb-toggle:hover { background: var(--bg3); color: var(--text); }
 .tb-title { font-size: 14px; font-weight: 500; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
-.model-pill { display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 9px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 20px; cursor: pointer; transition: background .15s; font-size: 12px; color: var(--text2); font-weight: 500; position: relative; }
+.model-pill { display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 9px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 20px; cursor: pointer; transition: background .15s; font-size: 12px; color: var(--text2); font-weight: 500; position: relative; max-width: 200px; overflow: hidden; }
+.model-pill span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .model-pill:hover { background: var(--bg4); }
 .brain-btn { width: 28px; height: 28px; background: none; border: none; cursor: pointer; color: var(--text3); display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: color .15s, background .15s; position: relative; }
 .brain-btn:hover { color: var(--accent2); background: var(--accent-glow); }
@@ -416,6 +417,7 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
   #sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 10; transform: translateX(-100%); }
   #sidebar.open { transform: translateX(0); }
   .msg-bubble { max-width: 92%; }
+  .model-pill { max-width: 150px; }
   #scroll-btn { z-index: 8; }
   .action-btn .action-btn-label { display: none; }
   .action-btn { padding: 6px 8px; }
