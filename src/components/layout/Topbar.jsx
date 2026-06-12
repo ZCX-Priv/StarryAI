@@ -1,4 +1,4 @@
-import { Brain, Sun, Moon, ChevronDown, Menu } from 'lucide-react';
+import { Brain, Sun, Moon, ChevronDown, Menu, Bot } from 'lucide-react';
 import useAppStore from '@/store/useAppStore';
 import useTheme from '@/hooks/useTheme';
 
@@ -33,10 +33,7 @@ export default function Topbar({ onOpenModal, onToggleSidebar }) {
           <Brain size={16} />
         </button>
         <button className="model-pill" onClick={() => onOpenModal('model')} title="">
-          <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <path d="M9 3v18M3 9h6M3 15h6" />
-          </svg>
+          <Bot size={12} />
           <span>{modelLabel}</span>
           <ChevronDown size={10} style={{ opacity: 0.5 }} />
         </button>
