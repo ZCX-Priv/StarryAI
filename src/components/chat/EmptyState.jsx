@@ -1,5 +1,3 @@
-import useAppStore from '@/store/useAppStore';
-
 export default function EmptyState() {
   return (
     <div className="empty-state">

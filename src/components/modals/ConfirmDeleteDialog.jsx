@@ -1,9 +1,9 @@
 import { X } from 'lucide-react';
-import useAppStore from '@/store/useAppStore';
+import { useChatStore, useUiStore } from '@/status';
 
 export default function ConfirmDeleteDialog({ visible, onClose, chatId }) {
-  const deleteChat = useAppStore(s => s.deleteChat);
-  const showToast = useAppStore(s => s.showToast);
+  const deleteChat = useChatStore(s => s.deleteChat);
+  const showToast = useUiStore(s => s.showToast);
 
   if (!visible) return null;
 

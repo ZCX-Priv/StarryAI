@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
-import { Zap, Layers, Sparkles, ChevronRight } from 'lucide-react';
-import useAppStore from '@/store/useAppStore';
+import { Zap, Atom, Sparkles, ChevronRight } from 'lucide-react';
+import { useModeStore } from '@/status';
 
 const MODES = [
   {
@@ -13,7 +13,7 @@ const MODES = [
     id: 'thinking',
     label: '思考',
     desc: '擅长解决更难的问题',
-    icon: Layers,
+    icon: Atom,
   },
   {
     id: 'expert',
@@ -24,8 +24,8 @@ const MODES = [
 ];
 
 export default function ModeSelector() {
-  const currentMode = useAppStore(s => s.currentMode);
-  const setCurrentMode = useAppStore(s => s.setCurrentMode);
+  const currentMode = useModeStore(s => s.currentMode);
+  const setCurrentMode = useModeStore(s => s.setCurrentMode);
   const [open, setOpen] = useState(false);
   const btnRef = useRef(null);
   const menuRef = useRef(null);

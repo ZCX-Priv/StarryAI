@@ -1,19 +1,19 @@
 import { useCallback } from 'react';
-import useAppStore from '@/store/useAppStore';
+import { useModelStore, useChatStore } from '@/status';
 import { IDBStore } from '@/services/storage';
 import { API } from '@/services/api';
 
 export default function useModels() {
-  const models = useAppStore(s => s.models);
-  const model = useAppStore(s => s.model);
+  const models = useModelStore(s => s.models);
+  const model = useModelStore(s => s.model);
 
   const loadModels = useCallback(async () => {
     const loadedModels = await API.loadModels();
     if (loadedModels && loadedModels.length > 0) {
-      useAppStore.getState().setModels(loadedModels);
-      const currentModel = useAppStore.getState().model;
+      useModelStore.getState().setModels(loadedModels);
+      const currentModel = useModelStore.getState().model;
       if (!loadedModels.find(m => m.id === currentModel)) {
-        useAppStore.getState().setModel(loadedModels[0]?.id || 'nova-fast');
+        useModelStore.getState().setModel(loadedModels[0]?.id || 'nova-fast');
         await IDBStore.setConfig('model', loadedModels[0]?.id || 'nova-fast');
       }
     }
@@ -21,29 +21,29 @@ export default function useModels() {
   }, []);
 
   const filterModels = useCallback((searchTerm) => {
-    if (!searchTerm) return useAppStore.getState().models;
+    if (!searchTerm) return useModelStore.getState().models;
     const term = searchTerm.toLowerCase();
-    return useAppStore.getState().models.filter(m =>
+    return useModelStore.getState().models.filter(m =>
       m.id.toLowerCase().includes(term) ||
       m.label.toLowerCase().includes(term)
     );
   }, []);
 
   const setModel = useCallback(async (id) => {
-    useAppStore.getState().setModel(id);
+    useModelStore.getState().setModel(id);
     await IDBStore.setConfig('model', id);
   }, []);
 
   const setModelAndUpdate = useCallback(async (id) => {
-    useAppStore.getState().setModel(id);
+    useModelStore.getState().setModel(id);
     await IDBStore.setConfig('model', id);
 
     // Update active chat model
-    const store = useAppStore.getState();
-    const chat = store.chats.find(c => c.id === store.activeChatId);
+    const chatStore = useChatStore.getState();
+    const chat = chatStore.chats.find(c => c.id === chatStore.activeChatId);
     if (chat) {
       chat.model = id;
-      store.setChats([...store.chats]);
+      chatStore.setChats([...chatStore.chats]);
       await IDBStore.saveChat(chat);
     }
   }, []);

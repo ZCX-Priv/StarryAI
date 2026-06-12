@@ -1,13 +1,13 @@
 import { Brain, Sun, Moon, ChevronDown, Menu, Bot } from 'lucide-react';
-import useAppStore from '@/store/useAppStore';
+import { useChatStore, useModelStore, useMemoryStore } from '@/status';
 import useTheme from '@/hooks/useTheme';
 
 export default function Topbar({ onOpenModal, onToggleSidebar }) {
-  const chats = useAppStore(s => s.chats);
-  const activeChatId = useAppStore(s => s.activeChatId);
-  const model = useAppStore(s => s.model);
-  const models = useAppStore(s => s.models);
-  const memory = useAppStore(s => s.memory);
+  const chats = useChatStore(s => s.chats);
+  const activeChatId = useChatStore(s => s.activeChatId);
+  const model = useModelStore(s => s.model);
+  const models = useModelStore(s => s.models);
+  const memory = useMemoryStore(s => s.memory);
   const { isDark, toggle } = useTheme();
 
   const activeChat = chats.find(c => c.id === activeChatId);

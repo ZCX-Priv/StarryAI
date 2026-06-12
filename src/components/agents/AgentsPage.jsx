@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Menu, Plus, Search, Users } from 'lucide-react';
-import useAppStore from '@/store/useAppStore';
+import { useAgentStore, useUiStore } from '@/status';
 import { IDBStore } from '@/services/storage';
 import AgentSearch from './AgentSearch';
 import CategoryTabs from './CategoryTabs';
@@ -8,12 +8,12 @@ import AgentCard from './AgentCard';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function AgentsPage({ onOpenModal, onToggleSidebar }) {
-  const agentsConfig = useAppStore(s => s.agentsConfig);
-  const setAgentsConfig = useAppStore(s => s.setAgentsConfig);
-  const setCurrentPage = useAppStore(s => s.setCurrentPage);
-  const setCurrentAgentId = useAppStore(s => s.setCurrentAgentId);
-  const setAgentPrompt = useAppStore(s => s.setAgentPrompt);
-  const showToast = useAppStore(s => s.showToast);
+  const agentsConfig = useAgentStore(s => s.agentsConfig);
+  const setAgentsConfig = useAgentStore(s => s.setAgentsConfig);
+  const setCurrentAgentId = useAgentStore(s => s.setCurrentAgentId);
+  const setAgentPrompt = useAgentStore(s => s.setAgentPrompt);
+  const setCurrentPage = useUiStore(s => s.setCurrentPage);
+  const showToast = useUiStore(s => s.showToast);
   const [currentCategory, setCurrentCategory] = useState('all');
   const [searchKeyword, setSearchKeyword] = useState('');
 

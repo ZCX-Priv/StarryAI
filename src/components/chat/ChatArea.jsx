@@ -1,22 +1,22 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import useAppStore from '@/store/useAppStore';
+import { useChatStore, useModelStore, useModeStore, useStreamStore } from '@/status';
 import { API } from '@/services/api';
 import MessageList from './MessageList';
 
 export default function ChatArea({ onOpenModal, scrollBtnProps }) {
   const chatAreaRef = useRef(null);
-  const autoScroll = useAppStore(s => s.autoScroll);
-  const setAutoScroll = useAppStore(s => s.setAutoScroll);
-  const isStreaming = useAppStore(s => s.isStreaming);
-  const activeChatId = useAppStore(s => s.activeChatId);
-  const chats = useAppStore(s => s.chats);
-  const addMessage = useAppStore(s => s.addMessage);
-  const model = useAppStore(s => s.model);
-  const contextLength = useAppStore(s => s.contextLength);
-  const currentMode = useAppStore(s => s.currentMode);
-  const modeConfig = useAppStore(s => s.modeConfig);
-  const setIsStreaming = useAppStore(s => s.setIsStreaming);
-  const setStopRequested = useAppStore(s => s.setStopRequested);
+  const autoScroll = useStreamStore(s => s.autoScroll);
+  const setAutoScroll = useStreamStore(s => s.setAutoScroll);
+  const isStreaming = useStreamStore(s => s.isStreaming);
+  const activeChatId = useChatStore(s => s.activeChatId);
+  const chats = useChatStore(s => s.chats);
+  const addMessage = useChatStore(s => s.addMessage);
+  const model = useModelStore(s => s.model);
+  const contextLength = useModelStore(s => s.contextLength);
+  const currentMode = useModeStore(s => s.currentMode);
+  const modeConfig = useModeStore(s => s.modeConfig);
+  const setIsStreaming = useStreamStore(s => s.setIsStreaming);
+  const setStopRequested = useStreamStore(s => s.setStopRequested);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
   const scrollToBottom = useCallback((force = true) => {
@@ -66,7 +66,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }) {
 
     if (chat.messages[chat.messages.length - 1]?.role === 'assistant') {
       chat.messages.pop();
-      useAppStore.setState({ chats: [...useAppStore.getState().chats] });
+      useChatStore.setState({ chats: [...useChatStore.getState().chats] });
     }
 
     const allMsgs = chat.messages.map(m => ({ role: m.role, content: m.content }));
@@ -78,12 +78,12 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }) {
     let fullResp = '';
     try {
       for await (const chunk of API.stream(msgs, modelToUse)) {
-        if (useAppStore.getState().stopRequested) break;
+        if (useStreamStore.getState().stopRequested) break;
         fullResp += chunk;
       }
       if (fullResp) addMessage('assistant', fullResp);
     } catch (e) {
-      if (!useAppStore.getState().stopRequested) {
+      if (!useStreamStore.getState().stopRequested) {
         addMessage('assistant', `⚠ ${e?.message || 'Error'}`);
       }
     }

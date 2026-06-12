@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
 import { X, Search, Gem, Atom } from 'lucide-react';
-import useAppStore from '@/store/useAppStore';
+import { useModelStore } from '@/status';
 import { formatContextLength } from '@/lib/config';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function ModelPickerDialog({ visible, onClose }) {
-  const model = useAppStore(s => s.model);
-  const setModel = useAppStore(s => s.setModel);
-  const models = useAppStore(s => s.models);
+  const model = useModelStore(s => s.model);
+  const setModel = useModelStore(s => s.setModel);
+  const models = useModelStore(s => s.models);
   const [search, setSearch] = useState('');
 
   const filteredModels = useMemo(() => {

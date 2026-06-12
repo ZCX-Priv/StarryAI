@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
-import useAppStore from '@/store/useAppStore';
+import { useChatStore } from '@/status';
 
 export default function RenameDialog({ visible, onClose, chatId }) {
-  const chats = useAppStore(s => s.chats);
-  const renameChat = useAppStore(s => s.renameChat);
+  const chats = useChatStore(s => s.chats);
+  const renameChat = useChatStore(s => s.renameChat);
   const [value, setValue] = useState('');
   const inputRef = useRef(null);
 

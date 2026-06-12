@@ -1,16 +1,16 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Plus, Users, Settings, MessageSquare, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
-import useAppStore from '@/store/useAppStore';
+import { useChatStore, useUiStore } from '@/status';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function Sidebar({ onOpenModal, onToggleSidebar }) {
-  const chats = useAppStore(s => s.chats);
-  const activeChatId = useAppStore(s => s.activeChatId);
-  const createChat = useAppStore(s => s.createChat);
-  const switchToChat = useAppStore(s => s.switchToChat);
-  const deleteChat = useAppStore(s => s.deleteChat);
-  const renameChat = useAppStore(s => s.renameChat);
-  const setCurrentPage = useAppStore(s => s.setCurrentPage);
+  const chats = useChatStore(s => s.chats);
+  const activeChatId = useChatStore(s => s.activeChatId);
+  const createChat = useChatStore(s => s.createChat);
+  const switchToChat = useChatStore(s => s.switchToChat);
+  const deleteChat = useChatStore(s => s.deleteChat);
+  const renameChat = useChatStore(s => s.renameChat);
+  const setCurrentPage = useUiStore(s => s.setCurrentPage);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);

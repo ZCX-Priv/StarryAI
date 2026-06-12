@@ -1,5 +1,5 @@
 import { API_BASE } from '@/lib/config';
-import useAppStore from '@/store/useAppStore';
+import { useModelStore, useModeStore, useKeyStore, useStreamStore } from '@/status';
 
 function _normalizeReasoningValue(value, trimStrings = true) {
   if (!value) return '';
@@ -29,25 +29,26 @@ function _mergeReasoningAndContent(reasoning, content) {
   return `<think/>\n${nr}\n</think/>\n${nc ? `\n${nc}` : ''}`;
 }
 
-function _buildParams(msgs, model, stream) {
-  const state = useAppStore.getState();
+function _buildParams(msgs, model) {
+  const modelState = useModelStore.getState();
+  const modeState = useModeStore.getState();
   const baseParams = {
-    model: model || state.model,
+    model: model || modelState.model,
     messages: msgs,
-    stream,
+    stream: true,
     seed: Math.floor(Math.random() * 2147483647),
-    temperature: state.temperature,
-    top_p: state.topP,
+    temperature: modelState.temperature,
+    top_p: modelState.topP,
   };
-  const modeConfig = state.modeConfig[state.currentMode] || {};
+  const modeConfig = modeState.modeConfig[modeState.currentMode] || {};
   return { ...baseParams, ...modeConfig };
 }
 
 async function fetchAPI(msgs, model) {
-  const state = useAppStore.getState();
+  const keyState = useKeyStore.getState();
   const r = await fetch(`${API_BASE}/v1/chat/completions`, {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${state.activeKey}`, 'Content-Type': 'application/json' },
+    headers: { 'Authorization': `Bearer ${keyState.activeKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(_buildParams(msgs, model, false)),
   });
   if (r.status === 401 || r.status === 403) return null;
@@ -62,10 +63,10 @@ async function fetchAPI(msgs, model) {
 }
 
 async function* streamAPI(msgs, model) {
-  const state = useAppStore.getState();
+  const keyState = useKeyStore.getState();
   const r = await fetch(`${API_BASE}/v1/chat/completions`, {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${state.activeKey}`, 'Content-Type': 'application/json' },
+    headers: { 'Authorization': `Bearer ${keyState.activeKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(_buildParams(msgs, model, true)),
   });
   if (r.status === 401 || r.status === 403) return;
@@ -88,13 +89,13 @@ async function* streamAPI(msgs, model) {
   let buf = '';
   let inThinking = false;
   while (true) {
-    if (useAppStore.getState().stopRequested) { try { reader.cancel(); } catch {} return; }
+    if (useStreamStore.getState().stopRequested) { try { reader.cancel(); } catch {} return; }
     const { done, value } = await reader.read();
     if (done) break;
     buf += dec.decode(value, { stream: true });
     const lines = buf.split('\n'); buf = lines.pop();
     for (const line of lines) {
-      if (useAppStore.getState().stopRequested) return;
+      if (useStreamStore.getState().stopRequested) return;
       if (!line.startsWith('data: ')) continue;
       const data = line.slice(6).trim();
       if (data === '[DONE]') {

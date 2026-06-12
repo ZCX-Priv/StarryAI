@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import useAppStore from '@/store/useAppStore';
+import { useThemeStore } from '@/status';
 import { IDBStore } from '@/services/storage';
 
 function computeIsDark(theme) {
@@ -7,29 +7,29 @@ function computeIsDark(theme) {
 }
 
 export default function useTheme() {
-  const theme = useAppStore(s => s.theme);
-  const [isDark, setIsDark] = useState(() => computeIsDark(useAppStore.getState().theme));
+  const theme = useThemeStore(s => s.theme);
+  const [isDark, setIsDark] = useState(() => computeIsDark(useThemeStore.getState().theme));
   const prevThemeRef = useRef(theme);
 
   const apply = useCallback((newTheme) => {
-    useAppStore.getState().setTheme(newTheme);
+    useThemeStore.getState().setTheme(newTheme);
     const dark = computeIsDark(newTheme);
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
     IDBStore.setConfig('theme', newTheme);
     requestAnimationFrame(() => {
-      useAppStore.getState().triggerHoneycombRedraw();
+      useThemeStore.getState().triggerHoneycombRedraw();
     });
   }, []);
 
   const toggle = useCallback(() => {
-    const dark = computeIsDark(useAppStore.getState().theme);
+    const dark = computeIsDark(useThemeStore.getState().theme);
     apply(dark ? 'light' : 'dark');
   }, [apply]);
 
   // 响应式更新 isDark：store theme 变化 + 系统偏好变化
   useEffect(() => {
     const update = () => {
-      const t = useAppStore.getState().theme;
+      const t = useThemeStore.getState().theme;
       setIsDark(computeIsDark(t));
     };
 
@@ -38,7 +38,7 @@ export default function useTheme() {
     mediaQuery.addEventListener('change', update);
 
     // 监听 store theme 变化
-    const unsub = useAppStore.subscribe((state) => {
+    const unsub = useThemeStore.subscribe((state) => {
       if (state.theme !== prevThemeRef.current) {
         prevThemeRef.current = state.theme;
         update();
@@ -55,7 +55,7 @@ export default function useTheme() {
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {
-      const currentTheme = useAppStore.getState().theme;
+      const currentTheme = useThemeStore.getState().theme;
       if (currentTheme === 'auto') {
         apply('auto');
       }

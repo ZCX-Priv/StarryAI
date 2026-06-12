@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import { ArrowUp, Paperclip } from 'lucide-react';
-import useAppStore from '@/store/useAppStore';
+import { useChatStore, useKeyStore, useModelStore, useModeStore, useStreamStore, useUiStore } from '@/status';
 import { API } from '@/services/api';
 import ModeSelector from './ModeSelector';
 import StreamStatus from './StreamStatus';
@@ -116,24 +116,24 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
   const trailingRef = useRef(null);
   const moreMeasureRef = useRef(null);
   const actionMeasureRefs = useRef(new Map());
-  const isStreaming = useAppStore(s => s.isStreaming);
-  const setIsStreaming = useAppStore(s => s.setIsStreaming);
-  const setStopRequested = useAppStore(s => s.setStopRequested);
-  const activeChatId = useAppStore(s => s.activeChatId);
-  const createChat = useAppStore(s => s.createChat);
-  const addMessage = useAppStore(s => s.addMessage);
-  const chats = useAppStore(s => s.chats);
-  const model = useAppStore(s => s.model);
-  const contextLength = useAppStore(s => s.contextLength);
-  const currentMode = useAppStore(s => s.currentMode);
-  const modeConfig = useAppStore(s => s.modeConfig);
-  const temperature = useAppStore(s => s.temperature);
-  const topP = useAppStore(s => s.topP);
-  const activeKey = useAppStore(s => s.activeKey);
-  const showToast = useAppStore(s => s.showToast);
-  const currentBannerMode = useAppStore(s => s.currentBannerMode);
-  const setCurrentBannerMode = useAppStore(s => s.setCurrentBannerMode);
-  const setBannerPrompt = useAppStore(s => s.setBannerPrompt);
+  const isStreaming = useStreamStore(s => s.isStreaming);
+  const setIsStreaming = useStreamStore(s => s.setIsStreaming);
+  const setStopRequested = useStreamStore(s => s.setStopRequested);
+  const activeChatId = useChatStore(s => s.activeChatId);
+  const createChat = useChatStore(s => s.createChat);
+  const addMessage = useChatStore(s => s.addMessage);
+  const chats = useChatStore(s => s.chats);
+  const model = useModelStore(s => s.model);
+  const contextLength = useModelStore(s => s.contextLength);
+  const currentMode = useModeStore(s => s.currentMode);
+  const modeConfig = useModeStore(s => s.modeConfig);
+  const temperature = useModelStore(s => s.temperature);
+  const topP = useModelStore(s => s.topP);
+  const activeKey = useKeyStore(s => s.activeKey);
+  const showToast = useUiStore(s => s.showToast);
+  const currentBannerMode = useModeStore(s => s.currentBannerMode);
+  const setCurrentBannerMode = useModeStore(s => s.setCurrentBannerMode);
+  const setBannerPrompt = useModeStore(s => s.setBannerPrompt);
 
   const { bannerConfig, handleAction, clearSelection } = useBanner();
   const hasText = inputValue.trim().length > 0;
@@ -283,7 +283,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
       textareaRef.current.style.height = 'auto';
     }
 
-    const chatId = useAppStore.getState().activeChatId || activeChatId;
+    const chatId = useChatStore.getState().activeChatId || activeChatId;
     addMessage('user', text);
 
     setIsStreaming(true);
@@ -291,7 +291,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
 
     let fullResp = '';
     try {
-      const chat = useAppStore.getState().chats.find(c => c.id === (useAppStore.getState().activeChatId || chatId));
+      const chat = useChatStore.getState().chats.find(c => c.id === (useChatStore.getState().activeChatId || chatId));
       const allMsgs = (chat?.messages || []).filter(m => m.role !== 'system').map(m => ({ role: m.role, content: m.content }));
       const msgs = contextLength > 0 ? allMsgs.slice(-contextLength) : [];
 
@@ -301,7 +301,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
       }
 
       for await (const chunk of API.stream(msgs, modelToUse)) {
-        if (useAppStore.getState().stopRequested) break;
+        if (useStreamStore.getState().stopRequested) break;
         fullResp += chunk;
       }
 
@@ -309,7 +309,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
         addMessage('assistant', fullResp);
       }
     } catch (e) {
-      if (!useAppStore.getState().stopRequested) {
+      if (!useStreamStore.getState().stopRequested) {
         addMessage('assistant', `⚠ ${e?.message || 'Error'}`);
       }
     }

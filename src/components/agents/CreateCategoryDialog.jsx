@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import useAppStore from '@/store/useAppStore';
+import { useAgentStore, useUiStore } from '@/status';
 import { IDBStore } from '@/services/storage';
 
 export default function CreateCategoryDialog({ visible, onClose }) {
   const [name, setName] = useState('');
-  const showToast = useAppStore(s => s.showToast);
+  const showToast = useUiStore(s => s.showToast);
 
   if (!visible) return null;
 
@@ -15,7 +15,7 @@ export default function CreateCategoryDialog({ visible, onClose }) {
       return;
     }
 
-    const agentsConfig = useAppStore.getState().agentsConfig;
+    const agentsConfig = useAgentStore.getState().agentsConfig;
     const existingNames = agentsConfig?.categories?.map(c => c.name) || [];
     if (existingNames.includes(name)) {
       showToast('该分类名称已存在');
@@ -40,7 +40,7 @@ export default function CreateCategoryDialog({ visible, onClose }) {
         } else {
           agentsConfig.categories.push(category);
         }
-        useAppStore.setState({ agentsConfig: { ...agentsConfig } });
+        useAgentStore.setState({ agentsConfig: { ...agentsConfig } });
       }
 
       showToast(`分类"${name}"创建成功！`);

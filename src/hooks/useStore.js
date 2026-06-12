@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import useAppStore from '@/store/useAppStore';
+import { useChatStore, useKeyStore, useMemoryStore, useModelStore, useThemeStore, useAgentStore, useModeStore, useUiStore, useStreamStore } from '@/status';
 import { IDBStore } from '@/services/storage';
 import { Migration } from '@/services/migration';
 import { loadMainPrompt, loadMemoryPrompts, loadModePrompt } from '@/lib/prompts';
@@ -43,24 +43,22 @@ export default function useStore() {
 
         if (cancelled) return;
 
-        const store = useAppStore.getState();
-
-        store.setChats(chats || []);
-        store.setKeys(keys || []);
-        store.setMemory(memory || []);
-        if (activeKey) store.setActiveKey(activeKey);
+        useChatStore.getState().setChats(chats || []);
+        useKeyStore.getState().setKeys(keys || []);
+        useMemoryStore.getState().setMemory(memory || []);
+        if (activeKey) useKeyStore.getState().setActiveKey(activeKey);
         const effectiveTheme = theme || 'auto';
-        store.setTheme(effectiveTheme);
+        useThemeStore.getState().setTheme(effectiveTheme);
         const dark = effectiveTheme === 'dark' || (effectiveTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-        if (model) store.setModel(model);
-        if (activeChatId) store.setActiveChatId(activeChatId);
-        store.setHoneycomb(honeycomb === true || honeycomb === 'true' || honeycomb === '1');
-        if (temperature) store.setTemperature(parseFloat(temperature) || 0.7);
-        if (topP) store.setTopP(parseFloat(topP) || 0.95);
-        if (contextLength) store.setContextLength(parseInt(contextLength) || 10);
-        if (currentAgentId) store.setCurrentAgentId(currentAgentId);
-        if (currentMode) store.setCurrentMode(currentMode);
+        if (model) useModelStore.getState().setModel(model);
+        if (activeChatId) useChatStore.getState().setActiveChatId(activeChatId);
+        useThemeStore.getState().setHoneycomb(honeycomb === true || honeycomb === 'true' || honeycomb === '1');
+        if (temperature) useModelStore.getState().setTemperature(parseFloat(temperature) || 0.7);
+        if (topP) useModelStore.getState().setTopP(parseFloat(topP) || 0.95);
+        if (contextLength) useModelStore.getState().setContextLength(parseInt(contextLength) || 10);
+        if (currentAgentId) useAgentStore.getState().setCurrentAgentId(currentAgentId);
+        if (currentMode) useModeStore.getState().setCurrentMode(currentMode);
 
         // Load prompts (synchronous - they use ?raw imports)
         loadMainPrompt();
@@ -74,7 +72,7 @@ export default function useStore() {
           const agentsRes = await fetch('/data/agents.json');
           if (agentsRes.ok) {
             const agentsConfig = await agentsRes.json();
-            store.setAgentsConfig(agentsConfig);
+            useAgentStore.getState().setAgentsConfig(agentsConfig);
             // Load custom agents
             const customAgents = await IDBStore.getAgentConfig('customAgents') || [];
             const customCategories = await IDBStore.getAgentConfig('customCategories') || [];
@@ -94,7 +92,7 @@ export default function useStore() {
                 }
               });
             }
-            store.setAgentsConfig(agentsConfig);
+            useAgentStore.getState().setAgentsConfig(agentsConfig);
           }
         } catch (e) {
           console.error('Failed to load agents config:', e);
@@ -104,7 +102,7 @@ export default function useStore() {
         try {
           const bannerRes = await fetch('/data/banner.json');
           if (bannerRes.ok) {
-            store.setBannerConfig(await bannerRes.json());
+            useModeStore.getState().setBannerConfig(await bannerRes.json());
           }
         } catch (e) {
           console.error('Failed to load banner config:', e);
@@ -115,9 +113,9 @@ export default function useStore() {
           const { API } = await import('@/services/api');
           const models = await API.loadModels();
           if (models && models.length > 0) {
-            store.setModels(models);
-            if (!models.find(m => m.id === useAppStore.getState().model)) {
-              store.setModel(models[0]?.id || 'nova-fast');
+            useModelStore.getState().setModels(models);
+            if (!models.find(m => m.id === useModelStore.getState().model)) {
+              useModelStore.getState().setModel(models[0]?.id || 'nova-fast');
             }
           }
         } catch {}

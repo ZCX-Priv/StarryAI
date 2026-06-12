@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Plus, X } from 'lucide-react';
-import useAppStore from '@/store/useAppStore';
+import { useAgentStore, useUiStore } from '@/status';
 import { IDBStore } from '@/services/storage';
 
 const COMMON_EMOJIS = ['🤖', '👨‍💻', '👩‍💻', '🎨', '📝', '📚', '💡', '🔧', '🎯', '🚀', '💼', '🎓', '✨', '🌟', '💪', '🧠', '💻', '🔬', '📊', '🎵', '🎮', '📱', '🌈', '🔥', '⚡', '🦾', '🤝', '💎', '🏆'];
@@ -12,7 +12,7 @@ export default function CreateAgentDialog({ visible, onClose }) {
   const [description, setDescription] = useState('');
   const [prompt, setPrompt] = useState('');
   const [showEmojiGrid, setShowEmojiGrid] = useState(false);
-  const showToast = useAppStore(s => s.showToast);
+  const showToast = useUiStore(s => s.showToast);
 
   if (!visible) return null;
 
@@ -42,10 +42,10 @@ export default function CreateAgentDialog({ visible, onClose }) {
       customAgents.push(agent);
       await IDBStore.setAgentConfig('customAgents', customAgents);
 
-      const agentsConfig = useAppStore.getState().agentsConfig;
+      const agentsConfig = useAgentStore.getState().agentsConfig;
       if (agentsConfig && agentsConfig.agents) {
         agentsConfig.agents.push(agent);
-        useAppStore.setState({ agentsConfig: { ...agentsConfig } });
+        useAgentStore.setState({ agentsConfig: { ...agentsConfig } });
       }
 
       showToast(`智能体"${name}"创建成功！`);

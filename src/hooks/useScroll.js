@@ -1,9 +1,9 @@
 import { useRef, useEffect, useCallback } from 'react';
-import useAppStore from '@/store/useAppStore';
+import { useStreamStore } from '@/status';
 
 export function useScroll(chatAreaRef) {
-  const autoScroll = useAppStore(s => s.autoScroll);
-  const setAutoScroll = useAppStore(s => s.setAutoScroll);
+  const autoScroll = useStreamStore(s => s.autoScroll);
+  const setAutoScroll = useStreamStore(s => s.setAutoScroll);
 
   const pinToBottom = useCallback((area) => {
     if (!area) return;
@@ -20,12 +20,12 @@ export function useScroll(chatAreaRef) {
   }, [chatAreaRef, setAutoScroll, pinToBottom]);
 
   const maybeScroll = useCallback(() => {
-    if (useAppStore.getState().autoScroll) {
+    if (useStreamStore.getState().autoScroll) {
       const area = chatAreaRef?.current;
       if (!area) return;
       pinToBottom(area);
       requestAnimationFrame(() => {
-        if (useAppStore.getState().autoScroll) pinToBottom(area);
+        if (useStreamStore.getState().autoScroll) pinToBottom(area);
       });
     }
   }, [chatAreaRef, pinToBottom]);

@@ -1,5 +1,5 @@
 import { useRef, useCallback, useEffect, useState } from 'react';
-import useAppStore from '@/store/useAppStore';
+import { useUiStore } from '@/status';
 import HoneycombCanvas from './HoneycombCanvas';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
@@ -17,9 +17,9 @@ import CreateAgentDialog from '@/components/agents/CreateAgentDialog';
 import CreateCategoryDialog from '@/components/agents/CreateCategoryDialog';
 
 export default function AppShell() {
-  const currentPage = useAppStore(s => s.currentPage);
-  const toastMessage = useAppStore(s => s.toastMessage);
-  const toastVisible = useAppStore(s => s.toastVisible);
+  const currentPage = useUiStore(s => s.currentPage);
+  const toastMessage = useUiStore(s => s.toastMessage);
+  const toastVisible = useUiStore(s => s.toastVisible);
   const [modals, setModals] = useState({});
   const [modalData, setModalData] = useState({});
   const toggleRef = useRef(null);

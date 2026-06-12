@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import useAppStore from '@/store/useAppStore';
+import { useStreamStore } from '@/status';
 
 export default function StreamStatus() {
-  const isStreaming = useAppStore(s => s.isStreaming);
+  const isStreaming = useStreamStore(s => s.isStreaming);
   const [statusText] = useState('正在生成回复…');
   const [isCodeMode] = useState(false);
 

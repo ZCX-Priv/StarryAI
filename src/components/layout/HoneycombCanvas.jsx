@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
-import useAppStore from '@/store/useAppStore';
+import { useThemeStore } from '@/status';
 
 function _drawHex(ctx, cx, cy, s, strokeColor) {
   const pts = [];
@@ -33,8 +33,8 @@ function drawHoneycomb(canvas) {
 
 export default function HoneycombCanvas() {
   const canvasRef = useRef(null);
-  const honeycomb = useAppStore(s => s.honeycomb);
-  const honeycombNeedsRedraw = useAppStore(s => s.honeycombNeedsRedraw);
+  const honeycomb = useThemeStore(s => s.honeycomb);
+  const honeycombNeedsRedraw = useThemeStore(s => s.honeycombNeedsRedraw);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -47,7 +47,7 @@ export default function HoneycombCanvas() {
   useEffect(() => {
     if (!honeycombNeedsRedraw) return;
     drawHoneycomb(canvasRef.current);
-    useAppStore.getState().clearHoneycombRedraw();
+    useThemeStore.getState().clearHoneycombRedraw();
   }, [honeycombNeedsRedraw]);
 
   useEffect(() => {

@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
-import useAppStore from '@/store/useAppStore';
+import { useAgentStore } from '@/status';
 import { IDBStore } from '@/services/storage';
 
 export default function useAgents() {
-  const agentsConfig = useAppStore(s => s.agentsConfig);
-  const currentAgentId = useAppStore(s => s.currentAgentId);
-  const agentPrompt = useAppStore(s => s.agentPrompt);
+  const agentsConfig = useAgentStore(s => s.agentsConfig);
+  const currentAgentId = useAgentStore(s => s.currentAgentId);
+  const agentPrompt = useAgentStore(s => s.agentPrompt);
 
   const loadConfig = useCallback(async () => {
     try {
@@ -35,7 +35,7 @@ export default function useAgents() {
         });
       }
 
-      useAppStore.getState().setAgentsConfig(config);
+      useAgentStore.getState().setAgentsConfig(config);
       return true;
     } catch (error) {
       console.error('Agents config load error:', error);
@@ -56,11 +56,11 @@ export default function useAgents() {
   }, []);
 
   const select = useCallback(async (agentId) => {
-    const config = useAppStore.getState().agentsConfig;
+    const config = useAgentStore.getState().agentsConfig;
     const agent = config?.agents.find(a => a.id === agentId);
     if (!agent) return;
 
-    useAppStore.getState().setCurrentAgentId(agentId);
+    useAgentStore.getState().setCurrentAgentId(agentId);
     await IDBStore.setAgentConfig('currentAgentId', agentId);
 
     let prompt;
@@ -69,7 +69,7 @@ export default function useAgents() {
     } else {
       prompt = await loadPrompt(agent.prompt);
     }
-    useAppStore.getState().setAgentPrompt(prompt);
+    useAgentStore.getState().setAgentPrompt(prompt);
 
     // Add to recent
     let recent = await IDBStore.getAgentConfig('recentAgents') || [];
@@ -84,7 +84,7 @@ export default function useAgents() {
   }, [agentsConfig]);
 
   const filterByCategory = useCallback((categoryId) => {
-    const config = useAppStore.getState().agentsConfig;
+    const config = useAgentStore.getState().agentsConfig;
     if (!config?.agents) return [];
 
     if (categoryId === 'all') return config.agents;
@@ -96,7 +96,7 @@ export default function useAgents() {
   }, []);
 
   const searchAgents = useCallback((keyword) => {
-    const config = useAppStore.getState().agentsConfig;
+    const config = useAgentStore.getState().agentsConfig;
     if (!config?.agents || !keyword) return config?.agents || [];
     const lowerKeyword = keyword.toLowerCase();
     return config.agents.filter(agent =>
@@ -125,10 +125,10 @@ export default function useAgents() {
       customAgents.push(agent);
       await IDBStore.setAgentConfig('customAgents', customAgents);
 
-      const config = useAppStore.getState().agentsConfig;
+      const config = useAgentStore.getState().agentsConfig;
       if (config?.agents) {
         config.agents.push(agent);
-        useAppStore.getState().setAgentsConfig({ ...config });
+        useAgentStore.getState().setAgentsConfig({ ...config });
       }
       return true;
     } catch (error) {
@@ -143,10 +143,10 @@ export default function useAgents() {
       customAgents = customAgents.filter(a => a.id !== agentId);
       await IDBStore.setAgentConfig('customAgents', customAgents);
 
-      const config = useAppStore.getState().agentsConfig;
+      const config = useAgentStore.getState().agentsConfig;
       if (config?.agents) {
         config.agents = config.agents.filter(a => a.id !== agentId);
-        useAppStore.getState().setAgentsConfig({ ...config });
+        useAgentStore.getState().setAgentsConfig({ ...config });
       }
       return true;
     } catch (error) {
@@ -158,7 +158,7 @@ export default function useAgents() {
   const createCategory = useCallback(async (name) => {
     if (!name || name.length < 1 || name.length > 10) return false;
 
-    const config = useAppStore.getState().agentsConfig;
+    const config = useAgentStore.getState().agentsConfig;
     const existingNames = config?.categories?.map(c => c.name) || [];
     if (existingNames.includes(name)) return false;
 
@@ -177,7 +177,7 @@ export default function useAgents() {
         const insertIdx = config.categories.findIndex(c => c.id === 'mine');
         if (insertIdx > 0) config.categories.splice(insertIdx, 0, category);
         else config.categories.push(category);
-        useAppStore.getState().setAgentsConfig({ ...config });
+        useAgentStore.getState().setAgentsConfig({ ...config });
       }
       return true;
     } catch (error) {
@@ -192,10 +192,10 @@ export default function useAgents() {
       customCategories = customCategories.filter(c => c.id !== categoryId);
       await IDBStore.setAgentConfig('customCategories', customCategories);
 
-      const config = useAppStore.getState().agentsConfig;
+      const config = useAgentStore.getState().agentsConfig;
       if (config?.categories) {
         config.categories = config.categories.filter(c => c.id !== categoryId);
-        useAppStore.getState().setAgentsConfig({ ...config });
+        useAgentStore.getState().setAgentsConfig({ ...config });
       }
       return true;
     } catch (error) {

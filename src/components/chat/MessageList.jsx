@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
-import useAppStore from '@/store/useAppStore';
+import { useChatStore, useStreamStore } from '@/status';
 import MessageBubble from './MessageBubble';
 import MessageActions from './MessageActions';
 import EmptyState from './EmptyState';
 
 export default function MessageList({ onRegenerate }) {
-  const activeChatId = useAppStore(s => s.activeChatId);
-  const chats = useAppStore(s => s.chats);
-  const isStreaming = useAppStore(s => s.isStreaming);
+  const activeChatId = useChatStore(s => s.activeChatId);
+  const chats = useChatStore(s => s.chats);
+  const isStreaming = useStreamStore(s => s.isStreaming);
 
   const activeChat = useMemo(
     () => chats.find(c => c.id === activeChatId),

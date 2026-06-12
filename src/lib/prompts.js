@@ -1,4 +1,4 @@
-import useAppStore from '@/store/useAppStore';
+import { useModeStore, useMemoryStore, useAgentStore } from '@/status';
 import { getCurrentTimeInfo } from '@/context/time';
 
 import soulMd from '@/prompts/soul.md?raw';
@@ -15,7 +15,7 @@ const modePrompts = {
 };
 
 export function loadMainPrompt() {
-  const store = useAppStore.getState();
+  const store = useModeStore.getState();
   if (soulMd) {
     store.setMainPromptTemplate(soulMd);
     return soulMd;
@@ -24,7 +24,7 @@ export function loadMainPrompt() {
 }
 
 export function loadMemoryPrompts() {
-  const store = useAppStore.getState();
+  const store = useModeStore.getState();
   if (memoryExtractMd) {
     store.setMemoryExtractTemplate(memoryExtractMd);
   }
@@ -35,7 +35,7 @@ export function loadMemoryPrompts() {
 }
 
 export function loadModePrompt(mode) {
-  const store = useAppStore.getState();
+  const store = useModeStore.getState();
   const template = modePrompts[mode];
   if (template) {
     store.setModePrompt(template);
@@ -68,32 +68,34 @@ export function extractSection(template, sectionTitle) {
 }
 
 export function buildSystemPromptFromTemplate() {
-  const state = useAppStore.getState();
+  const modeState = useModeStore.getState();
+  const memoryState = useMemoryStore.getState();
+  const agentState = useAgentStore.getState();
 
-  if (!state.mainPromptTemplate) {
+  if (!modeState.mainPromptTemplate) {
     return null;
   }
 
   let prompt = '';
 
-  if (state.mainPromptTemplate) {
-    prompt += state.mainPromptTemplate + '\n\n';
+  if (modeState.mainPromptTemplate) {
+    prompt += modeState.mainPromptTemplate + '\n\n';
   }
 
-  if (state.modePrompt) {
-    prompt += state.modePrompt + '\n\n';
+  if (modeState.modePrompt) {
+    prompt += modeState.modePrompt + '\n\n';
   }
 
-  if (state.agentPrompt) {
-    prompt += state.agentPrompt + '\n\n';
+  if (agentState.agentPrompt) {
+    prompt += agentState.agentPrompt + '\n\n';
   }
 
-  if (state.bannerPrompt) {
-    prompt += state.bannerPrompt + '\n\n';
+  if (modeState.bannerPrompt) {
+    prompt += modeState.bannerPrompt + '\n\n';
   }
 
-  if (state.memory.length) {
-    prompt += `## 关于用户的背景信息:\n${state.memory.map(m => `- ${m}`).join('\n')}\n\n`;
+  if (memoryState.memory.length) {
+    prompt += `## 关于用户的背景信息:\n${memoryState.memory.map(m => `- ${m}`).join('\n')}\n\n`;
     prompt += `## 如何应用这些信息:\n`;
     prompt += `- 如果知道用户偏好的称呼或语气，自然地使用。\n`;
     prompt += `- 如果用户询问的话题与其兴趣相关，自然地回应——除非对话涉及到，否则不要主动提起兴趣话题。\n`;

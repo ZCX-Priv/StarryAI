@@ -1,17 +1,17 @@
 import { useCallback } from 'react';
-import useAppStore from '@/store/useAppStore';
+import { useModeStore } from '@/status';
 
 export default function useBanner() {
-  const bannerConfig = useAppStore(s => s.bannerConfig);
-  const currentBannerMode = useAppStore(s => s.currentBannerMode);
-  const bannerPrompt = useAppStore(s => s.bannerPrompt);
+  const bannerConfig = useModeStore(s => s.bannerConfig);
+  const currentBannerMode = useModeStore(s => s.currentBannerMode);
+  const bannerPrompt = useModeStore(s => s.bannerPrompt);
 
   const loadConfig = useCallback(async () => {
     try {
       const response = await fetch('/data/banner.json');
       if (!response.ok) throw new Error('Failed to load banner config');
       const config = await response.json();
-      useAppStore.getState().setBannerConfig(config);
+      useModeStore.getState().setBannerConfig(config);
       return true;
     } catch (error) {
       console.error('Banner config load error:', error);
@@ -36,7 +36,7 @@ export default function useBanner() {
   }, [bannerConfig]);
 
   const handleAction = useCallback(async (action) => {
-    const store = useAppStore.getState();
+    const store = useModeStore.getState();
 
     if (store.currentBannerMode === action.id) {
       clearSelection();
@@ -60,8 +60,8 @@ export default function useBanner() {
   }, []);
 
   const clearSelection = useCallback(() => {
-    useAppStore.getState().setCurrentBannerMode(null);
-    useAppStore.getState().setBannerPrompt(null);
+    useModeStore.getState().setCurrentBannerMode(null);
+    useModeStore.getState().setBannerPrompt(null);
   }, []);
 
   return {
