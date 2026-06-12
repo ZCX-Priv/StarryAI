@@ -6,6 +6,30 @@ import ModeSelector from './ModeSelector';
 import StreamStatus from './StreamStatus';
 import useBanner from '@/hooks/useBanner';
 
+const ACTION_OVERFLOW_SAFE_SPACE = 16;
+const MAX_INLINE_BANNER_ACTIONS = 2;
+
+function areActionIdsEqual(prevIds, nextIds) {
+  if (prevIds.length !== nextIds.length) return false;
+  return prevIds.every((id, index) => id === nextIds[index]);
+}
+
+function BannerActionButton({ action, selected = false, onClick, buttonRef }) {
+  return (
+    <button
+      ref={buttonRef}
+      className={`action-btn${selected ? ' selected' : ''}`}
+      title={action.name}
+      data-action={action.id}
+      onClick={onClick}
+      type="button"
+    >
+      <span className="action-btn-icon" dangerouslySetInnerHTML={{ __html: action.iconSvg }} />
+      <span className="action-btn-label">{action.name}</span>
+    </button>
+  );
+}
+
 function MoreDropdown({ actions, onAction }) {
   const [open, setOpen] = useState(false);
   const btnRef = useRef(null);
@@ -57,7 +81,7 @@ function MoreDropdown({ actions, onAction }) {
           <rect x="3" y="15" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
           <rect x="15" y="15" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
         </svg>
-        <span>更多</span>
+        <span className="action-btn-label">更多</span>
       </button>
       <div
         className={`dropdown-menu more-menu${open ? ' show' : ''}`}
@@ -85,7 +109,13 @@ function MoreDropdown({ actions, onAction }) {
 
 export default function InputArea({ onOpenModal, scrollBtnProps }) {
   const [inputValue, setInputValue] = useState('');
+  const [inlineActionIds, setInlineActionIds] = useState([]);
   const textareaRef = useRef(null);
+  const actionsRef = useRef(null);
+  const leadingRef = useRef(null);
+  const trailingRef = useRef(null);
+  const moreMeasureRef = useRef(null);
+  const actionMeasureRefs = useRef(new Map());
   const isStreaming = useAppStore(s => s.isStreaming);
   const setIsStreaming = useAppStore(s => s.setIsStreaming);
   const setStopRequested = useAppStore(s => s.setStopRequested);
@@ -109,8 +139,117 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
   const hasText = inputValue.trim().length > 0;
 
   const bannerActions = bannerConfig?.actions || [];
-  const visibleBannerActions = bannerActions.slice(0, 2);
-  const moreBannerActions = bannerActions.slice(2);
+
+  const setActionMeasureRef = useCallback((actionId, node) => {
+    if (node) {
+      actionMeasureRefs.current.set(actionId, node);
+    } else {
+      actionMeasureRefs.current.delete(actionId);
+    }
+  }, []);
+
+  const updateInlineActions = useCallback(() => {
+    if (currentBannerMode) {
+      setInlineActionIds(prevIds => (prevIds.length === 0 ? prevIds : []));
+      return;
+    }
+
+    const actionsEl = actionsRef.current;
+    const leadingEl = leadingRef.current;
+    const trailingEl = trailingRef.current;
+    const moreEl = moreMeasureRef.current;
+
+    if (!actionsEl || !leadingEl || !trailingEl) return;
+
+    const availableWidth = actionsEl.getBoundingClientRect().width
+      - leadingEl.getBoundingClientRect().width
+      - trailingEl.getBoundingClientRect().width
+      - ACTION_OVERFLOW_SAFE_SPACE;
+
+    if (availableWidth <= 0) {
+      setInlineActionIds(prevIds => (prevIds.length === 0 ? prevIds : []));
+      return;
+    }
+
+    const inlineCandidates = bannerActions.slice(0, MAX_INLINE_BANNER_ACTIONS);
+    const baseOverflowActions = bannerActions.slice(MAX_INLINE_BANNER_ACTIONS);
+    const measuredIds = [];
+    const widthById = new Map();
+
+    for (const action of inlineCandidates) {
+      const measuredButton = actionMeasureRefs.current.get(action.id);
+      const width = measuredButton?.getBoundingClientRect().width || 0;
+      if (!width) {
+        window.requestAnimationFrame(updateInlineActions);
+        return;
+      }
+      measuredIds.push(action.id);
+      widthById.set(action.id, width);
+    }
+
+    const moreWidth = moreEl?.getBoundingClientRect().width || 0;
+    if (bannerActions.length > 0 && !moreWidth) {
+      window.requestAnimationFrame(updateInlineActions);
+      return;
+    }
+
+    const visibleIds = [...measuredIds];
+    let overflowCount = baseOverflowActions.length;
+    let usedWidth = visibleIds.reduce((sum, actionId) => sum + (widthById.get(actionId) || 0), 0);
+
+    while (visibleIds.length > 0 && usedWidth + (overflowCount > 0 ? moreWidth : 0) > availableWidth) {
+      const removedId = visibleIds.pop();
+      usedWidth -= widthById.get(removedId) || 0;
+      overflowCount += 1;
+    }
+
+    setInlineActionIds(prevIds => (areActionIdsEqual(prevIds, visibleIds) ? prevIds : visibleIds));
+  }, [bannerActions, currentBannerMode]);
+
+  useLayoutEffect(() => {
+    const frameId = window.requestAnimationFrame(updateInlineActions);
+    return () => window.cancelAnimationFrame(frameId);
+  }, [updateInlineActions]);
+
+  useEffect(() => {
+    const scheduleUpdate = () => window.requestAnimationFrame(updateInlineActions);
+    const resizeObserver = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(() => scheduleUpdate())
+      : null;
+
+    if (resizeObserver) {
+      if (actionsRef.current) resizeObserver.observe(actionsRef.current);
+      if (leadingRef.current) resizeObserver.observe(leadingRef.current);
+      if (trailingRef.current) resizeObserver.observe(trailingRef.current);
+    } else {
+      window.addEventListener('resize', scheduleUpdate);
+    }
+
+    return () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      } else {
+        window.removeEventListener('resize', scheduleUpdate);
+      }
+    };
+  }, [updateInlineActions]);
+
+  const activeBannerAction = currentBannerMode
+    ? bannerActions.find(action => action.id === currentBannerMode) || null
+    : null;
+  const inlineBannerActions = currentBannerMode
+    ? (activeBannerAction ? [activeBannerAction] : [])
+    : bannerActions
+      .slice(0, MAX_INLINE_BANNER_ACTIONS)
+      .filter(action => inlineActionIds.includes(action.id));
+  const overflowBannerActions = currentBannerMode
+    ? []
+    : [
+      ...bannerActions
+        .slice(0, MAX_INLINE_BANNER_ACTIONS)
+        .filter(action => !inlineActionIds.includes(action.id)),
+      ...bannerActions.slice(MAX_INLINE_BANNER_ACTIONS),
+    ];
 
   const handleBannerClick = useCallback(async (action) => {
     if (currentBannerMode === action.id) {
@@ -221,47 +360,66 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
             onKeyDown={handleKeyDown}
           />
         </div>
-        <div className="input-actions">
-          <button className="action-btn" title="附件" id="attachBtn">
-            <Paperclip size={18} />
-          </button>
-          <div className="divider" />
-          <ModeSelector />
-          {visibleBannerActions.map(action => (
-            <button
-              key={action.id}
-              className={`action-btn${currentBannerMode === action.id ? ' selected' : ''}`}
-              title={action.name}
-              data-action={action.id}
-              onClick={() => handleBannerClick(action)}
-              style={currentBannerMode && currentBannerMode !== action.id ? { display: 'none' } : {}}
-            >
-              <span dangerouslySetInnerHTML={{ __html: action.iconSvg }} />
-              <span>{action.name}</span>
+        <div className="input-actions" ref={actionsRef}>
+          <div className="input-actions-leading" ref={leadingRef}>
+            <button className="action-btn" title="附件" id="attachBtn" type="button">
+              <Paperclip size={18} />
             </button>
-          ))}
-          {moreBannerActions.length > 0 && (
-            <div style={currentBannerMode ? { display: 'none' } : {}}>
-              <MoreDropdown actions={moreBannerActions} onAction={handleBannerClick} />
-            </div>
-          )}
+            <div className="divider" />
+            <ModeSelector />
+          </div>
+          <div className="input-actions-center">
+            {inlineBannerActions.map(action => (
+              <BannerActionButton
+                key={action.id}
+                action={action}
+                selected={currentBannerMode === action.id}
+                onClick={() => handleBannerClick(action)}
+              />
+            ))}
+            {overflowBannerActions.length > 0 && (
+              <MoreDropdown actions={overflowBannerActions} onAction={handleBannerClick} />
+            )}
+          </div>
           <div className="spacer" />
-          <button
-            className={`send-btn${hasText ? ' active' : ''}`}
-            id="send-btn"
-            title="发送"
-            onClick={handleSend}
-            disabled={!hasText || isStreaming}
-            style={isStreaming ? { display: 'none' } : {}}
-          >
-            <ArrowUp size={20} />
-          </button>
-          <button
-            className={`stop-btn${isStreaming ? ' visible' : ''}`}
-            id="stop-btn"
-            onClick={handleStop}
-          >
-            <Square size={14} />
+          <div className="input-actions-trailing" ref={trailingRef}>
+            <button
+              className={`send-btn${hasText ? ' active' : ''}`}
+              id="send-btn"
+              title="发送"
+              onClick={handleSend}
+              disabled={!hasText || isStreaming}
+              style={isStreaming ? { display: 'none' } : {}}
+              type="button"
+            >
+              <ArrowUp size={20} />
+            </button>
+            <button
+              className={`stop-btn${isStreaming ? ' visible' : ''}`}
+              id="stop-btn"
+              onClick={handleStop}
+              type="button"
+            >
+              <Square size={14} />
+            </button>
+          </div>
+        </div>
+        <div className="input-actions-measure" aria-hidden="true">
+          {bannerActions.map(action => (
+            <BannerActionButton
+              key={`measure-${action.id}`}
+              action={action}
+              buttonRef={(node) => setActionMeasureRef(action.id, node)}
+            />
+          ))}
+          <button className="action-btn" ref={moreMeasureRef} type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
+              <rect x="15" y="3" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
+              <rect x="3" y="15" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
+              <rect x="15" y="15" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+            <span className="action-btn-label">更多</span>
           </button>
         </div>
       </div>

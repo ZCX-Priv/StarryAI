@@ -199,23 +199,29 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 #input-area::after { content: ''; position: absolute; top: -36px; left: 0; right: 0; height: 36px; background: linear-gradient(to bottom, transparent, rgba(13,13,16,0.55)); pointer-events: none; z-index: -1; }
 [data-theme="light"] #input-area::before { background: rgba(244,244,250,0.78); }
 [data-theme="light"] #input-area::after { background: linear-gradient(to bottom, transparent, rgba(244,244,250,0.6)); }
-.input-container { max-width: 720px; margin: 0 auto; background: var(--bg2); border: 1.5px solid var(--border2); border-radius: var(--radius-xl); padding: 12px 16px; box-shadow: 0 4px 24px rgba(0,0,0,.25), 0 0 0 0 transparent; transition: border-color .2s, box-shadow .2s; }
+.input-container { max-width: 720px; margin: 0 auto; background: var(--bg2); border: 1.5px solid var(--border2); border-radius: var(--radius-xl); padding: 12px 16px; box-shadow: 0 4px 24px rgba(0,0,0,.25), 0 0 0 0 transparent; transition: border-color .2s, box-shadow .2s; position: relative; overflow: hidden; }
 .input-container:focus-within { border-color: rgba(59,130,246,.5); box-shadow: 0 4px 24px rgba(0,0,0,.25), 0 0 0 3px rgba(59,130,246,.12); }
 [data-theme="light"] .input-container { border-color: rgba(0,0,0,.18); box-shadow: 0 2px 12px rgba(0,0,0,.08); }
 .input-wrapper { margin-bottom: 8px; }
 #msg-input { width: 100%; background: none; border: none; outline: none; font-family: var(--font); font-size: 14.5px; color: var(--text); resize: none; max-height: 168px; overflow-y: auto; line-height: 1.6; min-height: 24px; }
 #msg-input::placeholder { color: var(--text3); }
 #msg-input::-webkit-scrollbar { display: none; }
-.input-actions { display: flex; align-items: center; gap: 2px; flex-wrap: nowrap; padding-bottom: 2px; }
+.input-actions { display: flex; align-items: center; gap: 2px; flex-wrap: nowrap; padding-bottom: 2px; min-width: 0; overflow: hidden; }
 .input-actions::-webkit-scrollbar { display: none; }
+.input-actions-leading, .input-actions-center, .input-actions-trailing { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.input-actions-leading, .input-actions-trailing { flex-shrink: 0; }
+.input-actions-center { flex-shrink: 1; overflow: hidden; }
+.input-actions-measure { position: absolute; left: -9999px; top: 0; display: flex; align-items: center; gap: 2px; visibility: hidden; pointer-events: none; white-space: nowrap; height: 0; overflow: hidden; }
 .action-btn { display: flex; align-items: center; gap: 4px; padding: 6px 10px; border: none; background: transparent; border-radius: var(--radius-sm); color: var(--text2); font-size: 12px; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; font-family: inherit; }
 .action-btn:hover { background: var(--bg3); color: var(--text); }
+.action-btn-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.action-btn-label { display: inline-block; }
 .action-btn svg { flex-shrink: 0; }
 .action-btn.selected { border: 2px solid var(--accent); background: var(--accent-glow); color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
 .action-btn.selected svg { color: var(--accent); }
 .quick-btn span { color: var(--text); font-weight: 500; }
 .divider { width: 1px; height: 16px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
-.spacer { flex: 1; }
+.spacer { flex: 1 1 auto; min-width: 0; }
 .send-btn { width: 36px; height: 36px; background: var(--bg4); border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text3); flex-shrink: 0; transition: background .2s, transform .1s, box-shadow .2s, color .2s; }
 .send-btn:hover:not(:disabled) { background: var(--accent); color: #fff; transform: scale(1.05); }
 .send-btn:active:not(:disabled) { transform: scale(0.95); }
@@ -411,7 +417,7 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
   #sidebar.open { transform: translateX(0); }
   .msg-bubble { max-width: 92%; }
   #scroll-btn { z-index: 8; }
-  .action-btn span { display: none; }
+  .action-btn .action-btn-label { display: none; }
   .action-btn { padding: 6px 8px; }
   .divider { display: none; }
   #input-area { padding: 0 12px 16px; }
