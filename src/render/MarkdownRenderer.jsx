@@ -4,7 +4,7 @@ import rehypeHighlight from 'rehype-highlight';
 
 export default function MarkdownRenderer({ content, className }) {
   return (
-    <div className={className}>
+    <div className={['markdown-body', className].filter(Boolean).join(' ')}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight]}

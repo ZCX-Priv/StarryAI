@@ -18,7 +18,7 @@ export default function MessageList({ onRegenerate }) {
 
   if (!messages.length) {
     return (
-      <div className="messages-inner">
+      <div className="messages-inner is-empty">
         <EmptyState />
       </div>
     );

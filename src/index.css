@@ -118,14 +118,15 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 
 /* Chat Area */
 #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; position: relative; z-index: 1; }
-#chat-area { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 24px 16px 8px; position: relative; background: transparent; contain: layout style; }
+#chat-area { flex: 1; display: flex; overflow-y: auto; overflow-x: hidden; padding: 24px 16px 8px; position: relative; background: transparent; contain: layout style; }
 #chat-honeycomb { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; image-rendering: pixelated; transition: opacity .4s; opacity: 0; }
 #chat-area::-webkit-scrollbar { width: 5px; }
 #chat-area::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 5px; }
-.messages-inner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 4px; min-height: 100%; }
+.messages-inner { position: relative; z-index: 1; max-width: 720px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 4px; min-height: 100%; }
+.messages-inner.is-empty { flex: 1; }
 
 /* Empty State */
-.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; gap: 10px; text-align: center; padding: 24px 16px; }
+.empty-state { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; min-height: 0; gap: 10px; text-align: center; padding: 24px 16px; }
 .empty-icon { width: 52px; height: 52px; background: var(--bg3); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--text3); margin-bottom: 4px; }
 .empty-icon img { width: 100%; height: 100%; object-fit: contain; }
 .empty-state h2 { font-size: 19px; font-weight: 600; color: var(--text2); }
@@ -144,9 +145,31 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 .msg-avatar { display: none; }
 .msg-bubble { max-width: 86%; padding: 11px 16px; border-radius: 18px; font-size: 14.5px; line-height: 1.75; word-break: break-word; overflow-wrap: break-word; position: relative; min-width: 0; white-space: pre-wrap; }
 .msg-row.user .msg-bubble { background: var(--user-bubble); color: var(--user-text); border-bottom-right-radius: 5px; box-shadow: 0 2px 14px rgba(37,99,235,.35); }
-.ai-msg-content { max-width: 100%; width: 100%; font-size: 14.5px; line-height: 1.75; word-break: break-word; overflow-wrap: break-word; color: var(--text); padding: 0; white-space: pre-wrap; }
+.ai-msg-content { max-width: 100%; width: 100%; font-size: 14.5px; line-height: 1.75; word-break: break-word; overflow-wrap: break-word; color: var(--text); padding: 0; }
 .msg-row.ai { align-items: flex-start; }
 .msg-row.ai .ai-msg-content.streaming { position: relative; }
+.markdown-body { white-space: normal; }
+.markdown-body > :first-child { margin-top: 0; }
+.markdown-body > :last-child { margin-bottom: 0; }
+.markdown-body p,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body pre,
+.markdown-body blockquote,
+.markdown-body table,
+.markdown-body hr { margin: 0 0 .75em; }
+.markdown-body li + li { margin-top: .2em; }
+.markdown-body ul,
+.markdown-body ol { padding-left: 1.5em; }
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 { margin: 1em 0 .45em; line-height: 1.35; }
+.markdown-body code { font-size: .95em; }
+.markdown-body pre { white-space: pre-wrap; }
+.markdown-body pre code { white-space: pre; }
 .cursor { display: inline-block; width: 2px; height: 1em; background: var(--accent2); margin-left: 2px; vertical-align: text-bottom; animation: blink .8s step-end infinite; }
 @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 .typing-indicator { display: flex; align-items: center; gap: 4px; padding: 11px 14px; }
