@@ -1,5 +1,5 @@
 import { API_BASE } from '@/lib/config';
-import { useModelStore, useModeStore, useKeyStore, useStreamStore } from '@/status';
+import { useModelStore, useModeStore, useKeyStore, useStreamStore, useUiStore } from '@/status';
 
 function _normalizeReasoningValue(value, trimStrings = true) {
   if (!value) return '';
@@ -51,7 +51,10 @@ async function fetchAPI(msgs, model) {
     headers: { 'Authorization': `Bearer ${keyState.activeKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(_buildParams(msgs, model, false)),
   });
-  if (r.status === 401 || r.status === 403) return null;
+  if (r.status === 401 || r.status === 403) {
+    useUiStore.getState().showToast('API 密钥无效或已过期', 'error');
+    return null;
+  }
   if (!r.ok) {
     let msg = `HTTP ${r.status}`;
     try { const e = await r.json(); msg = e?.error?.message || msg; } catch {}
@@ -69,7 +72,10 @@ async function* streamAPI(msgs, model) {
     headers: { 'Authorization': `Bearer ${keyState.activeKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(_buildParams(msgs, model, true)),
   });
-  if (r.status === 401 || r.status === 403) return;
+  if (r.status === 401 || r.status === 403) {
+    useUiStore.getState().showToast('API 密钥无效或已过期', 'error');
+    return;
+  }
   if (!r.ok) {
     let msg = `HTTP ${r.status}`;
     try { const e = await r.json(); msg = e?.error?.message || msg; } catch {}

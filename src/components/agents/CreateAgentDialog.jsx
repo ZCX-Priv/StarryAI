@@ -18,11 +18,11 @@ export default function CreateAgentDialog({ visible, onClose }) {
 
   const handleCreate = async () => {
     if (!name || name.length < 1 || name.length > 20) {
-      showToast('请输入1-20个字符的智能体名称');
+      showToast('请输入1-20个字符的智能体名称', 'warning');
       return;
     }
     if (!prompt || prompt.length < 10 || prompt.length > 2000) {
-      showToast('请输入10-2000个字符的角色定义');
+      showToast('请输入10-2000个字符的角色定义', 'warning');
       return;
     }
 
@@ -51,7 +51,7 @@ export default function CreateAgentDialog({ visible, onClose }) {
       showToast(`智能体"${name}"创建成功！`);
       onClose();
     } catch (error) {
-      showToast('创建失败，请重试');
+      showToast('创建失败，请重试', 'error');
     }
   };
 

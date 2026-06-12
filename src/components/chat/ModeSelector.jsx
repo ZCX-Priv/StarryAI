@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import { Zap, Atom, Sparkles, ChevronRight } from 'lucide-react';
-import { useModeStore } from '@/status';
+import { useModeStore, useUiStore } from '@/status';
 import { IDBStore } from '@/services/storage';
 
 const MODES = [
@@ -27,6 +27,7 @@ const MODES = [
 export default function ModeSelector() {
   const currentMode = useModeStore(s => s.currentMode);
   const setCurrentMode = useModeStore(s => s.setCurrentMode);
+  const showToast = useUiStore(s => s.showToast);
   const [open, setOpen] = useState(false);
   const btnRef = useRef(null);
   const menuRef = useRef(null);
@@ -76,8 +77,10 @@ export default function ModeSelector() {
   const handleSelect = useCallback((modeId) => {
     setCurrentMode(modeId);
     IDBStore.setConfig('currentMode', modeId);
+    const mode = MODES.find(m => m.id === modeId);
+    showToast(`已切换到${mode?.label || ''}模式`, 'success');
     setOpen(false);
-  }, [setCurrentMode]);
+  }, [setCurrentMode, showToast]);
 
   return (
     <div className="dropdown-wrapper quick-dropdown-wrapper">

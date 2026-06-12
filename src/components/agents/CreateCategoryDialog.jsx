@@ -11,14 +11,14 @@ export default function CreateCategoryDialog({ visible, onClose }) {
 
   const handleCreate = async () => {
     if (!name || name.length < 1 || name.length > 10) {
-      showToast('请输入1-10个字符的分类名称');
+      showToast('请输入1-10个字符的分类名称', 'warning');
       return;
     }
 
     const agentsConfig = useAgentStore.getState().agentsConfig;
     const existingNames = agentsConfig?.categories?.map(c => c.name) || [];
     if (existingNames.includes(name)) {
-      showToast('该分类名称已存在');
+      showToast('该分类名称已存在', 'warning');
       return;
     }
 
@@ -47,7 +47,7 @@ export default function CreateCategoryDialog({ visible, onClose }) {
       setName('');
       onClose();
     } catch (error) {
-      showToast('创建失败，请重试');
+      showToast('创建失败，请重试', 'error');
     }
   };
 

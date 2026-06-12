@@ -10,7 +10,7 @@ export default function ConfirmDeleteDialog({ visible, onClose, chatId }) {
 
   const handleDelete = async () => {
     await deleteChat(chatId);
-    showToast('对话已删除');
+    showToast('对话已删除', 'info');
     onClose();
   };
 

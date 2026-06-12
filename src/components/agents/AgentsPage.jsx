@@ -78,9 +78,9 @@ export default function AgentsPage({ onOpenModal, onToggleSidebar }) {
         agentsConfig.agents = agentsConfig.agents.filter(a => a.id !== agentId);
         setAgentsConfig({ ...agentsConfig });
       }
-      showToast('智能体已删除');
+      showToast('智能体已删除', 'info');
     } catch {
-      showToast('删除失败，请重试');
+      showToast('删除失败，请重试', 'error');
     }
   }, [agentsConfig, setAgentsConfig, showToast]);
 
@@ -93,10 +93,10 @@ export default function AgentsPage({ onOpenModal, onToggleSidebar }) {
         agentsConfig.categories = agentsConfig.categories.filter(c => c.id !== categoryId);
         setAgentsConfig({ ...agentsConfig });
       }
-      showToast('分类已删除');
+      showToast('分类已删除', 'info');
       if (currentCategory === categoryId) setCurrentCategory('all');
     } catch {
-      showToast('删除失败，请重试');
+      showToast('删除失败，请重试', 'error');
     }
   }, [agentsConfig, setAgentsConfig, showToast, currentCategory]);
 

@@ -72,7 +72,7 @@ export async function deduplicateMemory() {
 export async function clearMemory() {
   useMemoryStore.getState().clearMemory();
   await IDBStore.setMemory([]);
-  useUiStore.getState().showToast('记忆已清除');
+  useUiStore.getState().showToast('记忆已清除', 'info');
 }
 
 export async function editMemoryItem(i, value) {
@@ -83,5 +83,5 @@ export async function editMemoryItem(i, value) {
 export async function deleteMemoryItem(i) {
   useMemoryStore.getState().deleteMemoryItem(i);
   await IDBStore.setMemory(useMemoryStore.getState().memory);
-  useUiStore.getState().showToast('记忆已删除');
+  useUiStore.getState().showToast('记忆已删除', 'info');
 }

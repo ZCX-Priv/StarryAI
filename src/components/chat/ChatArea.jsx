@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useChatStore, useModelStore, useModeStore, useStreamStore } from '@/status';
+import { useChatStore, useModelStore, useModeStore, useStreamStore, useUiStore } from '@/status';
 import { API } from '@/services/api';
 import useChats from '@/hooks/useChats';
 import MessageList from './MessageList';
@@ -17,6 +17,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }) {
   const modeConfig = useModeStore(s => s.modeConfig);
   const setIsStreaming = useStreamStore(s => s.setIsStreaming);
   const setStopRequested = useStreamStore(s => s.setStopRequested);
+  const showToast = useUiStore(s => s.showToast);
   const { addMessage, saveChat } = useChats();
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
@@ -86,11 +87,12 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }) {
       if (fullResp) addMessage('assistant', fullResp);
     } catch (e) {
       if (!useStreamStore.getState().stopRequested) {
+        showToast('重新生成失败', 'error');
         addMessage('assistant', `⚠ ${e?.message || 'Error'}`);
       }
     }
     setIsStreaming(false);
-  }, [chats, activeChatId, isStreaming, contextLength, model, addMessage, setIsStreaming, setStopRequested]);
+  }, [chats, activeChatId, isStreaming, contextLength, model, addMessage, setIsStreaming, setStopRequested, showToast]);
 
   return (
     <div id="chat-area" ref={chatAreaRef}>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Pencil, Trash2 } from 'lucide-react';
-import { useMemoryStore } from '@/status';
+import { useMemoryStore, useUiStore } from '@/status';
 import { editMemoryItem, deleteMemoryItem, clearMemory } from '@/context/memory';
 
 export default function MemoryDialog({ visible, onClose }) {
@@ -54,10 +54,12 @@ export default function MemoryDialog({ visible, onClose }) {
 function MemoryItem({ index, text, onEdit, onDelete }) {
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(text);
+  const showToast = useUiStore(s => s.showToast);
 
   const handleSave = () => {
     onEdit(editValue);
     setEditing(false);
+    showToast('记忆已更新', 'success');
   };
 
   return (

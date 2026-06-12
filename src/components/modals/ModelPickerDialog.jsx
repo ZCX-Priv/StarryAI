@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { X, Search, Gem, Atom } from 'lucide-react';
-import { useModelStore } from '@/status';
+import { useModelStore, useUiStore } from '@/status';
 import useModels from '@/hooks/useModels';
 import { formatContextLength } from '@/lib/config';
 import EmptyState from '@/components/ui/EmptyState';
@@ -9,6 +9,7 @@ export default function ModelPickerDialog({ visible, onClose }) {
   const model = useModelStore(s => s.model);
   const models = useModelStore(s => s.models);
   const { setModel: setModelPersist } = useModels();
+  const showToast = useUiStore(s => s.showToast);
   const [search, setSearch] = useState('');
 
   const filteredModels = useMemo(() => {
@@ -23,6 +24,8 @@ export default function ModelPickerDialog({ visible, onClose }) {
 
   const handleSelect = (id) => {
     setModelPersist(id);
+    const m = models.find(m => m.id === id);
+    showToast(`已切换到 ${m?.label || m?.id || id}`, 'success');
     onClose();
   };
 

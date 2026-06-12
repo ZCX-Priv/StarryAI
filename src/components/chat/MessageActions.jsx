@@ -17,7 +17,9 @@ export default function MessageActions({ onRegenerate }) {
     try {
       await navigator.clipboard.writeText(last.content);
       useUiStore.getState().showToast('已复制！');
-    } catch {}
+    } catch {
+      useUiStore.getState().showToast('复制失败', 'error');
+    }
   };
 
   return (

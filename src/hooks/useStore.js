@@ -53,7 +53,9 @@ export default function useStore() {
         document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
         if (model) useModelStore.getState().setModel(model);
         if (activeChatId) useChatStore.getState().setActiveChatId(activeChatId);
-        useThemeStore.getState().setHoneycomb(honeycomb === true || honeycomb === 'true' || honeycomb === '1');
+        if (honeycomb != null) {
+          useThemeStore.getState().setHoneycomb(honeycomb === true || honeycomb === 'true' || honeycomb === '1');
+        }
         if (temperature) useModelStore.getState().setTemperature(parseFloat(temperature) || 0.7);
         if (topP) useModelStore.getState().setTopP(parseFloat(topP) || 0.95);
         if (contextLength) useModelStore.getState().setContextLength(parseInt(contextLength) || 10);

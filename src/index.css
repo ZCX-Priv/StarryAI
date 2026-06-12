@@ -389,9 +389,7 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 .agent-delete-btn:hover { background: rgba(248,113,113,.1); border-color: var(--danger); color: var(--danger); }
 .custom-agent .card-name { display: flex; align-items: center; gap: 6px; }
 
-/* Toast */
-#toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--text); color: var(--bg); padding: 9px 18px; border-radius: 20px; font-size: 13.5px; z-index: 2000; transition: transform .3s var(--ease); pointer-events: none; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,.4); }
-#toast.show { transform: translateX(-50%) translateY(0); }
+
 
 /* Light theme overrides */
 [data-theme="light"] .sb-btn { color: var(--text2); }

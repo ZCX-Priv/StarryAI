@@ -48,7 +48,7 @@ export default function SettingsDialog({ visible, onClose }) {
 
   const handleDeleteKey = (k) => {
     deleteKeyPersist(k);
-    showToast('密钥已删除');
+    showToast('密钥已删除', 'info');
   };
 
   const handleModelChange = (id) => {
@@ -64,7 +64,7 @@ export default function SettingsDialog({ visible, onClose }) {
             key={th}
             className="sec-row"
             style={{ cursor: 'pointer' }}
-            onClick={() => { apply(th); }}
+            onClick={() => { apply(th); showToast('主题已切换', 'success'); }}
           >
             <div className="sec-row-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {th === 'auto' ? <Monitor size={14} /> : th === 'dark' ? <Moon size={14} /> : <Sun size={14} />}
@@ -80,7 +80,7 @@ export default function SettingsDialog({ visible, onClose }) {
       </div>
       <div className="sec-title">背景</div>
       <div className="sec-card">
-        <div className="sec-row" style={{ cursor: 'pointer' }} onClick={() => { const v = !honeycomb; setHoneycomb(v); IDBStore.setConfig('honeycomb', v); }}>
+        <div className="sec-row" style={{ cursor: 'pointer' }} onClick={() => { const v = !honeycomb; setHoneycomb(v); IDBStore.setConfig('honeycomb', v); showToast(v ? '已开启动态蜂巢' : '已关闭动态蜂巢', 'info'); }}>
           <div className="sec-row-l">
             <div className="sec-row-label">动态蜂巢</div>
             <div className="sec-row-desc">聊天界面背景装饰画布</div>

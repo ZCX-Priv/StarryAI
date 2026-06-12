@@ -1,5 +1,7 @@
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { useUiStore } from '@/status';
+import { Toaster } from 'sonner';
+import useTheme from '@/hooks/useTheme';
 import HoneycombCanvas from './HoneycombCanvas';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
@@ -18,8 +20,7 @@ import CreateCategoryDialog from '@/components/agents/CreateCategoryDialog';
 
 export default function AppShell() {
   const currentPage = useUiStore(s => s.currentPage);
-  const toastMessage = useUiStore(s => s.toastMessage);
-  const toastVisible = useUiStore(s => s.toastVisible);
+  const { isDark } = useTheme();
   const [modals, setModals] = useState({});
   const [modalData, setModalData] = useState({});
   const toggleRef = useRef(null);
@@ -66,7 +67,7 @@ export default function AppShell() {
       <CreateAgentDialog visible={!!modals.createAgent} onClose={() => closeModal('createAgent')} />
       <CreateCategoryDialog visible={!!modals.createCategory} onClose={() => closeModal('createCategory')} />
 
-      <div id="toast" className={toastVisible ? 'show' : ''}>{toastMessage}</div>
+      <Toaster position="top-center" richColors closeButton theme={isDark ? 'dark' : 'light'} />
     </div>
   );
 }

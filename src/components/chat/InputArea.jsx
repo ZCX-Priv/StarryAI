@@ -310,6 +310,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
       }
     } catch (e) {
       if (!useStreamStore.getState().stopRequested) {
+        showToast('请求失败，请重试', 'error');
         addMessage('assistant', `⚠ ${e?.message || 'Error'}`);
       }
     }
