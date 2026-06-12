@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { X, Pencil, Trash2 } from 'lucide-react';
 import { useMemoryStore } from '@/status';
+import { editMemoryItem, deleteMemoryItem, clearMemory } from '@/context/memory';
 
 export default function MemoryDialog({ visible, onClose }) {
   const memory = useMemoryStore(s => s.memory);
-  const editMemoryItem = useMemoryStore(s => s.editMemoryItem);
-  const deleteMemoryItem = useMemoryStore(s => s.deleteMemoryItem);
-  const clearMemory = useMemoryStore(s => s.clearMemory);
 
   if (!visible) return null;
 

@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import { X, Trash2, Monitor, Sun, Moon } from 'lucide-react';
 import { useUiStore, useThemeStore, useModelStore, useKeyStore } from '@/status';
 import useTheme from '@/hooks/useTheme';
+import useKeys from '@/hooks/useKeys';
+import useModels from '@/hooks/useModels';
 import { IDBStore } from '@/services/storage';
 import { API } from '@/services/api';
 import { formatContextLength } from '@/lib/config';
@@ -13,9 +15,7 @@ export default function SettingsDialog({ visible, onClose }) {
   const honeycomb = useThemeStore(s => s.honeycomb);
   const setHoneycomb = useThemeStore(s => s.setHoneycomb);
   const model = useModelStore(s => s.model);
-  const setModel = useModelStore(s => s.setModel);
   const models = useModelStore(s => s.models);
-  const setModels = useModelStore(s => s.setModels);
   const temperature = useModelStore(s => s.temperature);
   const setTemperature = useModelStore(s => s.setTemperature);
   const topP = useModelStore(s => s.topP);
@@ -24,9 +24,8 @@ export default function SettingsDialog({ visible, onClose }) {
   const setContextLength = useModelStore(s => s.setContextLength);
   const keys = useKeyStore(s => s.keys);
   const activeKey = useKeyStore(s => s.activeKey);
-  const addKey = useKeyStore(s => s.addKey);
-  const deleteKey = useKeyStore(s => s.deleteKey);
-  const activateKey = useKeyStore(s => s.activateKey);
+  const { add: addKeyPersist, activate: activateKeyPersist, delete: deleteKeyPersist } = useKeys();
+  const { setModel: setModelPersist } = useModels();
   const showToast = useUiStore(s => s.showToast);
   const { apply } = useTheme();
 
@@ -37,23 +36,23 @@ export default function SettingsDialog({ visible, onClose }) {
   const handleAddKey = () => {
     const k = newKey.trim();
     if (!k) return;
-    addKey(k);
+    addKeyPersist(k);
     setNewKey('');
     showToast('密钥已保存！');
   };
 
   const handleActivateKey = (k) => {
-    activateKey(k);
+    activateKeyPersist(k);
     showToast('密钥已保存！');
   };
 
   const handleDeleteKey = (k) => {
-    deleteKey(k);
+    deleteKeyPersist(k);
     showToast('密钥已删除');
   };
 
   const handleModelChange = (id) => {
-    setModel(id);
+    setModelPersist(id);
   };
 
   const renderAppearance = () => (
@@ -81,7 +80,7 @@ export default function SettingsDialog({ visible, onClose }) {
       </div>
       <div className="sec-title">背景</div>
       <div className="sec-card">
-        <div className="sec-row" style={{ cursor: 'pointer' }} onClick={() => setHoneycomb(!honeycomb)}>
+        <div className="sec-row" style={{ cursor: 'pointer' }} onClick={() => { const v = !honeycomb; setHoneycomb(v); IDBStore.setConfig('honeycomb', v); }}>
           <div className="sec-row-l">
             <div className="sec-row-label">动态蜂巢</div>
             <div className="sec-row-desc">聊天界面背景装饰画布</div>
@@ -94,22 +93,13 @@ export default function SettingsDialog({ visible, onClose }) {
 
   const renderModel = () => (
     <>
-      <div className="sec-title">默认模型</div>
-      <div className="sec-card" style={{ marginBottom: '20px' }}>
-        <div className="sec-row">
-          <select className="model-selector" value={model} onChange={e => handleModelChange(e.target.value)}>
-            {models.map(m => (
-              <option key={m.id} value={m.id}>{m.label || m.id}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+
       <div className="sec-title">温度</div>
       <div className="sec-card" style={{ marginBottom: '20px' }}>
         <div className="sec-row slider-row">
           <div className="slider-container">
             <input type="range" className="slider" min="0" max="2" step="0.1" value={temperature}
-              onChange={e => setTemperature(parseFloat(e.target.value))} />
+              onChange={e => { const v = parseFloat(e.target.value); setTemperature(v); IDBStore.setConfig('temperature', v); }} />
             <div className="slider-info">
               <span className="slider-desc">控制回复的随机性，值越高越随机</span>
               <span className="slider-value">{temperature.toFixed(1)}</span>
@@ -122,7 +112,7 @@ export default function SettingsDialog({ visible, onClose }) {
         <div className="sec-row slider-row">
           <div className="slider-container">
             <input type="range" className="slider" min="0" max="1" step="0.05" value={topP}
-              onChange={e => setTopP(parseFloat(e.target.value))} />
+              onChange={e => { const v = parseFloat(e.target.value); setTopP(v); IDBStore.setConfig('topP', v); }} />
             <div className="slider-info">
               <span className="slider-desc">核采样参数，控制词汇多样性</span>
               <span className="slider-value">{topP.toFixed(2)}</span>
@@ -135,7 +125,7 @@ export default function SettingsDialog({ visible, onClose }) {
         <div className="sec-row slider-row">
           <div className="slider-container">
             <input type="range" className="slider" min="0" max="25" step="1" value={contextLength}
-              onChange={e => setContextLength(parseInt(e.target.value))} />
+              onChange={e => { const v = parseInt(e.target.value); setContextLength(v); IDBStore.setConfig('contextLength', v); }} />
             <div className="slider-info">
               <span className="slider-desc">发送给 AI 的历史消息数量</span>
               <span className="slider-value">{contextLength} 条</span>

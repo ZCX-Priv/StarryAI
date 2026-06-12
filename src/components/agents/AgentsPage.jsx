@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Menu, Plus, Search, Users } from 'lucide-react';
 import { useAgentStore, useUiStore } from '@/status';
 import { IDBStore } from '@/services/storage';
+import useAgents from '@/hooks/useAgents';
 import AgentSearch from './AgentSearch';
 import CategoryTabs from './CategoryTabs';
 import AgentCard from './AgentCard';
@@ -10,10 +11,10 @@ import EmptyState from '@/components/ui/EmptyState';
 export default function AgentsPage({ onOpenModal, onToggleSidebar }) {
   const agentsConfig = useAgentStore(s => s.agentsConfig);
   const setAgentsConfig = useAgentStore(s => s.setAgentsConfig);
-  const setCurrentAgentId = useAgentStore(s => s.setCurrentAgentId);
   const setAgentPrompt = useAgentStore(s => s.setAgentPrompt);
   const setCurrentPage = useUiStore(s => s.setCurrentPage);
   const showToast = useUiStore(s => s.showToast);
+  const { select: selectAgent } = useAgents();
   const [currentCategory, setCurrentCategory] = useState('all');
   const [searchKeyword, setSearchKeyword] = useState('');
 
@@ -63,22 +64,10 @@ export default function AgentsPage({ onOpenModal, onToggleSidebar }) {
   }, [agents, currentCategory, searchKeyword]);
 
   const handleSelectAgent = useCallback(async (agentId) => {
-    const agent = agents.find(a => a.id === agentId);
-    if (!agent) return;
-    setCurrentAgentId(agentId);
-    let prompt;
-    if (agent.isCustom) {
-      prompt = agent.prompt;
-    } else {
-      try {
-        const response = await fetch(`/prompts/agents/${agent.prompt}`);
-        if (response.ok) prompt = await response.text();
-      } catch {}
-    }
-    setAgentPrompt(prompt);
-    showToast(`已切换到${agent.name}`);
+    await selectAgent(agentId);
+    showToast(`已切换到${agents.find(a => a.id === agentId)?.name || '智能体'}`);
     setCurrentPage('chat');
-  }, [agents, setCurrentAgentId, setAgentPrompt, showToast, setCurrentPage]);
+  }, [agents, selectAgent, showToast, setCurrentPage]);
 
   const handleDeleteAgent = useCallback(async (agentId) => {
     try {

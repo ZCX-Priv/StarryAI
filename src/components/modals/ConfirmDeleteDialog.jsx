@@ -1,14 +1,15 @@
 import { X } from 'lucide-react';
-import { useChatStore, useUiStore } from '@/status';
+import { useUiStore } from '@/status';
+import useChats from '@/hooks/useChats';
 
 export default function ConfirmDeleteDialog({ visible, onClose, chatId }) {
-  const deleteChat = useChatStore(s => s.deleteChat);
+  const { deleteChat } = useChats();
   const showToast = useUiStore(s => s.showToast);
 
   if (!visible) return null;
 
-  const handleDelete = () => {
-    deleteChat(chatId);
+  const handleDelete = async () => {
+    await deleteChat(chatId);
     showToast('对话已删除');
     onClose();
   };

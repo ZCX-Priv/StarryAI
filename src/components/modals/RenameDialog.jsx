@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useChatStore } from '@/status';
+import useChats from '@/hooks/useChats';
 
 export default function RenameDialog({ visible, onClose, chatId }) {
   const chats = useChatStore(s => s.chats);
-  const renameChat = useChatStore(s => s.renameChat);
+  const { renameChat } = useChats();
   const [value, setValue] = useState('');
   const inputRef = useRef(null);
 
@@ -18,9 +19,9 @@ export default function RenameDialog({ visible, onClose, chatId }) {
 
   if (!visible) return null;
 
-  const handleRename = () => {
+  const handleRename = async () => {
     const newTitle = value.trim() || '新对话';
-    renameChat(chatId, newTitle);
+    await renameChat(chatId, newTitle);
     onClose();
   };
 

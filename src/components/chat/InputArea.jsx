@@ -5,6 +5,7 @@ import { API } from '@/services/api';
 import ModeSelector from './ModeSelector';
 import StreamStatus from './StreamStatus';
 import useBanner from '@/hooks/useBanner';
+import useChats from '@/hooks/useChats';
 
 const ACTION_OVERFLOW_SAFE_SPACE = 16;
 const MAX_INLINE_BANNER_ACTIONS = 2;
@@ -120,8 +121,6 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
   const setIsStreaming = useStreamStore(s => s.setIsStreaming);
   const setStopRequested = useStreamStore(s => s.setStopRequested);
   const activeChatId = useChatStore(s => s.activeChatId);
-  const createChat = useChatStore(s => s.createChat);
-  const addMessage = useChatStore(s => s.addMessage);
   const chats = useChatStore(s => s.chats);
   const model = useModelStore(s => s.model);
   const contextLength = useModelStore(s => s.contextLength);
@@ -134,6 +133,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
   const currentBannerMode = useModeStore(s => s.currentBannerMode);
   const setCurrentBannerMode = useModeStore(s => s.setCurrentBannerMode);
   const setBannerPrompt = useModeStore(s => s.setBannerPrompt);
+  const { createChat, addMessage } = useChats();
 
   const { bannerConfig, handleAction, clearSelection } = useBanner();
   const hasText = inputValue.trim().length > 0;
@@ -276,7 +276,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }) {
     const text = inputValue.trim();
     if (!text || isStreaming) return;
 
-    if (!activeChatId) createChat();
+    if (!activeChatId) await createChat();
 
     setInputValue('');
     if (textareaRef.current) {

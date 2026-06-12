@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import { Zap, Atom, Sparkles, ChevronRight } from 'lucide-react';
 import { useModeStore } from '@/status';
+import { IDBStore } from '@/services/storage';
 
 const MODES = [
   {
@@ -74,6 +75,7 @@ export default function ModeSelector() {
 
   const handleSelect = useCallback((modeId) => {
     setCurrentMode(modeId);
+    IDBStore.setConfig('currentMode', modeId);
     setOpen(false);
   }, [setCurrentMode]);
 

@@ -1,27 +1,25 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Plus, Users, Settings, MessageSquare, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
 import { useChatStore, useUiStore } from '@/status';
+import useChats from '@/hooks/useChats';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function Sidebar({ onOpenModal, onToggleSidebar }) {
   const chats = useChatStore(s => s.chats);
   const activeChatId = useChatStore(s => s.activeChatId);
-  const createChat = useChatStore(s => s.createChat);
-  const switchToChat = useChatStore(s => s.switchToChat);
-  const deleteChat = useChatStore(s => s.deleteChat);
-  const renameChat = useChatStore(s => s.renameChat);
   const setCurrentPage = useUiStore(s => s.setCurrentPage);
+  const { createChat, switchToChat, deleteChat, renameChat } = useChats();
   const [openMenuId, setOpenMenuId] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleNewChat = useCallback(() => {
-    createChat();
+  const handleNewChat = useCallback(async () => {
+    await createChat();
     if (window.innerWidth <= 680) setMobileOpen(false);
   }, [createChat]);
 
-  const handleSwitchChat = useCallback((id) => {
-    switchToChat(id);
+  const handleSwitchChat = useCallback(async (id) => {
+    await switchToChat(id);
     if (window.innerWidth <= 680) setMobileOpen(false);
   }, [switchToChat]);
 

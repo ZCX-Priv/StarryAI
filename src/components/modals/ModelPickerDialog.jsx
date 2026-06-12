@@ -1,13 +1,14 @@
 import { useState, useMemo } from 'react';
 import { X, Search, Gem, Atom } from 'lucide-react';
 import { useModelStore } from '@/status';
+import useModels from '@/hooks/useModels';
 import { formatContextLength } from '@/lib/config';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function ModelPickerDialog({ visible, onClose }) {
   const model = useModelStore(s => s.model);
-  const setModel = useModelStore(s => s.setModel);
   const models = useModelStore(s => s.models);
+  const { setModel: setModelPersist } = useModels();
   const [search, setSearch] = useState('');
 
   const filteredModels = useMemo(() => {
@@ -21,7 +22,7 @@ export default function ModelPickerDialog({ visible, onClose }) {
   if (!visible) return null;
 
   const handleSelect = (id) => {
-    setModel(id);
+    setModelPersist(id);
     onClose();
   };
 

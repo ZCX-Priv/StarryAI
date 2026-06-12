@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useChatStore, useModelStore, useModeStore, useStreamStore } from '@/status';
 import { API } from '@/services/api';
+import useChats from '@/hooks/useChats';
 import MessageList from './MessageList';
 
 export default function ChatArea({ onOpenModal, scrollBtnProps }) {
@@ -10,13 +11,13 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }) {
   const isStreaming = useStreamStore(s => s.isStreaming);
   const activeChatId = useChatStore(s => s.activeChatId);
   const chats = useChatStore(s => s.chats);
-  const addMessage = useChatStore(s => s.addMessage);
   const model = useModelStore(s => s.model);
   const contextLength = useModelStore(s => s.contextLength);
   const currentMode = useModeStore(s => s.currentMode);
   const modeConfig = useModeStore(s => s.modeConfig);
   const setIsStreaming = useStreamStore(s => s.setIsStreaming);
   const setStopRequested = useStreamStore(s => s.setStopRequested);
+  const { addMessage, saveChat } = useChats();
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
   const scrollToBottom = useCallback((force = true) => {
@@ -67,6 +68,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }) {
     if (chat.messages[chat.messages.length - 1]?.role === 'assistant') {
       chat.messages.pop();
       useChatStore.setState({ chats: [...useChatStore.getState().chats] });
+      await saveChat(chat);
     }
 
     const allMsgs = chat.messages.map(m => ({ role: m.role, content: m.content }));
