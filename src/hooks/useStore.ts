@@ -152,16 +152,16 @@ export default function useStore(): { initialized: boolean; error: string | null
         clearInterval(progressTimer);
         await new Promise<void>((resolve) => {
           const finishTimer = setInterval(() => {
-            simulated += 10;
+            simulated += 3;
             if (simulated >= 100) {
               simulated = 100;
               clearInterval(finishTimer);
               if (!cancelled) setLoadProgress(100);
               resolve();
             } else {
-              if (!cancelled) setLoadProgress(simulated);
+              if (!cancelled) setLoadProgress(Math.round(simulated));
             }
-          }, 30);
+          }, 20);
         });
         if (!cancelled) setInitialized(true);
       } catch (err) {
