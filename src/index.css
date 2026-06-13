@@ -178,6 +178,16 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 .td:nth-child(2) { animation-delay: .18s; } .td:nth-child(3) { animation-delay: .36s; }
 @keyframes tdBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-7px); } }
 
+/* Loading Page */
+.loading-page { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 20px; }
+.loading-logo { width: 80px; height: 80px; object-fit: contain; animation: loadingPulse 2s ease-in-out infinite; }
+@keyframes loadingPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+.loading-indicator { display: flex; align-items: center; gap: 8px; }
+.loading-dot { width: 10px; height: 10px; background: var(--text3); border-radius: 50%; animation: tdBounce 1.4s ease-in-out infinite; }
+.loading-dot:nth-child(2) { animation-delay: .18s; }
+.loading-dot:nth-child(3) { animation-delay: .36s; }
+.loading-text { font-size: 14px; color: var(--text3); }
+
 /* Message Actions */
 .msg-actions { display: flex; align-items: center; gap: 4px; margin-top: 4px; padding-left: 4px; opacity: 0; transition: opacity .2s; }
 .msg-actions.visible { opacity: 1; }

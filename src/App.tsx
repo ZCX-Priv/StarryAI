@@ -15,8 +15,14 @@ export default function App() {
 
   if (!initialized) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'var(--text-secondary)' }}>
-        加载中...
+      <div className="loading-page">
+        <img src="/logo.png" alt="星语" className="loading-logo" />
+        <div className="loading-indicator">
+          <div className="loading-dot"></div>
+          <div className="loading-dot"></div>
+          <div className="loading-dot"></div>
+        </div>
+        <span className="loading-text">加载中</span>
       </div>
     );
   }
