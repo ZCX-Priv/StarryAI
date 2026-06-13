@@ -61,7 +61,7 @@ export default function AppShell() {
   }, []);
 
   return (
-    <div id="app">
+    <div id="app" spellCheck={false}>
       <HoneycombCanvas />
       <Sidebar onOpenModal={openModal} onToggleSidebar={toggleRef} />
       <div id="main-wrapper">

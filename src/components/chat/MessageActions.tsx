@@ -14,12 +14,28 @@ export default function MessageActions({ onRegenerate }: MessageActionsProps) {
     return () => clearTimeout(t);
   }, []);
 
+  const copyToClipboard = async (text: string): Promise<void> => {
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    if (!document.execCommand('copy')) {
+      throw new Error('execCommand failed');
+    }
+    document.body.removeChild(textarea);
+  };
+
   const handleCopy = async () => {
     const chat = useChatStore.getState().chats.find(c => c.id === useChatStore.getState().activeChatId);
     const last = [...(chat?.messages || [])].reverse().find(m => m.role === 'assistant');
     if (!last) return;
     try {
-      await navigator.clipboard.writeText(last.content);
+      await copyToClipboard(last.content);
       useUiStore.getState().showToast('已复制！');
     } catch {
       useUiStore.getState().showToast('复制失败', 'error');
