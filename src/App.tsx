@@ -2,7 +2,7 @@ import useStore from '@/hooks/useStore';
 import AppShell from '@/components/layout/AppShell';
 
 export default function App() {
-  const { initialized, error } = useStore();
+  const { initialized, error, loadProgress } = useStore();
 
   if (error) {
     return (
@@ -22,7 +22,7 @@ export default function App() {
           <div className="loading-dot"></div>
           <div className="loading-dot"></div>
         </div>
-        <span className="loading-text">加载中</span>
+        <span className="loading-text">加载中 {loadProgress}%</span>
       </div>
     );
   }

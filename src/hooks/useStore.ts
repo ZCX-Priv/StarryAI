@@ -5,14 +5,39 @@ import { Migration } from '@/services/migration';
 import { loadMainPrompt, loadMemoryPrompts, loadModePrompt } from '@/lib/prompts';
 import type { ModeType } from '@/types';
 
-export default function useStore(): { initialized: boolean; error: string | null } {
+export default function useStore(): { initialized: boolean; error: string | null; loadProgress: number } {
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadProgress, setLoadProgress] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
 
     async function init() {
+      // 等待 logo 图片下载完成，确保 loading 页面完整显示
+      await new Promise<void>((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        img.src = '/logo.png';
+        if (img.complete) resolve();
+      });
+
+      // 再等一帧确保 DOM 渲染
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      });
+
+      // 模拟进度：先快后慢，到 99% 停住
+      let simulated = 0;
+      const progressTimer = setInterval(() => {
+        if (simulated < 60) simulated += 8;
+        else if (simulated < 85) simulated += 5;
+        else if (simulated < 99) simulated += 2;
+        else return;
+        if (!cancelled) setLoadProgress(simulated);
+      }, 300);
+
       try {
         await IDBStore.init();
         await Migration.run();
@@ -123,8 +148,24 @@ export default function useStore(): { initialized: boolean; error: string | null
           }
         } catch { /* ignored */ }
 
+        // 初始化完成！飞速递增到 100%
+        clearInterval(progressTimer);
+        await new Promise<void>((resolve) => {
+          const finishTimer = setInterval(() => {
+            simulated += 10;
+            if (simulated >= 100) {
+              simulated = 100;
+              clearInterval(finishTimer);
+              if (!cancelled) setLoadProgress(100);
+              resolve();
+            } else {
+              if (!cancelled) setLoadProgress(simulated);
+            }
+          }, 30);
+        });
         if (!cancelled) setInitialized(true);
       } catch (err) {
+        clearInterval(progressTimer);
         console.error('Store 初始化失败:', err);
         if (!cancelled) setError((err as Error).message);
       }
@@ -134,5 +175,5 @@ export default function useStore(): { initialized: boolean; error: string | null
     return () => { cancelled = true; };
   }, []);
 
-  return { initialized, error };
+  return { initialized, error, loadProgress };
 }
