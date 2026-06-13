@@ -44,7 +44,7 @@ export default function useBanner() {
       return;
     }
 
-    const prompt = await loadPrompt(action.promptFile);
+    const prompt = await loadPrompt(action.prompt);
     if (prompt) {
       store.setCurrentBannerMode(action.id);
       store.setBannerPrompt(prompt);
@@ -54,9 +54,9 @@ export default function useBanner() {
   const createActionButton = useCallback((action: BannerAction): { id: string; name: string; iconSvg: string; prompt: string } => {
     return {
       id: action.id,
-      name: action.label,
-      iconSvg: action.icon,
-      prompt: action.promptFile,
+      name: action.name,
+      iconSvg: action.iconSvg,
+      prompt: action.prompt,
     };
   }, []);
 

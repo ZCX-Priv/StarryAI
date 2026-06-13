@@ -7,7 +7,7 @@ import ModeSelector from './ModeSelector';
 import StreamStatus from './StreamStatus';
 import useBanner from '@/hooks/useBanner';
 import useChats from '@/hooks/useChats';
-import type { ModeType, ModeConfig } from '@/types';
+import type { ModeType, ModeConfig, BannerAction } from '@/types';
 
 const ACTION_OVERFLOW_SAFE_SPACE = 16;
 const MAX_INLINE_BANNER_ACTIONS = 2;
@@ -15,8 +15,9 @@ const MAX_INLINE_BANNER_ACTIONS = 2;
 interface BannerActionItem {
   id: string;
   name: string;
+  icon: string;
   iconSvg: string;
-  promptFile: string;
+  prompt: string;
   mode?: string;
 }
 
@@ -289,7 +290,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
       showToast(`已退出${action.name}模式`);
       return;
     }
-    await handleAction(action as unknown as Parameters<typeof handleAction>[0]);
+    await handleAction(action as unknown as BannerAction);
     showToast(`已切换到${action.name}模式`);
   }, [currentBannerMode, clearSelection, handleAction, showToast]);
 

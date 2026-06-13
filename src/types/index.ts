@@ -49,9 +49,10 @@ export interface AgentsConfig {
 // Banner 相关
 export interface BannerAction {
   id: string;
-  label: string;
+  name: string;
   icon: string;
-  promptFile: string;
+  iconSvg: string;
+  prompt: string;
   mode?: string;
 }
 
