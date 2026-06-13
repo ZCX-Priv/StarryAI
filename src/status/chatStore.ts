@@ -63,9 +63,8 @@ const useChatStore = create<ChatStore>((set, get) => ({
     const chat = get().chats.find(c => c.id === get().activeChatId);
     if (!chat) return;
     chat.messages.push({ role, content, rendered: content, ts: Date.now() });
-    if (chat.messages.length === 2 && role === 'assistant') {
-      const u = chat.messages[0]?.content || '';
-      chat.title = u.slice(0, 42) + (u.length > 42 ? '…' : '');
+    if (chat.messages.length === 1 && role === 'user') {
+      chat.title = content.slice(0, 20) + (content.length > 20 ? '…' : '');
     }
     set({ chats: [...get().chats] });
   },
