@@ -14,9 +14,10 @@ export default function useChats() {
     return chat;
   }, []);
 
-  const addMessage = useCallback(async (role: 'system' | 'user' | 'assistant', content: string): Promise<void> => {
-    useChatStore.getState().addMessage(role, content);
-    const chat = useChatStore.getState().chats.find(c => c.id === useChatStore.getState().activeChatId);
+  const addMessage = useCallback(async (role: 'system' | 'user' | 'assistant', content: string, chatId?: string): Promise<void> => {
+    useChatStore.getState().addMessage(role, content, chatId);
+    const targetId = chatId || useChatStore.getState().activeChatId;
+    const chat = useChatStore.getState().chats.find(c => c.id === targetId);
     if (chat) await IDBStore.saveChat(chat);
   }, []);
 

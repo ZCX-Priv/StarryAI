@@ -15,7 +15,7 @@ interface ChatActions {
   createChat: () => Chat;
   switchToChat: (id: string) => void;
   deleteChat: (id: string) => { chats: Chat[]; activeChatId: string | null };
-  addMessage: (role: Message['role'], content: string) => void;
+  addMessage: (role: Message['role'], content: string, chatId?: string) => void;
   renameChat: (chatId: string, newTitle: string) => void;
 }
 
@@ -59,8 +59,9 @@ const useChatStore = create<ChatStore>((set, get) => ({
     return { chats, activeChatId };
   },
 
-  addMessage: (role, content) => {
-    const chat = get().chats.find(c => c.id === get().activeChatId);
+  addMessage: (role, content, chatId) => {
+    const targetId = chatId || get().activeChatId;
+    const chat = get().chats.find(c => c.id === targetId);
     if (!chat) return;
     chat.messages.push({ role, content, rendered: content, ts: Date.now() });
     if (chat.messages.length === 1 && role === 'user') {

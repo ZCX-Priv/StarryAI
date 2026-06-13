@@ -151,9 +151,12 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
   const moreMeasureRef = useRef<HTMLButtonElement>(null);
   const actionMeasureRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const isStreaming = useStreamStore(s => s.isStreaming);
+  const streamingChatId = useStreamStore(s => s.streamingChatId);
   const setIsStreaming = useStreamStore(s => s.setIsStreaming);
   const setStopRequested = useStreamStore(s => s.setStopRequested);
+  const setStreamingChatId = useStreamStore(s => s.setStreamingChatId);
   const activeChatId = useChatStore(s => s.activeChatId);
+  const isStreamingThisChat = isStreaming && streamingChatId === activeChatId;
   const chats = useChatStore(s => s.chats);
   const model = useModelStore(s => s.model);
   const contextLength = useModelStore(s => s.contextLength);
@@ -307,7 +310,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
 
   const handleSend = useCallback(async () => {
     const text = inputValue.trim();
-    if (!text || isStreaming) return;
+    if (!text || isStreamingThisChat) return;
 
     if (!activeChatId) await createChat();
 
@@ -317,14 +320,16 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
     }
 
     const chatId = useChatStore.getState().activeChatId || activeChatId;
-    addMessage('user', text);
+    if (!chatId) return;
+    addMessage('user', text, chatId);
 
     setIsStreaming(true);
     setStopRequested(false);
+    setStreamingChatId(chatId);
 
     let fullResp = '';
     try {
-      const chat = useChatStore.getState().chats.find(c => c.id === (useChatStore.getState().activeChatId || chatId));
+      const chat = useChatStore.getState().chats.find(c => c.id === chatId);
       const allMsgs = (chat?.messages || []).filter(m => m.role !== 'system').map(m => ({ role: m.role, content: m.content, ts: m.ts }));
       const msgs = contextLength > 0 ? allMsgs.slice(-contextLength) : [];
 
@@ -339,17 +344,18 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
       }
 
       if (fullResp) {
-        addMessage('assistant', fullResp);
+        addMessage('assistant', fullResp, chatId);
       }
     } catch (e: unknown) {
       if (!useStreamStore.getState().stopRequested) {
         showToast('请求失败，请重试', 'error');
-        addMessage('assistant', `⚠ ${e instanceof Error ? e.message : 'Error'}`);
+        addMessage('assistant', `⚠ ${e instanceof Error ? e.message : 'Error'}`, chatId);
       }
     }
 
     setIsStreaming(false);
-  }, [inputValue, isStreaming, activeChatId, createChat, addMessage, setIsStreaming, setStopRequested, model, contextLength, currentMode, modeConfig]);
+    setStreamingChatId(null);
+  }, [inputValue, isStreaming, activeChatId, createChat, addMessage, setIsStreaming, setStopRequested, setStreamingChatId, model, contextLength, currentMode, modeConfig]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && e.ctrlKey) {
@@ -422,14 +428,14 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
               id="send-btn"
               title="发送"
               onClick={handleSend}
-              disabled={!hasText || isStreaming}
-              style={isStreaming ? { display: 'none' } as React.CSSProperties : undefined}
+              disabled={!hasText || isStreamingThisChat}
+              style={isStreamingThisChat ? { display: 'none' } as React.CSSProperties : undefined}
               type="button"
             >
               <ArrowUp size={20} />
             </button>
             <button
-              className={`stop-btn${isStreaming ? ' visible' : ''}`}
+              className={`stop-btn${isStreamingThisChat ? ' visible' : ''}`}
               id="stop-btn"
               onClick={handleStop}
               type="button"

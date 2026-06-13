@@ -12,6 +12,8 @@ export default function MessageList({ onRegenerate }: MessageListProps) {
   const activeChatId = useChatStore(s => s.activeChatId);
   const chats = useChatStore(s => s.chats);
   const isStreaming = useStreamStore(s => s.isStreaming);
+  const streamingChatId = useStreamStore(s => s.streamingChatId);
+  const isStreamingThisChat = isStreaming && streamingChatId === activeChatId;
 
   const activeChat = useMemo(
     () => chats.find(c => c.id === activeChatId),
@@ -38,10 +40,10 @@ export default function MessageList({ onRegenerate }: MessageListProps) {
           key={i}
           role={msg.role}
           content={msg.content}
-          isStreaming={isStreaming && i === messages.length - 1 && msg.role === 'assistant'}
+          isStreaming={isStreamingThisChat && i === messages.length - 1 && msg.role === 'assistant'}
         />
       ))}
-      {isStreaming && (
+      {isStreamingThisChat && (
         <div className="msg-row ai">
           <div className="ai-msg-content">
             <div className="typing-indicator">
@@ -52,7 +54,7 @@ export default function MessageList({ onRegenerate }: MessageListProps) {
           </div>
         </div>
       )}
-      {lastAiMsgIndex >= 0 && !isStreaming && (
+      {lastAiMsgIndex >= 0 && !isStreamingThisChat && (
         <MessageActions onRegenerate={onRegenerate} />
       )}
     </div>

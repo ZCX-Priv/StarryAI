@@ -19,7 +19,9 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
   const autoScroll = useStreamStore(s => s.autoScroll);
   const setAutoScroll = useStreamStore(s => s.setAutoScroll);
   const isStreaming = useStreamStore(s => s.isStreaming);
+  const streamingChatId = useStreamStore(s => s.streamingChatId);
   const activeChatId = useChatStore(s => s.activeChatId);
+  const isStreamingThisChat = isStreaming && streamingChatId === activeChatId;
   const chats = useChatStore(s => s.chats);
   const model = useModelStore(s => s.model);
   const contextLength = useModelStore(s => s.contextLength);
@@ -27,6 +29,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
   const modeConfig = useModeStore(s => s.modeConfig);
   const setIsStreaming = useStreamStore(s => s.setIsStreaming);
   const setStopRequested = useStreamStore(s => s.setStopRequested);
+  const setStreamingChatId = useStreamStore(s => s.setStreamingChatId);
   const showToast = useUiStore(s => s.showToast);
   const { addMessage, saveChat } = useChats();
   const [showScrollBtn, setShowScrollBtn] = useState(false);
@@ -73,8 +76,9 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
   }, [chats, activeChatId, autoScroll, scrollToBottom]);
 
   const handleRegenerate = useCallback(async () => {
-    const chat = chats.find(c => c.id === activeChatId);
-    if (!chat || isStreaming) return;
+    const chatId = activeChatId;
+    const chat = chats.find(c => c.id === chatId);
+    if (!chat || !chatId || isStreamingThisChat) return;
 
     if (chat.messages[chat.messages.length - 1]?.role === 'assistant') {
       chat.messages.pop();
@@ -88,21 +92,24 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
 
     setIsStreaming(true);
     setStopRequested(false);
+    setStreamingChatId(chatId);
+
     let fullResp = '';
     try {
       for await (const chunk of API.stream(msgs, modelToUse)) {
         if (useStreamStore.getState().stopRequested) break;
         fullResp += chunk;
       }
-      if (fullResp) addMessage('assistant', fullResp);
+      if (fullResp) addMessage('assistant', fullResp, chatId);
     } catch (e: unknown) {
       if (!useStreamStore.getState().stopRequested) {
         showToast('重新生成失败', 'error');
-        addMessage('assistant', `⚠ ${e instanceof Error ? e.message : 'Error'}`);
+        addMessage('assistant', `⚠ ${e instanceof Error ? e.message : 'Error'}`, chatId);
       }
     }
     setIsStreaming(false);
-  }, [chats, activeChatId, isStreaming, contextLength, model, addMessage, setIsStreaming, setStopRequested, showToast]);
+    setStreamingChatId(null);
+  }, [chats, activeChatId, isStreaming, contextLength, model, addMessage, setIsStreaming, setStopRequested, setStreamingChatId, showToast]);
 
   return (
     <div id="chat-area" ref={chatAreaRef}>

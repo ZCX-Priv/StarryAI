@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Plus, Users, Settings, MessageSquare, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
-import { useChatStore, useUiStore } from '@/status';
+import { Plus, Users, Settings, MessageSquare, Pencil, Trash2, MoreHorizontal, Loader2 } from 'lucide-react';
+import { useChatStore, useStreamStore, useUiStore } from '@/status';
 import useChats from '@/hooks/useChats';
 import EmptyState from '@/components/ui/EmptyState';
 import type { Chat } from '@/types';
@@ -13,6 +13,7 @@ interface SidebarProps {
 export default function Sidebar({ onOpenModal, onToggleSidebar }: SidebarProps) {
   const chats = useChatStore(s => s.chats);
   const activeChatId = useChatStore(s => s.activeChatId);
+  const streamingChatId = useStreamStore(s => s.streamingChatId);
   const setCurrentPage = useUiStore(s => s.setCurrentPage);
   const { switchToChat, deleteChat, renameChat } = useChats();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -92,6 +93,7 @@ export default function Sidebar({ onOpenModal, onToggleSidebar }: SidebarProps) 
                 key={chat.id}
                 chat={chat}
                 isActive={chat.id === activeChatId}
+                isStreaming={chat.id === streamingChatId}
                 onSwitch={handleSwitchChat}
                 onDelete={deleteChat}
                 onRename={renameChat}
@@ -116,6 +118,7 @@ export default function Sidebar({ onOpenModal, onToggleSidebar }: SidebarProps) 
 interface ChatItemProps {
   chat: Chat;
   isActive: boolean;
+  isStreaming: boolean;
   onSwitch: (id: string) => void;
   onDelete: (id: string) => void;
   onRename: (id: string, newTitle: string) => void;
@@ -124,7 +127,7 @@ interface ChatItemProps {
   onOpenModal: (name: string, data?: string) => void;
 }
 
-function ChatItem({ chat, isActive, onSwitch, onDelete, onRename, openMenuId, setOpenMenuId, onOpenModal }: ChatItemProps) {
+function ChatItem({ chat, isActive, isStreaming, onSwitch, onDelete, onRename, openMenuId, setOpenMenuId, onOpenModal }: ChatItemProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const displayTitle = (!chat.title || chat.title === '新对话') ? '新对话' : chat.title;
@@ -159,7 +162,9 @@ function ChatItem({ chat, isActive, onSwitch, onDelete, onRename, openMenuId, se
       className={`chat-item${isActive ? ' active' : ''}`}
       onClick={() => onSwitch(chat.id)}
     >
-      <div className="ci-icon"><MessageSquare size={13} /></div>
+      <div className="ci-icon">
+        {isStreaming ? <Loader2 size={13} className="animate-spin" /> : <MessageSquare size={13} />}
+      </div>
       <div className="ci-title">{displayTitle}</div>
       <button className="ci-menu-btn" onClick={handleMenuClick} title="更多操作">
         <MoreHorizontal size={14} />
