@@ -392,11 +392,10 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 
 
 /* Sonner toast: close button 移至右上角 */
-[data-sonner-toaster][dir='ltr'],
-html[dir='ltr'] {
-  --toast-close-button-start: unset;
-  --toast-close-button-end: 0;
-  --toast-close-button-transform: translate(35%, -35%);
+[data-sonner-toaster] [data-sonner-toast] [data-close-button] {
+  left: unset !important;
+  right: 0 !important;
+  transform: translate(35%, -35%) !important;
 }
 
 /* Light theme overrides */
