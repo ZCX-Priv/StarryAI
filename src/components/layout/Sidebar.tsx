@@ -14,15 +14,16 @@ export default function Sidebar({ onOpenModal, onToggleSidebar }: SidebarProps) 
   const chats = useChatStore(s => s.chats);
   const activeChatId = useChatStore(s => s.activeChatId);
   const setCurrentPage = useUiStore(s => s.setCurrentPage);
-  const { createChat, switchToChat, deleteChat, renameChat } = useChats();
+  const { switchToChat, deleteChat, renameChat } = useChats();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleNewChat = useCallback(async () => {
-    await createChat();
+  const handleNewChat = useCallback(() => {
+    useChatStore.getState().setActiveChatId(null);
+    useUiStore.getState().setCurrentPage('chat');
     if (window.innerWidth <= 680) setMobileOpen(false);
-  }, [createChat]);
+  }, []);
 
   const handleSwitchChat = useCallback(async (id: string) => {
     await switchToChat(id);
