@@ -85,7 +85,7 @@ export default function AppShell() {
       <CreateAgentDialog visible={!!modals.createAgent} onClose={() => closeModal('createAgent')} />
       <CreateCategoryDialog visible={!!modals.createCategory} onClose={() => closeModal('createCategory')} />
 
-      <Toaster position="top-center" richColors closeButton theme={isDark ? 'dark' : 'light'} />
+      <Toaster position="top-center" richColors closeButton duration={3000} theme={isDark ? 'dark' : 'light'} />
     </div>
   );
 }
