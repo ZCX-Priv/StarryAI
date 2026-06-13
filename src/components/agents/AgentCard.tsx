@@ -10,11 +10,12 @@ type CustomAgent = Omit<AgentItem, 'avatar'> & {
 
 interface AgentCardProps {
   agent: CustomAgent;
+  isCurrent?: boolean;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
-export default function AgentCard({ agent, onSelect, onDelete }: AgentCardProps) {
+export default function AgentCard({ agent, isCurrent, onSelect, onDelete }: AgentCardProps) {
   const isCustom = agent.isCustom;
   const avatarHtml = isCustom ? (
     <div className="card-avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', background: 'var(--bg3)', borderRadius: 'var(--radius)' } as React.CSSProperties}>
@@ -26,13 +27,14 @@ export default function AgentCard({ agent, onSelect, onDelete }: AgentCardProps)
 
   return (
     <div
-      className={`agent-card${isCustom ? ' custom-agent' : ''}`}
+      className={`agent-card${isCustom ? ' custom-agent' : ''}${isCurrent ? ' current-agent' : ''}`}
       onClick={() => onSelect(agent.id)}
     >
       {avatarHtml}
       <div className="card-content">
         <div className="card-name">
           {agent.name}
+          {isCurrent && <span className="current-agent-badge">当前</span>}
           {isCustom && <span className="custom-agent-badge">自定义</span>}
         </div>
         <div className="card-desc">{agent.description}</div>

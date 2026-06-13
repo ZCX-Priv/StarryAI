@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { useChatStore, useStreamStore } from '@/status';
 
 export default function StreamStatus() {
-  const isStreaming = useStreamStore(s => s.isStreaming);
   const streamingChatId = useStreamStore(s => s.streamingChatId);
   const activeChatId = useChatStore(s => s.activeChatId);
   const [statusText] = useState('正在生成回复…');
   const [isCodeMode] = useState(false);
 
-  if (!isStreaming || streamingChatId !== activeChatId) return null;
+  if (streamingChatId === null || streamingChatId !== activeChatId) return null;
 
   return (
     <div id="stream-status" className={`visible${isCodeMode ? ' code-mode' : ''}`}>

@@ -150,13 +150,11 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
   const trailingRef = useRef<HTMLDivElement>(null);
   const moreMeasureRef = useRef<HTMLButtonElement>(null);
   const actionMeasureRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
-  const isStreaming = useStreamStore(s => s.isStreaming);
   const streamingChatId = useStreamStore(s => s.streamingChatId);
-  const setIsStreaming = useStreamStore(s => s.setIsStreaming);
   const setStopRequested = useStreamStore(s => s.setStopRequested);
   const setStreamingChatId = useStreamStore(s => s.setStreamingChatId);
   const activeChatId = useChatStore(s => s.activeChatId);
-  const isStreamingThisChat = isStreaming && streamingChatId === activeChatId;
+  const isStreamingThisChat = streamingChatId !== null && streamingChatId === activeChatId;
   const chats = useChatStore(s => s.chats);
   const model = useModelStore(s => s.model);
   const contextLength = useModelStore(s => s.contextLength);
@@ -323,7 +321,6 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
     if (!chatId) return;
     addMessage('user', text, chatId);
 
-    setIsStreaming(true);
     setStopRequested(false);
     setStreamingChatId(chatId);
 
@@ -353,9 +350,10 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
       }
     }
 
-    setIsStreaming(false);
-    setStreamingChatId(null);
-  }, [inputValue, isStreaming, activeChatId, createChat, addMessage, setIsStreaming, setStopRequested, setStreamingChatId, model, contextLength, currentMode, modeConfig]);
+    if (useStreamStore.getState().streamingChatId === chatId) {
+      setStreamingChatId(null);
+    }
+  }, [inputValue, activeChatId, createChat, addMessage, setStopRequested, setStreamingChatId, model, contextLength, currentMode, modeConfig]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && e.ctrlKey) {
@@ -366,7 +364,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
 
   const handleStop = () => {
     setStopRequested(true);
-    setIsStreaming(false);
+    setStreamingChatId(null);
   };
 
   const scrollState = scrollBtnProps?.current;

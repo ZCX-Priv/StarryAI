@@ -18,16 +18,14 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
   const chatAreaRef = useRef<HTMLDivElement>(null);
   const autoScroll = useStreamStore(s => s.autoScroll);
   const setAutoScroll = useStreamStore(s => s.setAutoScroll);
-  const isStreaming = useStreamStore(s => s.isStreaming);
   const streamingChatId = useStreamStore(s => s.streamingChatId);
   const activeChatId = useChatStore(s => s.activeChatId);
-  const isStreamingThisChat = isStreaming && streamingChatId === activeChatId;
+  const isStreamingThisChat = streamingChatId !== null && streamingChatId === activeChatId;
   const chats = useChatStore(s => s.chats);
   const model = useModelStore(s => s.model);
   const contextLength = useModelStore(s => s.contextLength);
   const currentMode = useModeStore(s => s.currentMode);
   const modeConfig = useModeStore(s => s.modeConfig);
-  const setIsStreaming = useStreamStore(s => s.setIsStreaming);
   const setStopRequested = useStreamStore(s => s.setStopRequested);
   const setStreamingChatId = useStreamStore(s => s.setStreamingChatId);
   const showToast = useUiStore(s => s.showToast);
@@ -90,7 +88,6 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
     const msgs = contextLength > 0 ? allMsgs.slice(-contextLength) : [];
     const modelToUse = chat.model || model;
 
-    setIsStreaming(true);
     setStopRequested(false);
     setStreamingChatId(chatId);
 
@@ -107,9 +104,10 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
         addMessage('assistant', `⚠ ${e instanceof Error ? e.message : 'Error'}`, chatId);
       }
     }
-    setIsStreaming(false);
-    setStreamingChatId(null);
-  }, [chats, activeChatId, isStreaming, contextLength, model, addMessage, setIsStreaming, setStopRequested, setStreamingChatId, showToast]);
+    if (useStreamStore.getState().streamingChatId === chatId) {
+      setStreamingChatId(null);
+    }
+  }, [chats, activeChatId, contextLength, model, addMessage, setStopRequested, setStreamingChatId, showToast]);
 
   return (
     <div id="chat-area" ref={chatAreaRef}>

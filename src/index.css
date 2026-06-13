@@ -381,7 +381,7 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 .agents-tabs-left { display: flex; gap: 8px; }
 .agent-tab { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text2); font-size: 13px; font-family: var(--font); cursor: pointer; transition: all .2s; }
 .agent-tab:hover { background: var(--bg3); }
-.agent-tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+.agent-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .agent-tab-add { width: 32px; height: 32px; padding: 0; border-radius: 50%; border: 1px dashed var(--border2); background: none; color: var(--text3); font-size: 18px; font-weight: 300; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .agent-tab-add:hover { border-style: solid; border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
 .agent-tab-wrapper { position: relative; display: inline-flex; }
@@ -398,6 +398,8 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 .agent-card:hover .agent-delete-btn { opacity: 1; }
 .agent-delete-btn:hover { background: rgba(248,113,113,.1); border-color: var(--danger); color: var(--danger); }
 .custom-agent .card-name { display: flex; align-items: center; gap: 6px; }
+.agent-card.current-agent { border-color: var(--accent); background: var(--accent-glow); }
+.current-agent-badge { display: inline-block; padding: 2px 6px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 600; border-radius: 4px; margin-left: 6px; }
 
 
 

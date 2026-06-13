@@ -11,9 +11,8 @@ interface MessageListProps {
 export default function MessageList({ onRegenerate }: MessageListProps) {
   const activeChatId = useChatStore(s => s.activeChatId);
   const chats = useChatStore(s => s.chats);
-  const isStreaming = useStreamStore(s => s.isStreaming);
   const streamingChatId = useStreamStore(s => s.streamingChatId);
-  const isStreamingThisChat = isStreaming && streamingChatId === activeChatId;
+  const isStreamingThisChat = streamingChatId !== null && streamingChatId === activeChatId;
 
   const activeChat = useMemo(
     () => chats.find(c => c.id === activeChatId),
