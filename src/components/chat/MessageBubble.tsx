@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { MarkdownRenderer, ThinkingBlock, extractThinkingBlocks } from '@/render';
 import type { Message } from '@/types';
+import type { ThinkingPart } from '@/render';
 
 interface MessageBubbleProps {
   role: Message['role'];
@@ -11,7 +12,7 @@ interface MessageBubbleProps {
 export default function MessageBubble({ role, content, isStreaming }: MessageBubbleProps) {
   const isAI = role === 'assistant';
   const { thinkingParts, contentParts, hasThinking } = useMemo(
-    () => isAI ? extractThinkingBlocks(content || '') : { thinkingParts: [] as string[], contentParts: [content], hasThinking: false },
+    () => isAI ? extractThinkingBlocks(content || '') : { thinkingParts: [] as ThinkingPart[], contentParts: [content], hasThinking: false },
     [content, isAI]
   );
 
@@ -35,7 +36,7 @@ export default function MessageBubble({ role, content, isStreaming }: MessageBub
     <div className="msg-row ai">
       <div className={`ai-msg-content${isStreaming ? ' streaming' : ''}`}>
         {hasThinking && thinkingParts.map((part, i) => (
-          <ThinkingBlock key={`think-${i}-${part.slice(0, 8)}`} content={part} />
+          <ThinkingBlock key={`think-${i}-${part.content.slice(0, 8)}`} content={part.content} isComplete={part.isComplete} />
         ))}
         {isStreaming && !mainContent && (
           <div className="typing-indicator">

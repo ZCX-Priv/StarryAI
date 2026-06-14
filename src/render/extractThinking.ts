@@ -1,11 +1,16 @@
+export interface ThinkingPart {
+  content: string;
+  isComplete: boolean;
+}
+
 interface ExtractResult {
-  thinkingParts: string[];
+  thinkingParts: ThinkingPart[];
   contentParts: string[];
   hasThinking: boolean;
 }
 
 export function extractThinkingBlocks(content: string): ExtractResult {
-  const thinkingParts: string[] = [];
+  const thinkingParts: ThinkingPart[] = [];
   const contentParts: string[] = [];
   let lastIndex = 0;
   const openTag = '<think>';
@@ -23,7 +28,10 @@ export function extractThinkingBlocks(content: string): ExtractResult {
       if (openIndex > lastIndex) {
         contentParts.push(content.slice(lastIndex, openIndex));
       }
-      thinkingParts.push(content.slice(openIndex + openTag.length).trim());
+      thinkingParts.push({
+        content: content.slice(openIndex + openTag.length).trim(),
+        isComplete: false,
+      });
       lastIndex = content.length;
       break;
     } else {
@@ -31,7 +39,10 @@ export function extractThinkingBlocks(content: string): ExtractResult {
       if (openIndex > lastIndex) {
         contentParts.push(content.slice(lastIndex, openIndex));
       }
-      thinkingParts.push(content.slice(openIndex + openTag.length, closeIndex).trim());
+      thinkingParts.push({
+        content: content.slice(openIndex + openTag.length, closeIndex).trim(),
+        isComplete: true,
+      });
       lastIndex = closeIndex + closeTag.length;
       i = lastIndex;
     }

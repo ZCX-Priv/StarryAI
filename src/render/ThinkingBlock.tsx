@@ -1,11 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ThinkingBlockProps {
   content: string;
+  isComplete: boolean;
 }
 
-export default function ThinkingBlock({ content }: ThinkingBlockProps) {
-  const [expanded, setExpanded] = useState(false);
+export default function ThinkingBlock({ content, isComplete }: ThinkingBlockProps) {
+  const [expanded, setExpanded] = useState(!isComplete);
+
+  useEffect(() => {
+    if (isComplete) {
+      setExpanded(false);
+    }
+  }, [isComplete]);
 
   return (
     <div style={{ marginBottom: '8px' }}>
@@ -24,7 +31,7 @@ export default function ThinkingBlock({ content }: ThinkingBlockProps) {
           <path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z" />
           <path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z" />
         </svg>
-        思考过程
+        {isComplete ? '已完成思考' : '思考过程'}
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
           style={{ flexShrink: 0, display: 'block', transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
           <polyline points="6 9 12 15 18 9" />
