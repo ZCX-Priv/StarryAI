@@ -13,7 +13,7 @@ interface SidebarProps {
 export default function Sidebar({ onOpenModal, onToggleSidebar }: SidebarProps) {
   const chats = useChatStore(s => s.chats);
   const activeChatId = useChatStore(s => s.activeChatId);
-  const streamingChatId = useStreamStore(s => s.streamingChatId);
+  const streamingChatIds = useStreamStore(s => s.streamingChatIds);
   const setCurrentPage = useUiStore(s => s.setCurrentPage);
   const { switchToChat, deleteChat, renameChat } = useChats();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -93,7 +93,7 @@ export default function Sidebar({ onOpenModal, onToggleSidebar }: SidebarProps) 
                 key={chat.id}
                 chat={chat}
                 isActive={chat.id === activeChatId}
-                isStreaming={chat.id === streamingChatId}
+                isStreaming={streamingChatIds.has(chat.id)}
                 onSwitch={handleSwitchChat}
                 onDelete={deleteChat}
                 onRename={renameChat}

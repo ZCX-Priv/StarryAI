@@ -4,14 +4,16 @@ interface StreamState {
   stopRequested: boolean;
   streamingText: string;
   autoScroll: boolean;
-  streamingChatId: string | null;
+  streamingChatIds: Set<string>;
 }
 
 interface StreamActions {
   setStopRequested: (v: boolean) => void;
   setStreamingText: (text: string) => void;
   setAutoScroll: (v: boolean) => void;
-  setStreamingChatId: (id: string | null) => void;
+  addStreamingChat: (id: string) => void;
+  removeStreamingChat: (id: string) => void;
+  clearStreamingChats: () => void;
 }
 
 type StreamStore = StreamState & StreamActions;
@@ -20,12 +22,22 @@ const useStreamStore = create<StreamStore>((set) => ({
   stopRequested: false,
   streamingText: '',
   autoScroll: true,
-  streamingChatId: null,
+  streamingChatIds: new Set<string>(),
 
   setStopRequested: (v) => set({ stopRequested: v }),
   setStreamingText: (text) => set({ streamingText: text }),
   setAutoScroll: (v) => set({ autoScroll: v }),
-  setStreamingChatId: (id) => set({ streamingChatId: id }),
+  addStreamingChat: (id) => set((s) => {
+    const next = new Set(s.streamingChatIds);
+    next.add(id);
+    return { streamingChatIds: next };
+  }),
+  removeStreamingChat: (id) => set((s) => {
+    const next = new Set(s.streamingChatIds);
+    next.delete(id);
+    return { streamingChatIds: next };
+  }),
+  clearStreamingChats: () => set({ streamingChatIds: new Set<string>() }),
 }));
 
 export default useStreamStore;

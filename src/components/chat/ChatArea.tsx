@@ -18,16 +18,17 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
   const chatAreaRef = useRef<HTMLDivElement>(null);
   const autoScroll = useStreamStore(s => s.autoScroll);
   const setAutoScroll = useStreamStore(s => s.setAutoScroll);
-  const streamingChatId = useStreamStore(s => s.streamingChatId);
+  const streamingChatIds = useStreamStore(s => s.streamingChatIds);
   const activeChatId = useChatStore(s => s.activeChatId);
-  const isStreamingThisChat = streamingChatId !== null && streamingChatId === activeChatId;
+  const isStreamingThisChat = activeChatId !== null && streamingChatIds.has(activeChatId);
   const chats = useChatStore(s => s.chats);
   const model = useModelStore(s => s.model);
   const contextLength = useModelStore(s => s.contextLength);
   const currentMode = useModeStore(s => s.currentMode);
   const modeConfig = useModeStore(s => s.modeConfig);
   const setStopRequested = useStreamStore(s => s.setStopRequested);
-  const setStreamingChatId = useStreamStore(s => s.setStreamingChatId);
+  const addStreamingChat = useStreamStore(s => s.addStreamingChat);
+  const removeStreamingChat = useStreamStore(s => s.removeStreamingChat);
   const showToast = useUiStore(s => s.showToast);
   const { addMessage, saveChat } = useChats();
   const [showScrollBtn, setShowScrollBtn] = useState(false);
@@ -93,7 +94,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
     const modelToUse = chat.model || model;
 
     setStopRequested(false);
-    setStreamingChatId(chatId);
+    addStreamingChat(chatId);
 
     let fullResp = '';
     try {
@@ -108,10 +109,10 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
         addMessage('assistant', `⚠ ${e instanceof Error ? e.message : 'Error'}`, chatId);
       }
     }
-    if (useStreamStore.getState().streamingChatId === chatId) {
-      setStreamingChatId(null);
+    if (useStreamStore.getState().streamingChatIds.has(chatId)) {
+      removeStreamingChat(chatId);
     }
-  }, [chats, activeChatId, contextLength, model, addMessage, setStopRequested, setStreamingChatId, showToast]);
+  }, [chats, activeChatId, contextLength, model, addMessage, setStopRequested, addStreamingChat, removeStreamingChat, showToast]);
 
   return (
     <div id="chat-area" ref={chatAreaRef}>

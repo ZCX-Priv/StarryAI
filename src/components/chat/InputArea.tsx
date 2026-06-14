@@ -150,11 +150,12 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
   const trailingRef = useRef<HTMLDivElement>(null);
   const moreMeasureRef = useRef<HTMLButtonElement>(null);
   const actionMeasureRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
-  const streamingChatId = useStreamStore(s => s.streamingChatId);
+  const streamingChatIds = useStreamStore(s => s.streamingChatIds);
   const setStopRequested = useStreamStore(s => s.setStopRequested);
-  const setStreamingChatId = useStreamStore(s => s.setStreamingChatId);
+  const addStreamingChat = useStreamStore(s => s.addStreamingChat);
+  const removeStreamingChat = useStreamStore(s => s.removeStreamingChat);
   const activeChatId = useChatStore(s => s.activeChatId);
-  const isStreamingThisChat = streamingChatId !== null && streamingChatId === activeChatId;
+  const isStreamingThisChat = activeChatId !== null && streamingChatIds.has(activeChatId);
   const chats = useChatStore(s => s.chats);
   const model = useModelStore(s => s.model);
   const contextLength = useModelStore(s => s.contextLength);
@@ -322,7 +323,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
     addMessage('user', text, chatId);
 
     setStopRequested(false);
-    setStreamingChatId(chatId);
+    addStreamingChat(chatId);
 
     let fullResp = '';
     try {
@@ -350,10 +351,10 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
       }
     }
 
-    if (useStreamStore.getState().streamingChatId === chatId) {
-      setStreamingChatId(null);
+    if (useStreamStore.getState().streamingChatIds.has(chatId)) {
+      removeStreamingChat(chatId);
     }
-  }, [inputValue, activeChatId, createChat, addMessage, setStopRequested, setStreamingChatId, model, contextLength, currentMode, modeConfig]);
+  }, [inputValue, activeChatId, createChat, addMessage, setStopRequested, addStreamingChat, removeStreamingChat, model, contextLength, currentMode, modeConfig]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && e.ctrlKey) {
@@ -364,7 +365,6 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
 
   const handleStop = () => {
     setStopRequested(true);
-    setStreamingChatId(null);
   };
 
   const scrollState = scrollBtnProps?.current;
