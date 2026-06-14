@@ -42,17 +42,6 @@ export default function MessageList({ onRegenerate }: MessageListProps) {
           isStreaming={isStreamingThisChat && i === messages.length - 1 && msg.role === 'assistant'}
         />
       ))}
-      {isStreamingThisChat && (
-        <div className="msg-row ai">
-          <div className="ai-msg-content">
-            <div className="typing-indicator">
-              <div className="td"></div>
-              <div className="td"></div>
-              <div className="td"></div>
-            </div>
-          </div>
-        </div>
-      )}
       {lastAiMsgIndex >= 0 && !isStreamingThisChat && (
         <MessageActions onRegenerate={onRegenerate} />
       )}

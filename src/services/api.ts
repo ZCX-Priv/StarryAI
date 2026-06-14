@@ -59,12 +59,18 @@ function _buildParams(msgs: Message[], model?: string): BuildParamsResult {
 
 async function fetchAPI(msgs: Message[], model?: string, _signal?: AbortSignal): Promise<string | null> {
   const keyState = useKeyStore.getState();
-  const r = await fetch(`${API_BASE}/v1/chat/completions`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${keyState.activeKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(_buildParams(msgs, model)),
-    signal: _signal,
-  });
+  let r: Response;
+  try {
+    r = await fetch(`${API_BASE}/v1/chat/completions`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${keyState.activeKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(_buildParams(msgs, model)),
+      signal: _signal,
+    });
+  } catch (e: unknown) {
+    if (_signal?.aborted || (e instanceof DOMException && e.name === 'AbortError')) return null;
+    throw e;
+  }
   if (r.status === 401 || r.status === 403) {
     useUiStore.getState().showToast('API 密钥无效或已过期', 'error');
     return null;
@@ -81,12 +87,18 @@ async function fetchAPI(msgs: Message[], model?: string, _signal?: AbortSignal):
 
 async function* streamAPI(msgs: Message[], model?: string, chatId?: string, signal?: AbortSignal): AsyncGenerator<string, void, unknown> {
   const keyState = useKeyStore.getState();
-  const r = await fetch(`${API_BASE}/v1/chat/completions`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${keyState.activeKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(_buildParams(msgs, model)),
-    signal,
-  });
+  let r: Response;
+  try {
+    r = await fetch(`${API_BASE}/v1/chat/completions`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${keyState.activeKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(_buildParams(msgs, model)),
+      signal,
+    });
+  } catch (e: unknown) {
+    if (signal?.aborted || (e instanceof DOMException && e.name === 'AbortError')) return;
+    throw e;
+  }
   if (r.status === 401 || r.status === 403) {
     useUiStore.getState().showToast('API 密钥无效或已过期', 'error');
     return;
@@ -111,7 +123,14 @@ async function* streamAPI(msgs: Message[], model?: string, chatId?: string, sign
   let inThinking = false;
   while (true) {
     if (signal?.aborted || (chatId && useStreamStore.getState().isStopRequested(chatId))) { try { reader.cancel(); } catch { /* ignored */ } return; }
-    const { done, value } = await reader.read();
+    let done: boolean;
+    let value: Uint8Array | undefined;
+    try {
+      ({ done, value } = await reader.read());
+    } catch (e: unknown) {
+      if (signal?.aborted || (e instanceof DOMException && e.name === 'AbortError')) return;
+      throw e;
+    }
     if (done) break;
     buf += dec.decode(value, { stream: true });
     const lines = buf.split('\n'); buf = lines.pop()!;

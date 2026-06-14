@@ -169,7 +169,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
   const currentBannerMode = useModeStore(s => s.currentBannerMode);
   const setCurrentBannerMode = useModeStore(s => s.setCurrentBannerMode);
   const setBannerPrompt = useModeStore(s => s.setBannerPrompt);
-  const { createChat, addMessage } = useChats();
+  const { createChat, addMessage, updateMessageContent, saveChat } = useChats();
 
   const { bannerConfig, handleAction, clearSelection } = useBanner();
   const hasText = inputValue.trim().length > 0;
@@ -326,16 +326,25 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
 
     addMessage('user', text, chatId);
 
+    // 流开始：创建空的 assistant 消息
+    const assistantMsgId = await addMessage('assistant', '', chatId);
+
     setStopRequested(chatId, false);
     addStreamingChat(chatId);
 
     const controller = new AbortController();
     abortControllers.current.set(chatId, controller);
 
-    let fullResp = '';
+    // 流式渲染：用 rAF 节流
+    let accumulated = '';
+    let rafId = 0;
+    const flushUpdate = () => {
+      updateMessageContent(chatId, assistantMsgId, accumulated);
+    };
+
     try {
       const chat = useChatStore.getState().chats.find(c => c.id === chatId);
-      const filteredMsgs = (chat?.messages || []).filter(m => m.role !== 'system');
+      const filteredMsgs = (chat?.messages || []).filter(m => m.role !== 'system' && m.id !== assistantMsgId);
       const msgs = contextLength > 0 ? filteredMsgs.slice(-contextLength) : [];
 
       let modelToUse = model;
@@ -345,16 +354,40 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
 
       for await (const chunk of API.stream(msgs, modelToUse, chatId, controller.signal)) {
         if (useStreamStore.getState().isStopRequested(chatId)) break;
-        fullResp += chunk;
+        accumulated += chunk;
+        if (!rafId) {
+          rafId = requestAnimationFrame(() => { rafId = 0; flushUpdate(); });
+        }
       }
 
-      if (fullResp) {
-        addMessage('assistant', fullResp, chatId);
+      // 流结束：最终刷新 + 持久化
+      cancelAnimationFrame(rafId);
+      if (accumulated) {
+        updateMessageContent(chatId, assistantMsgId, accumulated);
+        const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
+        if (finalChat) await saveChat(finalChat);
+      } else {
+        // 空响应：移除空的 assistant 消息
+        useChatStore.setState({
+          chats: useChatStore.getState().chats.map(c =>
+            c.id === chatId ? { ...c, messages: c.messages.filter(m => m.id !== assistantMsgId) } : c
+          ),
+        });
+        const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
+        if (finalChat) await saveChat(finalChat);
       }
     } catch (e: unknown) {
+      cancelAnimationFrame(rafId);
       if (!useStreamStore.getState().isStopRequested(chatId)) {
         showToast('请求失败，请重试', 'error');
-        addMessage('assistant', `⚠ ${e instanceof Error ? e.message : 'Error'}`, chatId);
+        updateMessageContent(chatId, assistantMsgId, `⚠ ${e instanceof Error ? e.message : 'Error'}`);
+        const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
+        if (finalChat) await saveChat(finalChat);
+      } else if (accumulated) {
+        // 用户停止但已有部分内容，保留并持久化
+        updateMessageContent(chatId, assistantMsgId, accumulated);
+        const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
+        if (finalChat) await saveChat(finalChat);
       }
     }
 
@@ -362,7 +395,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
     if (useStreamStore.getState().streamingChatIds.has(chatId)) {
       removeStreamingChat(chatId);
     }
-  }, [inputValue, activeChatId, createChat, addMessage, setStopRequested, addStreamingChat, removeStreamingChat, model, contextLength, currentMode, modeConfig]);
+  }, [inputValue, activeChatId, createChat, addMessage, updateMessageContent, saveChat, setStopRequested, addStreamingChat, removeStreamingChat, model, contextLength, currentMode, modeConfig, showToast]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && e.ctrlKey) {

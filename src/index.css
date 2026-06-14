@@ -172,6 +172,7 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 .markdown-body pre { white-space: pre-wrap; }
 .markdown-body pre code { white-space: pre; }
 .cursor { display: inline-block; width: 2px; height: 1em; background: var(--accent2); margin-left: 2px; vertical-align: text-bottom; animation: blink .8s step-end infinite; }
+.streaming-cursor { display: inline-block; width: 2px; height: 1em; background: currentColor; margin-left: 2px; vertical-align: text-bottom; animation: blink 1s step-end infinite; }
 @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 .typing-indicator { display: flex; align-items: center; gap: 4px; padding: 11px 14px; }
 .td { width: 7px; height: 7px; background: var(--text3); border-radius: 50%; animation: tdBounce 1.4s ease-in-out infinite; }

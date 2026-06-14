@@ -15,7 +15,8 @@ interface ChatActions {
   createChat: () => Chat;
   switchToChat: (id: string) => void;
   deleteChat: (id: string) => { chats: Chat[]; activeChatId: string | null };
-  addMessage: (role: Message['role'], content: string, chatId?: string) => void;
+  addMessage: (role: Message['role'], content: string, chatId?: string) => string;
+  updateMessageContent: (chatId: string, messageId: string, content: string) => void;
   renameChat: (chatId: string, newTitle: string) => void;
 }
 
@@ -61,7 +62,7 @@ const useChatStore = create<ChatStore>((set, get) => ({
 
   addMessage: (role, content, chatId) => {
     const targetId = chatId || get().activeChatId;
-    if (!targetId) return;
+    if (!targetId) return '';
     const newMsg: Message = {
       id: crypto.randomUUID(),
       role,
@@ -78,6 +79,22 @@ const useChatStore = create<ChatStore>((set, get) => ({
               title: c.messages.length === 0 && role === 'user'
                 ? content.slice(0, 20) + (content.length > 20 ? '…' : '')
                 : c.title,
+            }
+          : c
+      ),
+    });
+    return newMsg.id;
+  },
+
+  updateMessageContent: (chatId, messageId, content) => {
+    set({
+      chats: get().chats.map(c =>
+        c.id === chatId
+          ? {
+              ...c,
+              messages: c.messages.map(m =>
+                m.id === messageId ? { ...m, content, rendered: content } : m
+              ),
             }
           : c
       ),

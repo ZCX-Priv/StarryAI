@@ -31,7 +31,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
   const addStreamingChat = useStreamStore(s => s.addStreamingChat);
   const removeStreamingChat = useStreamStore(s => s.removeStreamingChat);
   const showToast = useUiStore(s => s.showToast);
-  const { addMessage, saveChat } = useChats();
+  const { addMessage, updateMessageContent, saveChat } = useChats();
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
   const scrollToBottom = useCallback((force = true) => {
@@ -94,30 +94,66 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
     const msgsToSend = contextLength > 0 ? msgs.slice(-contextLength) : [];
     const modelToUse = chat.model || model;
 
+    // 流开始：创建空的 assistant 消息
+    const assistantMsgId = await addMessage('assistant', '', chatId);
+
     setStopRequested(chatId, false);
     addStreamingChat(chatId);
 
     const controller = new AbortController();
     abortControllers.current.set(chatId, controller);
 
-    let fullResp = '';
+    // 流式渲染：用 rAF 节流
+    let accumulated = '';
+    let rafId = 0;
+    const flushUpdate = () => {
+      updateMessageContent(chatId, assistantMsgId, accumulated);
+    };
+
     try {
       for await (const chunk of API.stream(msgsToSend, modelToUse, chatId, controller.signal)) {
         if (useStreamStore.getState().isStopRequested(chatId)) break;
-        fullResp += chunk;
+        accumulated += chunk;
+        if (!rafId) {
+          rafId = requestAnimationFrame(() => { rafId = 0; flushUpdate(); });
+        }
       }
-      if (fullResp) addMessage('assistant', fullResp, chatId);
+
+      // 流结束：最终刷新 + 持久化
+      cancelAnimationFrame(rafId);
+      if (accumulated) {
+        updateMessageContent(chatId, assistantMsgId, accumulated);
+        const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
+        if (finalChat) await saveChat(finalChat);
+      } else {
+        // 空响应：移除空的 assistant 消息
+        useChatStore.setState({
+          chats: useChatStore.getState().chats.map(c =>
+            c.id === chatId ? { ...c, messages: c.messages.filter(m => m.id !== assistantMsgId) } : c
+          ),
+        });
+        const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
+        if (finalChat) await saveChat(finalChat);
+      }
     } catch (e: unknown) {
+      cancelAnimationFrame(rafId);
       if (!useStreamStore.getState().isStopRequested(chatId)) {
         showToast('重新生成失败', 'error');
-        addMessage('assistant', `⚠ ${e instanceof Error ? e.message : 'Error'}`, chatId);
+        updateMessageContent(chatId, assistantMsgId, `⚠ ${e instanceof Error ? e.message : 'Error'}`);
+        const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
+        if (finalChat) await saveChat(finalChat);
+      } else if (accumulated) {
+        updateMessageContent(chatId, assistantMsgId, accumulated);
+        const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
+        if (finalChat) await saveChat(finalChat);
       }
     }
+
     abortControllers.current.delete(chatId);
     if (useStreamStore.getState().streamingChatIds.has(chatId)) {
       removeStreamingChat(chatId);
     }
-  }, [chats, activeChatId, contextLength, model, addMessage, setStopRequested, addStreamingChat, removeStreamingChat, showToast]);
+  }, [chats, activeChatId, contextLength, model, addMessage, updateMessageContent, saveChat, setStopRequested, addStreamingChat, removeStreamingChat, showToast]);
 
   return (
     <div id="chat-area" ref={chatAreaRef}>

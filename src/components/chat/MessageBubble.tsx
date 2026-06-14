@@ -37,9 +37,15 @@ export default function MessageBubble({ role, content, isStreaming }: MessageBub
         {hasThinking && thinkingParts.map((part, i) => (
           <ThinkingBlock key={`think-${i}-${part.slice(0, 8)}`} content={part} />
         ))}
-        {mainContent && (
-          <MarkdownRenderer content={mainContent} />
+        {isStreaming && !mainContent && (
+          <div className="typing-indicator">
+            <div className="td"></div>
+            <div className="td"></div>
+            <div className="td"></div>
+          </div>
         )}
+        {mainContent && <MarkdownRenderer content={mainContent} />}
+        {isStreaming && mainContent && <span className="streaming-cursor" />}
       </div>
     </div>
   );
