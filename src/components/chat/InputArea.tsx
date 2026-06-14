@@ -327,8 +327,8 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
     let fullResp = '';
     try {
       const chat = useChatStore.getState().chats.find(c => c.id === chatId);
-      const allMsgs = (chat?.messages || []).filter(m => m.role !== 'system').map(m => ({ role: m.role, content: m.content, ts: m.ts }));
-      const msgs = contextLength > 0 ? allMsgs.slice(-contextLength) : [];
+      const filteredMsgs = (chat?.messages || []).filter(m => m.role !== 'system');
+      const msgs = contextLength > 0 ? filteredMsgs.slice(-contextLength) : [];
 
       let modelToUse = model;
       if (currentMode === 'expert' && modeConfig.expert?.model) {

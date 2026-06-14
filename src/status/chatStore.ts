@@ -29,7 +29,7 @@ const useChatStore = create<ChatStore>((set, get) => ({
   setActiveChatId: (id) => set({ activeChatId: id }),
 
   createChat: () => {
-    const id = Date.now().toString(36) + Math.random().toString(36).slice(2);
+    const id = crypto.randomUUID();
     const chat: Chat = {
       id,
       title: '新对话',
@@ -61,21 +61,35 @@ const useChatStore = create<ChatStore>((set, get) => ({
 
   addMessage: (role, content, chatId) => {
     const targetId = chatId || get().activeChatId;
-    const chat = get().chats.find(c => c.id === targetId);
-    if (!chat) return;
-    chat.messages.push({ role, content, rendered: content, ts: Date.now() });
-    if (chat.messages.length === 1 && role === 'user') {
-      chat.title = content.slice(0, 20) + (content.length > 20 ? '…' : '');
-    }
-    set({ chats: [...get().chats] });
+    if (!targetId) return;
+    const newMsg: Message = {
+      id: crypto.randomUUID(),
+      role,
+      content,
+      rendered: content,
+      ts: Date.now(),
+    };
+    set({
+      chats: get().chats.map(c =>
+        c.id === targetId
+          ? {
+              ...c,
+              messages: [...c.messages, newMsg],
+              title: c.messages.length === 0 && role === 'user'
+                ? content.slice(0, 20) + (content.length > 20 ? '…' : '')
+                : c.title,
+            }
+          : c
+      ),
+    });
   },
 
   renameChat: (chatId, newTitle) => {
-    const chat = get().chats.find(c => c.id === chatId);
-    if (chat) {
-      chat.title = newTitle || '新对话';
-      set({ chats: [...get().chats] });
-    }
+    set({
+      chats: get().chats.map(c =>
+        c.id === chatId ? { ...c, title: newTitle || '新对话' } : c
+      ),
+    });
   },
 }));
 

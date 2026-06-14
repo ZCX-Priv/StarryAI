@@ -3,7 +3,7 @@ import { useChatStore, useKeyStore, useMemoryStore, useModelStore, useThemeStore
 import { IDBStore } from '@/services/storage';
 import { Migration } from '@/services/migration';
 import { loadMainPrompt, loadMemoryPrompts, loadModePrompt } from '@/lib/prompts';
-import type { ModeType } from '@/types';
+import type { Chat, ModeType } from '@/types';
 
 export default function useStore(): { initialized: boolean; error: string | null; loadProgress: number } {
   const [initialized, setInitialized] = useState(false);
@@ -69,7 +69,14 @@ export default function useStore(): { initialized: boolean; error: string | null
 
         if (cancelled) return;
 
-        useChatStore.getState().setChats(chats || []);
+        // 为旧 Message 补充 UUID
+        const migratedChats = (chats || []).map((chat: Chat) => ({
+          ...chat,
+          messages: chat.messages.map(msg =>
+            msg.id ? msg : { ...msg, id: crypto.randomUUID() }
+          ),
+        }));
+        useChatStore.getState().setChats(migratedChats);
         useKeyStore.getState().setKeys(keys || []);
         useMemoryStore.getState().setMemory(memory || []);
         if (activeKey) useKeyStore.getState().setActiveKey(activeKey);
@@ -121,6 +128,20 @@ export default function useStore(): { initialized: boolean; error: string | null
               });
             }
             useAgentStore.getState().setAgentsConfig(agentsConfig);
+
+            // 确保 currentAgentId 有默认值并加载对应 prompt
+            const agentId = useAgentStore.getState().currentAgentId || 'assistant';
+            useAgentStore.getState().setCurrentAgentId(agentId);
+            await IDBStore.setAgentConfig('currentAgentId', agentId);
+            const currentAgent = agentsConfig.agents.find((a: { id: string }) => a.id === agentId);
+            if (currentAgent) {
+              try {
+                const promptRes = await fetch(`/prompts/agents/${currentAgent.prompt || currentAgent.promptFile}`);
+                if (promptRes.ok) {
+                  useAgentStore.getState().setAgentPrompt(await promptRes.text());
+                }
+              } catch { /* ignored */ }
+            }
           }
         } catch (e) {
           console.error('Failed to load agents config:', e);

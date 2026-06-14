@@ -43,9 +43,9 @@ export default function useModels() {
     const chatStore = useChatStore.getState();
     const chat = chatStore.chats.find(c => c.id === chatStore.activeChatId);
     if (chat) {
-      chat.model = id;
-      chatStore.setChats([...chatStore.chats]);
-      await IDBStore.saveChat(chat);
+      const updated = { ...chat, model: id };
+      chatStore.setChats(chatStore.chats.map(c => c.id === chat.id ? updated : c));
+      await IDBStore.saveChat(updated);
     }
   }, []);
 

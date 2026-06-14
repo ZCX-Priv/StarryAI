@@ -30,7 +30,6 @@ export default function AgentsPage({ onOpenModal, onToggleSidebar }: AgentsPageP
   const agentsConfig = useAgentStore(s => s.agentsConfig);
   const setAgentsConfig = useAgentStore(s => s.setAgentsConfig);
   const currentAgentId = useAgentStore(s => s.currentAgentId);
-  const setCurrentPage = useUiStore(s => s.setCurrentPage);
   const showToast = useUiStore(s => s.showToast);
   const { select: selectAgent } = useAgents();
   const [currentCategory, setCurrentCategory] = useState('all');
@@ -84,8 +83,7 @@ export default function AgentsPage({ onOpenModal, onToggleSidebar }: AgentsPageP
   const handleSelectAgent = useCallback(async (agentId: string) => {
     await selectAgent(agentId);
     showToast(`已切换到${agents.find(a => a.id === agentId)?.name || '智能体'}`);
-    setCurrentPage('chat');
-  }, [agents, selectAgent, showToast, setCurrentPage]);
+  }, [agents, selectAgent, showToast]);
 
   const handleDeleteAgent = useCallback(async (agentId: string) => {
     try {

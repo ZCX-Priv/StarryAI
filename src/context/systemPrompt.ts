@@ -61,5 +61,5 @@ export function buildMemoryDeduplicatePrompt(memoryList: string[], maxEntries: n
 
 export function buildMessages(msgs: Message[]): Message[] {
   const sys = buildSystemPrompt();
-  return sys ? [{ role: 'system', content: sys, ts: Date.now() }, ...msgs] : msgs;
+  return sys ? [{ id: crypto.randomUUID(), role: 'system', content: sys, ts: Date.now() }, ...msgs] : msgs;
 }

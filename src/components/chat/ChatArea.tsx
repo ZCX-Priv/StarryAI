@@ -78,14 +78,18 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
     const chat = chats.find(c => c.id === chatId);
     if (!chat || !chatId || isStreamingThisChat) return;
 
-    if (chat.messages[chat.messages.length - 1]?.role === 'assistant') {
-      chat.messages.pop();
-      useChatStore.setState({ chats: [...useChatStore.getState().chats] });
-      await saveChat(chat);
+    let msgs = chat.messages;
+    if (msgs[msgs.length - 1]?.role === 'assistant') {
+      msgs = msgs.slice(0, -1);
+      useChatStore.setState({
+        chats: useChatStore.getState().chats.map(c =>
+          c.id === chatId ? { ...c, messages: msgs } : c
+        ),
+      });
+      await saveChat({ ...chat, messages: msgs });
     }
 
-    const allMsgs = chat.messages.map(m => ({ role: m.role, content: m.content, ts: m.ts }));
-    const msgs = contextLength > 0 ? allMsgs.slice(-contextLength) : [];
+    const msgsToSend = contextLength > 0 ? msgs.slice(-contextLength) : [];
     const modelToUse = chat.model || model;
 
     setStopRequested(false);
@@ -93,7 +97,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
 
     let fullResp = '';
     try {
-      for await (const chunk of API.stream(msgs, modelToUse)) {
+      for await (const chunk of API.stream(msgsToSend, modelToUse)) {
         if (useStreamStore.getState().stopRequested) break;
         fullResp += chunk;
       }

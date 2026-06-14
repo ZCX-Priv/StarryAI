@@ -36,7 +36,7 @@ export default function MessageList({ onRegenerate }: MessageListProps) {
     <div className="messages-inner">
       {messages.map((msg, i) => (
         <MessageBubble
-          key={i}
+          key={msg.id}
           role={msg.role}
           content={msg.content}
           isStreaming={isStreamingThisChat && i === messages.length - 1 && msg.role === 'assistant'}

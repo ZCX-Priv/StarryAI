@@ -1,5 +1,6 @@
 // 聊天相关
 export interface Message {
+  id: string;
   role: 'system' | 'user' | 'assistant';
   content: string;
   rendered?: string;
