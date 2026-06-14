@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MarkdownRenderer, ThinkingBlock, extractThinkingBlocks } from '@/render';
 import type { Message } from '@/types';
 import type { ThinkingPart } from '@/render';
@@ -16,10 +16,39 @@ export default function MessageBubble({ role, content, isStreaming }: MessageBub
     [content, isAI]
   );
 
+  const [expanded, setExpanded] = useState(false);
+  const [needsCollapse, setNeedsCollapse] = useState(false);
+  const textRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isAI) return;
+    const el = textRef.current;
+    if (!el) return;
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+    if (!Number.isNaN(lineHeight)) {
+      const shouldCollapse = el.scrollHeight > lineHeight * 3 + 1;
+      setNeedsCollapse(shouldCollapse);
+      if (!shouldCollapse) setExpanded(false);
+    }
+  }, [content, isAI]);
+
   if (!isAI) {
     return (
       <div className="msg-row user">
-        <div className="msg-bubble">{content}</div>
+        <div className="msg-bubble">
+          <div ref={textRef} className={needsCollapse && !expanded ? 'collapsed' : ''}>
+            {content}
+          </div>
+          {needsCollapse && (
+            <button
+              type="button"
+              className="msg-expand-btn"
+              onClick={() => setExpanded((prev) => !prev)}
+            >
+              {expanded ? '收起内容' : '展开内容'}
+            </button>
+          )}
+        </div>
         <div className="msg-avatar">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />

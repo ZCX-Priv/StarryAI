@@ -146,6 +146,9 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 .msg-avatar { display: none; }
 .msg-bubble { max-width: 86%; padding: 11px 16px; border-radius: 18px; font-size: 14.5px; line-height: 1.75; word-break: break-word; overflow-wrap: break-word; position: relative; min-width: 0; white-space: pre-wrap; }
 .msg-row.user .msg-bubble { background: var(--user-bubble); color: var(--user-text); border-bottom-right-radius: 5px; box-shadow: 0 2px 14px rgba(37,99,235,.35); }
+.msg-bubble .collapsed { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.msg-expand-btn { display: inline-flex; align-items: center; margin-top: 6px; padding: 2px 0; background: none; border: none; color: var(--accent2); font-size: 12px; font-family: var(--font); cursor: pointer; transition: color .15s; }
+.msg-expand-btn:hover { color: var(--accent); text-decoration: underline; }
 .ai-msg-content { max-width: 100%; width: 100%; font-size: 14.5px; line-height: 1.75; word-break: break-word; overflow-wrap: break-word; color: var(--text); padding: 0; }
 .msg-row.ai { align-items: flex-start; }
 .msg-row.ai .ai-msg-content.streaming { position: relative; }
