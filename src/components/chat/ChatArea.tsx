@@ -31,7 +31,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
   const addStreamingChat = useStreamStore(s => s.addStreamingChat);
   const removeStreamingChat = useStreamStore(s => s.removeStreamingChat);
   const showToast = useUiStore(s => s.showToast);
-  const { addMessage, updateMessageContent, stopMessage, saveChat } = useChats();
+  const { addMessage, updateMessageContent, setMessageStatus, stopMessage, saveChat } = useChats();
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
   const scrollToBottom = useCallback((force = true) => {
@@ -95,7 +95,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
     const modelToUse = chat.model || model;
 
     // 流开始：创建空的 assistant 消息
-    const assistantMsgId = await addMessage('assistant', '', chatId);
+    const assistantMsgId = await addMessage('assistant', '', chatId, 'streaming');
 
     setStopRequested(chatId, false);
     addStreamingChat(chatId);
@@ -125,6 +125,9 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
         updateMessageContent(chatId, assistantMsgId, accumulated);
         if (useStreamStore.getState().isStopRequested(chatId)) {
           stopMessage(chatId, assistantMsgId);
+          await setMessageStatus(chatId, assistantMsgId, 'stopped');
+        } else {
+          await setMessageStatus(chatId, assistantMsgId, 'completed');
         }
         const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
         if (finalChat) await saveChat(finalChat);
@@ -143,11 +146,13 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
       if (!useStreamStore.getState().isStopRequested(chatId)) {
         showToast('重新生成失败', 'error');
         updateMessageContent(chatId, assistantMsgId, `⚠ ${e instanceof Error ? e.message : 'Error'}`);
+        await setMessageStatus(chatId, assistantMsgId, 'error');
         const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
         if (finalChat) await saveChat(finalChat);
       } else if (accumulated) {
         updateMessageContent(chatId, assistantMsgId, accumulated);
         stopMessage(chatId, assistantMsgId);
+        await setMessageStatus(chatId, assistantMsgId, 'stopped');
         const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
         if (finalChat) await saveChat(finalChat);
       }
@@ -157,7 +162,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
     if (useStreamStore.getState().streamingChatIds.has(chatId)) {
       removeStreamingChat(chatId);
     }
-  }, [chats, activeChatId, contextLength, model, addMessage, updateMessageContent, stopMessage, saveChat, setStopRequested, addStreamingChat, removeStreamingChat, showToast]);
+  }, [chats, activeChatId, contextLength, model, addMessage, updateMessageContent, setMessageStatus, stopMessage, saveChat, setStopRequested, addStreamingChat, removeStreamingChat, showToast]);
 
   return (
     <div id="chat-area" ref={chatAreaRef}>

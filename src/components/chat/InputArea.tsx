@@ -169,7 +169,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
   const currentBannerMode = useModeStore(s => s.currentBannerMode);
   const setCurrentBannerMode = useModeStore(s => s.setCurrentBannerMode);
   const setBannerPrompt = useModeStore(s => s.setBannerPrompt);
-  const { createChat, addMessage, updateMessageContent, stopMessage, saveChat } = useChats();
+  const { createChat, addMessage, updateMessageContent, setMessageStatus, stopMessage, saveChat } = useChats();
 
   const { bannerConfig, handleAction, clearSelection } = useBanner();
   const hasText = inputValue.trim().length > 0;
@@ -327,7 +327,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
     addMessage('user', text, chatId);
 
     // 流开始：创建空的 assistant 消息
-    const assistantMsgId = await addMessage('assistant', '', chatId);
+    const assistantMsgId = await addMessage('assistant', '', chatId, 'streaming');
 
     setStopRequested(chatId, false);
     addStreamingChat(chatId);
@@ -366,6 +366,9 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
         updateMessageContent(chatId, assistantMsgId, accumulated);
         if (useStreamStore.getState().isStopRequested(chatId)) {
           stopMessage(chatId, assistantMsgId);
+          await setMessageStatus(chatId, assistantMsgId, 'stopped');
+        } else {
+          await setMessageStatus(chatId, assistantMsgId, 'completed');
         }
         const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
         if (finalChat) await saveChat(finalChat);
@@ -384,12 +387,14 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
       if (!useStreamStore.getState().isStopRequested(chatId)) {
         showToast('请求失败，请重试', 'error');
         updateMessageContent(chatId, assistantMsgId, `⚠ ${e instanceof Error ? e.message : 'Error'}`);
+        await setMessageStatus(chatId, assistantMsgId, 'error');
         const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
         if (finalChat) await saveChat(finalChat);
       } else if (accumulated) {
         // 用户停止但已有部分内容，保留并持久化
         updateMessageContent(chatId, assistantMsgId, accumulated);
         stopMessage(chatId, assistantMsgId);
+        await setMessageStatus(chatId, assistantMsgId, 'stopped');
         const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
         if (finalChat) await saveChat(finalChat);
       }
@@ -399,7 +404,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
     if (useStreamStore.getState().streamingChatIds.has(chatId)) {
       removeStreamingChat(chatId);
     }
-  }, [inputValue, activeChatId, createChat, addMessage, updateMessageContent, stopMessage, saveChat, setStopRequested, addStreamingChat, removeStreamingChat, model, contextLength, currentMode, modeConfig, showToast]);
+  }, [inputValue, activeChatId, createChat, addMessage, updateMessageContent, setMessageStatus, stopMessage, saveChat, setStopRequested, addStreamingChat, removeStreamingChat, model, contextLength, currentMode, modeConfig, showToast]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && e.ctrlKey) {

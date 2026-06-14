@@ -3,7 +3,7 @@ import { useChatStore, useKeyStore, useMemoryStore, useModelStore, useThemeStore
 import { IDBStore } from '@/services/storage';
 import { Migration } from '@/services/migration';
 import { loadMainPrompt, loadMemoryPrompts, loadModePrompt } from '@/lib/prompts';
-import type { Chat, ModeType } from '@/types';
+import type { Chat, ModeType, MessageStatus } from '@/types';
 
 export default function useStore(): { initialized: boolean; error: string | null; loadProgress: number } {
   const [initialized, setInitialized] = useState(false);
@@ -69,13 +69,26 @@ export default function useStore(): { initialized: boolean; error: string | null
 
         if (cancelled) return;
 
-        // 为旧 Message 补充 UUID
-        const migratedChats = (chats || []).map((chat: Chat) => ({
-          ...chat,
-          messages: chat.messages.map(msg =>
-            msg.id ? msg : { ...msg, id: crypto.randomUUID() }
-          ),
-        }));
+        // 为旧 Message 补充 UUID，并将刷新前未完成的 streaming 消息降级为 interrupted
+        const migratedChats = (chats || []).map((chat: Chat) => {
+          let modified = false;
+          const messages = chat.messages.map(msg => {
+            if (msg.status === 'streaming') {
+              modified = true;
+              return { ...msg, status: 'interrupted' as MessageStatus };
+            }
+            return msg;
+          });
+          if (modified) {
+            IDBStore.saveChat({ ...chat, messages }).catch(() => {});
+          }
+          return {
+            ...chat,
+            messages: messages.map(msg =>
+              msg.id ? msg : { ...msg, id: crypto.randomUUID() }
+            ),
+          };
+        });
         useChatStore.getState().setChats(migratedChats);
         useKeyStore.getState().setKeys(keys || []);
         useMemoryStore.getState().setMemory(memory || []);

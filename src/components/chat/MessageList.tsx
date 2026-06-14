@@ -39,6 +39,7 @@ export default function MessageList({ onRegenerate }: MessageListProps) {
           <MessageBubble
             role={msg.role}
             content={msg.content}
+            status={msg.status}
             isStreaming={isStreamingThisChat && i === messages.length - 1 && msg.role === 'assistant'}
           />
           {msg.role === 'assistant' && msg.stopped && (

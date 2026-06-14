@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useChatStore, useModelStore, useAgentStore, useUiStore } from '@/status';
 import { IDBStore } from '@/services/storage';
-import type { Chat } from '@/types';
+import type { Chat, MessageStatus } from '@/types';
 
 export default function useChats() {
   const chats = useChatStore(s => s.chats);
@@ -14,8 +14,8 @@ export default function useChats() {
     return chat;
   }, []);
 
-  const addMessage = useCallback(async (role: 'system' | 'user' | 'assistant', content: string, chatId?: string): Promise<string> => {
-    const msgId = useChatStore.getState().addMessage(role, content, chatId);
+  const addMessage = useCallback(async (role: 'system' | 'user' | 'assistant', content: string, chatId?: string, status?: MessageStatus): Promise<string> => {
+    const msgId = useChatStore.getState().addMessage(role, content, chatId, status);
     const targetId = chatId || useChatStore.getState().activeChatId;
     const chat = useChatStore.getState().chats.find(c => c.id === targetId);
     if (chat) await IDBStore.saveChat(chat);
@@ -24,6 +24,16 @@ export default function useChats() {
 
   const updateMessageContent = useCallback((chatId: string, messageId: string, content: string) => {
     useChatStore.getState().updateMessageContent(chatId, messageId, content);
+    const chat = useChatStore.getState().chats.find(c => c.id === chatId);
+    if (chat) {
+      IDBStore.saveChat(chat).catch(() => {});
+    }
+  }, []);
+
+  const setMessageStatus = useCallback(async (chatId: string, messageId: string, status: MessageStatus): Promise<void> => {
+    useChatStore.getState().setMessageStatus(chatId, messageId, status);
+    const chat = useChatStore.getState().chats.find(c => c.id === chatId);
+    if (chat) await IDBStore.saveChat(chat);
   }, []);
 
   const stopMessage = useCallback((chatId: string, messageId: string) => {
@@ -57,6 +67,7 @@ export default function useChats() {
     createChat,
     addMessage,
     updateMessageContent,
+    setMessageStatus,
     stopMessage,
     deleteChat,
     renameChat,

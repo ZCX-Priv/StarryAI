@@ -154,6 +154,8 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 .msg-row.ai .ai-msg-content.streaming { position: relative; }
 .msg-stopped-hint { display: flex; align-items: center; gap: 6px; padding: 2px 0 6px; font-size: 12px; color: var(--text3); margin: 0; }
 .stopped-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); }
+.msg-interrupted-hint { display: flex; align-items: center; gap: 6px; padding: 2px 0 6px; font-size: 12px; color: var(--text3); margin: 0; }
+.interrupted-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); }
 .markdown-body { white-space: normal; }
 .markdown-body > :first-child { margin-top: 0; }
 .markdown-body > :last-child { margin-bottom: 0; }

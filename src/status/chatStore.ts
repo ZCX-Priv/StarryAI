@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import useModelStore from './modelStore';
 import useAgentStore from './agentStore';
 import useUiStore from './uiStore';
-import type { Chat, Message } from '@/types';
+import type { Chat, Message, MessageStatus } from '@/types';
 
 interface ChatState {
   chats: Chat[];
@@ -15,8 +15,9 @@ interface ChatActions {
   createChat: () => Chat;
   switchToChat: (id: string) => void;
   deleteChat: (id: string) => { chats: Chat[]; activeChatId: string | null };
-  addMessage: (role: Message['role'], content: string, chatId?: string) => string;
+  addMessage: (role: Message['role'], content: string, chatId?: string, status?: MessageStatus) => string;
   updateMessageContent: (chatId: string, messageId: string, content: string) => void;
+  setMessageStatus: (chatId: string, messageId: string, status: MessageStatus) => void;
   stopMessage: (chatId: string, messageId: string) => void;
   renameChat: (chatId: string, newTitle: string) => void;
 }
@@ -61,7 +62,7 @@ const useChatStore = create<ChatStore>((set, get) => ({
     return { chats, activeChatId };
   },
 
-  addMessage: (role, content, chatId) => {
+  addMessage: (role, content, chatId, status) => {
     const targetId = chatId || get().activeChatId;
     if (!targetId) return '';
     const newMsg: Message = {
@@ -70,6 +71,7 @@ const useChatStore = create<ChatStore>((set, get) => ({
       content,
       rendered: content,
       ts: Date.now(),
+      status,
     };
     set({
       chats: get().chats.map(c =>
@@ -95,6 +97,21 @@ const useChatStore = create<ChatStore>((set, get) => ({
               ...c,
               messages: c.messages.map(m =>
                 m.id === messageId ? { ...m, content, rendered: content } : m
+              ),
+            }
+          : c
+      ),
+    });
+  },
+
+  setMessageStatus: (chatId, messageId, status) => {
+    set({
+      chats: get().chats.map(c =>
+        c.id === chatId
+          ? {
+              ...c,
+              messages: c.messages.map(m =>
+                m.id === messageId ? { ...m, status } : m
               ),
             }
           : c

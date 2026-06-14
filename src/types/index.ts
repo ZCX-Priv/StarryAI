@@ -1,4 +1,6 @@
 // 聊天相关
+export type MessageStatus = 'streaming' | 'completed' | 'stopped' | 'error' | 'interrupted';
+
 export interface Message {
   id: string;
   role: 'system' | 'user' | 'assistant';
@@ -6,6 +8,7 @@ export interface Message {
   rendered?: string;
   ts: number;
   stopped?: boolean;
+  status?: MessageStatus;
 }
 
 export interface Chat {

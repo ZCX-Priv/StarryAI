@@ -6,10 +6,11 @@ import type { ThinkingPart } from '@/render';
 interface MessageBubbleProps {
   role: Message['role'];
   content: string;
+  status?: Message['status'];
   isStreaming: boolean;
 }
 
-export default function MessageBubble({ role, content, isStreaming }: MessageBubbleProps) {
+export default function MessageBubble({ role, content, status, isStreaming }: MessageBubbleProps) {
   const isAI = role === 'assistant';
   const { thinkingParts, contentParts, hasThinking } = useMemo(
     () => isAI ? extractThinkingBlocks(content || '') : { thinkingParts: [] as ThinkingPart[], contentParts: [content], hasThinking: false },
@@ -76,6 +77,12 @@ export default function MessageBubble({ role, content, isStreaming }: MessageBub
         )}
         {mainContent && <MarkdownRenderer content={mainContent} />}
         {isStreaming && mainContent && <span className="streaming-cursor" />}
+        {status === 'interrupted' && (
+          <div className="msg-interrupted-hint">
+            <span className="interrupted-dot" />
+            生成被中断，内容可能不完整
+          </div>
+        )}
       </div>
     </div>
   );
