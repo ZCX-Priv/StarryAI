@@ -167,7 +167,7 @@ export default function SettingsDialog({ visible, onClose }: SettingsDialogProps
       <div className="add-form">
         <input
           type="password"
-          placeholder="pk_…"
+          placeholder="pk/sk_......"
           autoComplete="off"
           value={newKey}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewKey(e.target.value)}
