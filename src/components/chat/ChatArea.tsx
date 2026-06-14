@@ -16,6 +16,7 @@ interface ChatAreaProps {
 
 export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps) {
   const chatAreaRef = useRef<HTMLDivElement>(null);
+  const abortControllers = useRef<Map<string, AbortController>>(new Map());
   const autoScroll = useStreamStore(s => s.autoScroll);
   const setAutoScroll = useStreamStore(s => s.setAutoScroll);
   const streamingChatIds = useStreamStore(s => s.streamingChatIds);
@@ -93,22 +94,26 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
     const msgsToSend = contextLength > 0 ? msgs.slice(-contextLength) : [];
     const modelToUse = chat.model || model;
 
-    setStopRequested(false);
+    setStopRequested(chatId, false);
     addStreamingChat(chatId);
+
+    const controller = new AbortController();
+    abortControllers.current.set(chatId, controller);
 
     let fullResp = '';
     try {
-      for await (const chunk of API.stream(msgsToSend, modelToUse)) {
-        if (useStreamStore.getState().stopRequested) break;
+      for await (const chunk of API.stream(msgsToSend, modelToUse, chatId, controller.signal)) {
+        if (useStreamStore.getState().isStopRequested(chatId)) break;
         fullResp += chunk;
       }
       if (fullResp) addMessage('assistant', fullResp, chatId);
     } catch (e: unknown) {
-      if (!useStreamStore.getState().stopRequested) {
+      if (!useStreamStore.getState().isStopRequested(chatId)) {
         showToast('重新生成失败', 'error');
         addMessage('assistant', `⚠ ${e instanceof Error ? e.message : 'Error'}`, chatId);
       }
     }
+    abortControllers.current.delete(chatId);
     if (useStreamStore.getState().streamingChatIds.has(chatId)) {
       removeStreamingChat(chatId);
     }

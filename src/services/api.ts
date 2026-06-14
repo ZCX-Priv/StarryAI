@@ -57,12 +57,13 @@ function _buildParams(msgs: Message[], model?: string): BuildParamsResult {
   return { ...baseParams, ...modeConfig };
 }
 
-async function fetchAPI(msgs: Message[], model?: string): Promise<string | null> {
+async function fetchAPI(msgs: Message[], model?: string, _signal?: AbortSignal): Promise<string | null> {
   const keyState = useKeyStore.getState();
   const r = await fetch(`${API_BASE}/v1/chat/completions`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${keyState.activeKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(_buildParams(msgs, model)),
+    signal: _signal,
   });
   if (r.status === 401 || r.status === 403) {
     useUiStore.getState().showToast('API 密钥无效或已过期', 'error');
@@ -78,12 +79,13 @@ async function fetchAPI(msgs: Message[], model?: string): Promise<string | null>
   return _mergeReasoningAndContent(_extractReasoning(message, true), message?.content);
 }
 
-async function* streamAPI(msgs: Message[], model?: string): AsyncGenerator<string, void, unknown> {
+async function* streamAPI(msgs: Message[], model?: string, chatId?: string, signal?: AbortSignal): AsyncGenerator<string, void, unknown> {
   const keyState = useKeyStore.getState();
   const r = await fetch(`${API_BASE}/v1/chat/completions`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${keyState.activeKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(_buildParams(msgs, model)),
+    signal,
   });
   if (r.status === 401 || r.status === 403) {
     useUiStore.getState().showToast('API 密钥无效或已过期', 'error');
@@ -108,13 +110,13 @@ async function* streamAPI(msgs: Message[], model?: string): AsyncGenerator<strin
   let buf = '';
   let inThinking = false;
   while (true) {
-    if (useStreamStore.getState().stopRequested) { try { reader.cancel(); } catch { /* ignored */ } return; }
+    if (signal?.aborted || (chatId && useStreamStore.getState().isStopRequested(chatId))) { try { reader.cancel(); } catch { /* ignored */ } return; }
     const { done, value } = await reader.read();
     if (done) break;
     buf += dec.decode(value, { stream: true });
     const lines = buf.split('\n'); buf = lines.pop()!;
     for (const line of lines) {
-      if (useStreamStore.getState().stopRequested) return;
+      if (signal?.aborted || (chatId && useStreamStore.getState().isStopRequested(chatId))) return;
       if (!line.startsWith('data: ')) continue;
       const data = line.slice(6).trim();
       if (data === '[DONE]') {

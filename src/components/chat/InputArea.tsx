@@ -150,6 +150,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
   const trailingRef = useRef<HTMLDivElement>(null);
   const moreMeasureRef = useRef<HTMLButtonElement>(null);
   const actionMeasureRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const abortControllers = useRef<Map<string, AbortController>>(new Map());
   const streamingChatIds = useStreamStore(s => s.streamingChatIds);
   const setStopRequested = useStreamStore(s => s.setStopRequested);
   const addStreamingChat = useStreamStore(s => s.addStreamingChat);
@@ -311,19 +312,25 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
     const text = inputValue.trim();
     if (!text || isStreamingThisChat) return;
 
-    if (!activeChatId) await createChat();
+    let chatId = activeChatId;
+    if (!chatId) {
+      const newChat = await createChat();
+      chatId = newChat.id;
+    }
+    if (!chatId) return;
 
     setInputValue('');
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
 
-    const chatId = useChatStore.getState().activeChatId || activeChatId;
-    if (!chatId) return;
     addMessage('user', text, chatId);
 
-    setStopRequested(false);
+    setStopRequested(chatId, false);
     addStreamingChat(chatId);
+
+    const controller = new AbortController();
+    abortControllers.current.set(chatId, controller);
 
     let fullResp = '';
     try {
@@ -336,8 +343,8 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
         modelToUse = modeConfig.expert.model;
       }
 
-      for await (const chunk of API.stream(msgs, modelToUse)) {
-        if (useStreamStore.getState().stopRequested) break;
+      for await (const chunk of API.stream(msgs, modelToUse, chatId, controller.signal)) {
+        if (useStreamStore.getState().isStopRequested(chatId)) break;
         fullResp += chunk;
       }
 
@@ -345,12 +352,13 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
         addMessage('assistant', fullResp, chatId);
       }
     } catch (e: unknown) {
-      if (!useStreamStore.getState().stopRequested) {
+      if (!useStreamStore.getState().isStopRequested(chatId)) {
         showToast('请求失败，请重试', 'error');
         addMessage('assistant', `⚠ ${e instanceof Error ? e.message : 'Error'}`, chatId);
       }
     }
 
+    abortControllers.current.delete(chatId);
     if (useStreamStore.getState().streamingChatIds.has(chatId)) {
       removeStreamingChat(chatId);
     }
@@ -364,7 +372,10 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
   };
 
   const handleStop = () => {
-    setStopRequested(true);
+    if (activeChatId) {
+      setStopRequested(activeChatId, true);
+      abortControllers.current.get(activeChatId)?.abort();
+    }
   };
 
   const scrollState = scrollBtnProps?.current;

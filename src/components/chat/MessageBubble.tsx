@@ -35,7 +35,7 @@ export default function MessageBubble({ role, content, isStreaming }: MessageBub
     <div className="msg-row ai">
       <div className={`ai-msg-content${isStreaming ? ' streaming' : ''}`}>
         {hasThinking && thinkingParts.map((part, i) => (
-          <ThinkingBlock key={i} content={part} />
+          <ThinkingBlock key={`think-${i}-${part.slice(0, 8)}`} content={part} />
         ))}
         {mainContent && (
           <MarkdownRenderer content={mainContent} />

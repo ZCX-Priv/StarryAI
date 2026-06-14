@@ -1,14 +1,15 @@
 import { create } from 'zustand';
 
 interface StreamState {
-  stopRequested: boolean;
+  stopRequestedChatIds: Set<string>;
   streamingText: string;
   autoScroll: boolean;
   streamingChatIds: Set<string>;
 }
 
 interface StreamActions {
-  setStopRequested: (v: boolean) => void;
+  setStopRequested: (chatId: string, v: boolean) => void;
+  isStopRequested: (chatId: string) => boolean;
   setStreamingText: (text: string) => void;
   setAutoScroll: (v: boolean) => void;
   addStreamingChat: (id: string) => void;
@@ -18,13 +19,19 @@ interface StreamActions {
 
 type StreamStore = StreamState & StreamActions;
 
-const useStreamStore = create<StreamStore>((set) => ({
-  stopRequested: false,
+const useStreamStore = create<StreamStore>((set, get) => ({
+  stopRequestedChatIds: new Set<string>(),
   streamingText: '',
   autoScroll: true,
   streamingChatIds: new Set<string>(),
 
-  setStopRequested: (v) => set({ stopRequested: v }),
+  setStopRequested: (chatId, v) => set((s) => {
+    const next = new Set(s.stopRequestedChatIds);
+    if (v) next.add(chatId);
+    else next.delete(chatId);
+    return { stopRequestedChatIds: next };
+  }),
+  isStopRequested: (chatId) => get().stopRequestedChatIds.has(chatId),
   setStreamingText: (text) => set({ streamingText: text }),
   setAutoScroll: (v) => set({ autoScroll: v }),
   addStreamingChat: (id) => set((s) => {
@@ -35,9 +42,11 @@ const useStreamStore = create<StreamStore>((set) => ({
   removeStreamingChat: (id) => set((s) => {
     const next = new Set(s.streamingChatIds);
     next.delete(id);
-    return { streamingChatIds: next };
+    const stopNext = new Set(s.stopRequestedChatIds);
+    stopNext.delete(id);
+    return { streamingChatIds: next, stopRequestedChatIds: stopNext };
   }),
-  clearStreamingChats: () => set({ streamingChatIds: new Set<string>() }),
+  clearStreamingChats: () => set({ streamingChatIds: new Set<string>(), stopRequestedChatIds: new Set<string>() }),
 }));
 
 export default useStreamStore;
