@@ -43,10 +43,13 @@ export default function MessageBubble({ role, content, status, isStreaming }: Me
           {needsCollapse && (
             <button
               type="button"
-              className="msg-expand-btn"
+              className="msg-collapse-btn"
               onClick={() => setExpanded((prev) => !prev)}
             >
-              {expanded ? '收起内容' : '展开内容'}
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points={expanded ? '18 15 12 9 6 15' : '6 9 12 15 18 9'} />
+              </svg>
+              {expanded ? '收起' : '查看全部'}
             </button>
           )}
         </div>
