@@ -157,6 +157,13 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 .stopped-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); }
 .msg-interrupted-hint { display: flex; align-items: center; gap: 6px; padding: 2px 0 6px; font-size: 12px; color: var(--text3); margin: 0; }
 .interrupted-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); }
+.msg-error-content { display: flex; flex-direction: column; gap: 10px; padding: 12px 16px; border: 1px solid rgba(239,68,68,.25); border-radius: 14px; background: rgba(239,68,68,.08); max-width: 100%; }
+.msg-error-header { display: flex; align-items: center; gap: 8px; color: #ef4444; font-size: 14px; font-weight: 500; }
+.msg-error-header svg { flex-shrink: 0; }
+.msg-error-actions { display: flex; align-items: center; gap: 8px; }
+.msg-error-actions .msg-action-btn { border-color: rgba(239,68,68,.25); color: #ef4444; }
+.msg-error-actions .msg-action-btn:hover { background: rgba(239,68,68,.12); color: #f87171; border-color: rgba(239,68,68,.35); }
+.error-detail-pre { background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px; padding: 12px; font-size: 13px; line-height: 1.6; color: var(--text2); white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word; max-height: 50vh; overflow: auto; margin: 0; }
 .markdown-body { white-space: normal; }
 .markdown-body > :first-child { margin-top: 0; }
 .markdown-body > :last-child { margin-bottom: 0; }

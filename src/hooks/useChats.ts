@@ -57,6 +57,23 @@ export default function useChats() {
     await IDBStore.setConfig('activeChatId', id);
   }, []);
 
+  const setMessageError = useCallback(async (chatId: string, messageId: string, errorInfo: string): Promise<void> => {
+    useChatStore.setState({
+      chats: useChatStore.getState().chats.map(c =>
+        c.id === chatId
+          ? {
+              ...c,
+              messages: c.messages.map(m =>
+                m.id === messageId ? { ...m, content: '', errorInfo, status: 'error' as const } : m
+              ),
+            }
+          : c
+      ),
+    });
+    const chat = useChatStore.getState().chats.find(c => c.id === chatId);
+    if (chat) await IDBStore.saveChat(chat);
+  }, []);
+
   const saveChat = useCallback(async (chat: Chat): Promise<void> => {
     await IDBStore.saveChat(chat);
   }, []);
@@ -73,5 +90,6 @@ export default function useChats() {
     renameChat,
     switchToChat,
     saveChat,
+    setMessageError,
   };
 }

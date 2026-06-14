@@ -9,6 +9,7 @@ export interface Message {
   ts: number;
   stopped?: boolean;
   status?: MessageStatus;
+  errorInfo?: string;
 }
 
 export interface Chat {

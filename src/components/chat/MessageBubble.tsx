@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { XCircle, RefreshCw } from 'lucide-react';
 import { MarkdownRenderer, ThinkingBlock, extractThinkingBlocks } from '@/render';
+import ErrorDetailDialog from '@/components/modals/ErrorDetailDialog';
 import type { Message } from '@/types';
 import type { ThinkingPart } from '@/render';
 
@@ -8,9 +10,11 @@ interface MessageBubbleProps {
   content: string;
   status?: Message['status'];
   isStreaming: boolean;
+  errorInfo?: string;
+  onRegenerate?: () => void;
 }
 
-export default function MessageBubble({ role, content, status, isStreaming }: MessageBubbleProps) {
+export default function MessageBubble({ role, content, status, isStreaming, errorInfo, onRegenerate }: MessageBubbleProps) {
   const isAI = role === 'assistant';
   const { thinkingParts, contentParts, hasThinking } = useMemo(
     () => isAI ? extractThinkingBlocks(content || '') : { thinkingParts: [] as ThinkingPart[], contentParts: [content], hasThinking: false },
@@ -19,6 +23,7 @@ export default function MessageBubble({ role, content, status, isStreaming }: Me
 
   const [expanded, setExpanded] = useState(false);
   const [needsCollapse, setNeedsCollapse] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
   const textRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,6 +64,29 @@ export default function MessageBubble({ role, content, status, isStreaming }: Me
             <circle cx="12" cy="7" r="4" />
           </svg>
         </div>
+      </div>
+    );
+  }
+
+  if (status === 'error') {
+    const detailText = errorInfo || content.replace(/^⚠\s?/, '') || '未知错误';
+    return (
+      <div className="msg-row ai">
+        <div className="msg-error-content">
+          <div className="msg-error-header">
+            <XCircle size={18} />
+            <span>AI模型响应错误，请稍后重试</span>
+          </div>
+          <div className="msg-error-actions">
+            <button type="button" className="msg-action-btn" onClick={onRegenerate}>
+              <RefreshCw size={12} /> 重新生成
+            </button>
+            <button type="button" className="msg-action-btn" onClick={() => setShowDetail(true)}>
+              错误信息
+            </button>
+          </div>
+        </div>
+        <ErrorDetailDialog visible={showDetail} onClose={() => setShowDetail(false)} errorInfo={detailText} />
       </div>
     );
   }

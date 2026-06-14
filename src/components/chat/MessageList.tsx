@@ -31,6 +31,7 @@ export default function MessageList({ onRegenerate }: MessageListProps) {
 
   const lastAiIndex = [...messages].reverse().findIndex(m => m.role === 'assistant');
   const lastAiMsgIndex = lastAiIndex >= 0 ? messages.length - 1 - lastAiIndex : -1;
+  const lastAiMsg = lastAiMsgIndex >= 0 ? messages[lastAiMsgIndex] : null;
 
   return (
     <div className="messages-inner">
@@ -41,6 +42,8 @@ export default function MessageList({ onRegenerate }: MessageListProps) {
             content={msg.content}
             status={msg.status}
             isStreaming={isStreamingThisChat && i === messages.length - 1 && msg.role === 'assistant'}
+            errorInfo={msg.errorInfo}
+            onRegenerate={msg.role === 'assistant' && msg.status === 'error' ? onRegenerate : undefined}
           />
           {msg.role === 'assistant' && msg.stopped && (
             <div className="msg-stopped-hint">
@@ -50,7 +53,7 @@ export default function MessageList({ onRegenerate }: MessageListProps) {
           )}
         </Fragment>
       ))}
-      {lastAiMsgIndex >= 0 && !isStreamingThisChat && (
+      {lastAiMsgIndex >= 0 && !isStreamingThisChat && lastAiMsg?.status !== 'error' && (
         <MessageActions onRegenerate={onRegenerate} />
       )}
     </div>

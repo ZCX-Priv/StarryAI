@@ -31,7 +31,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
   const addStreamingChat = useStreamStore(s => s.addStreamingChat);
   const removeStreamingChat = useStreamStore(s => s.removeStreamingChat);
   const showToast = useUiStore(s => s.showToast);
-  const { addMessage, updateMessageContent, setMessageStatus, stopMessage, saveChat } = useChats();
+  const { addMessage, updateMessageContent, setMessageStatus, stopMessage, saveChat, setMessageError } = useChats();
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
   const scrollToBottom = useCallback((force = true) => {
@@ -145,8 +145,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
       cancelAnimationFrame(rafId);
       if (!useStreamStore.getState().isStopRequested(chatId)) {
         showToast('重新生成失败', 'error');
-        updateMessageContent(chatId, assistantMsgId, `⚠ ${e instanceof Error ? e.message : 'Error'}`);
-        await setMessageStatus(chatId, assistantMsgId, 'error');
+        await setMessageError(chatId, assistantMsgId, e instanceof Error ? e.message : 'Error');
         const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
         if (finalChat) await saveChat(finalChat);
       } else if (accumulated) {

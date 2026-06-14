@@ -169,7 +169,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
   const currentBannerMode = useModeStore(s => s.currentBannerMode);
   const setCurrentBannerMode = useModeStore(s => s.setCurrentBannerMode);
   const setBannerPrompt = useModeStore(s => s.setBannerPrompt);
-  const { createChat, addMessage, updateMessageContent, setMessageStatus, stopMessage, saveChat } = useChats();
+  const { createChat, addMessage, updateMessageContent, setMessageStatus, stopMessage, saveChat, setMessageError } = useChats();
 
   const { bannerConfig, handleAction, clearSelection } = useBanner();
   const hasText = inputValue.trim().length > 0;
@@ -386,8 +386,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
       cancelAnimationFrame(rafId);
       if (!useStreamStore.getState().isStopRequested(chatId)) {
         showToast('请求失败，请重试', 'error');
-        updateMessageContent(chatId, assistantMsgId, `⚠ ${e instanceof Error ? e.message : 'Error'}`);
-        await setMessageStatus(chatId, assistantMsgId, 'error');
+        await setMessageError(chatId, assistantMsgId, e instanceof Error ? e.message : 'Error');
         const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
         if (finalChat) await saveChat(finalChat);
       } else if (accumulated) {
