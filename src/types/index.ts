@@ -5,6 +5,7 @@ export interface Message {
   content: string;
   rendered?: string;
   ts: number;
+  stopped?: boolean;
 }
 
 export interface Chat {

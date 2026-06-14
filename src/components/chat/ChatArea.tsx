@@ -31,7 +31,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
   const addStreamingChat = useStreamStore(s => s.addStreamingChat);
   const removeStreamingChat = useStreamStore(s => s.removeStreamingChat);
   const showToast = useUiStore(s => s.showToast);
-  const { addMessage, updateMessageContent, saveChat } = useChats();
+  const { addMessage, updateMessageContent, stopMessage, saveChat } = useChats();
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
   const scrollToBottom = useCallback((force = true) => {
@@ -123,6 +123,9 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
       cancelAnimationFrame(rafId);
       if (accumulated) {
         updateMessageContent(chatId, assistantMsgId, accumulated);
+        if (useStreamStore.getState().isStopRequested(chatId)) {
+          stopMessage(chatId, assistantMsgId);
+        }
         const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
         if (finalChat) await saveChat(finalChat);
       } else {
@@ -144,6 +147,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
         if (finalChat) await saveChat(finalChat);
       } else if (accumulated) {
         updateMessageContent(chatId, assistantMsgId, accumulated);
+        stopMessage(chatId, assistantMsgId);
         const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
         if (finalChat) await saveChat(finalChat);
       }
@@ -153,7 +157,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
     if (useStreamStore.getState().streamingChatIds.has(chatId)) {
       removeStreamingChat(chatId);
     }
-  }, [chats, activeChatId, contextLength, model, addMessage, updateMessageContent, saveChat, setStopRequested, addStreamingChat, removeStreamingChat, showToast]);
+  }, [chats, activeChatId, contextLength, model, addMessage, updateMessageContent, stopMessage, saveChat, setStopRequested, addStreamingChat, removeStreamingChat, showToast]);
 
   return (
     <div id="chat-area" ref={chatAreaRef}>

@@ -29,7 +29,7 @@ function _mergeReasoningAndContent(reasoning: unknown, content: unknown): string
   const nc = typeof content === 'string' ? content : '';
   if (!nr) return nc || null;
   if (nc.includes('</think')) return nc;
-  return `<think/>\n${nr}\n</think/>\n${nc ? `\n${nc}` : ''}`;
+  return `<think>\n${nr}\n</think>\n${nc ? `\n${nc}` : ''}`;
 }
 
 interface BuildParamsResult {
@@ -139,7 +139,7 @@ async function* streamAPI(msgs: Message[], model?: string, chatId?: string, sign
       if (!line.startsWith('data: ')) continue;
       const data = line.slice(6).trim();
       if (data === '[DONE]') {
-        if (inThinking) yield '</think/>';
+        if (inThinking) yield '</think>';
         return;
       }
       try {
@@ -148,19 +148,19 @@ async function* streamAPI(msgs: Message[], model?: string, chatId?: string, sign
         const reasoning = _extractReasoning(delta, false);
         const content = delta?.content;
         if (reasoning) {
-          if (!inThinking) { yield '<think/>'; inThinking = true; }
+          if (!inThinking) { yield '<think>'; inThinking = true; }
           yield reasoning;
         }
         if (content) {
-          if (inThinking && !content.includes('</think/>')) { yield '</think/>'; inThinking = false; }
+          if (inThinking && !content.includes('</think>')) { yield '</think>'; inThinking = false; }
           yield content;
-          if (content.includes('</think/>')) { inThinking = false; }
-          else if (content.includes('<think/>')) { inThinking = true; }
+          if (content.includes('</think>')) { inThinking = false; }
+          else if (content.includes('<think>')) { inThinking = true; }
         }
       } catch { /* ignored */ }
     }
   }
-  if (inThinking) yield '</think/>';
+  if (inThinking) yield '</think>';
 }
 
 async function validateKey(key: string): Promise<boolean> {

@@ -26,6 +26,10 @@ export default function useChats() {
     useChatStore.getState().updateMessageContent(chatId, messageId, content);
   }, []);
 
+  const stopMessage = useCallback((chatId: string, messageId: string) => {
+    useChatStore.getState().stopMessage(chatId, messageId);
+  }, []);
+
   const deleteChat = useCallback(async (chatId: string): Promise<void> => {
     const { activeChatId: newActiveId } = useChatStore.getState().deleteChat(chatId);
     await IDBStore.deleteChat(chatId);
@@ -53,6 +57,7 @@ export default function useChats() {
     createChat,
     addMessage,
     updateMessageContent,
+    stopMessage,
     deleteChat,
     renameChat,
     switchToChat,

@@ -169,7 +169,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
   const currentBannerMode = useModeStore(s => s.currentBannerMode);
   const setCurrentBannerMode = useModeStore(s => s.setCurrentBannerMode);
   const setBannerPrompt = useModeStore(s => s.setBannerPrompt);
-  const { createChat, addMessage, updateMessageContent, saveChat } = useChats();
+  const { createChat, addMessage, updateMessageContent, stopMessage, saveChat } = useChats();
 
   const { bannerConfig, handleAction, clearSelection } = useBanner();
   const hasText = inputValue.trim().length > 0;
@@ -364,6 +364,9 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
       cancelAnimationFrame(rafId);
       if (accumulated) {
         updateMessageContent(chatId, assistantMsgId, accumulated);
+        if (useStreamStore.getState().isStopRequested(chatId)) {
+          stopMessage(chatId, assistantMsgId);
+        }
         const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
         if (finalChat) await saveChat(finalChat);
       } else {
@@ -386,6 +389,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
       } else if (accumulated) {
         // 用户停止但已有部分内容，保留并持久化
         updateMessageContent(chatId, assistantMsgId, accumulated);
+        stopMessage(chatId, assistantMsgId);
         const finalChat = useChatStore.getState().chats.find(c => c.id === chatId);
         if (finalChat) await saveChat(finalChat);
       }
@@ -395,7 +399,7 @@ export default function InputArea({ onOpenModal, scrollBtnProps }: InputAreaProp
     if (useStreamStore.getState().streamingChatIds.has(chatId)) {
       removeStreamingChat(chatId);
     }
-  }, [inputValue, activeChatId, createChat, addMessage, updateMessageContent, saveChat, setStopRequested, addStreamingChat, removeStreamingChat, model, contextLength, currentMode, modeConfig, showToast]);
+  }, [inputValue, activeChatId, createChat, addMessage, updateMessageContent, stopMessage, saveChat, setStopRequested, addStreamingChat, removeStreamingChat, model, contextLength, currentMode, modeConfig, showToast]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && e.ctrlKey) {

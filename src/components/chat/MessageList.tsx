@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 import { useChatStore, useStreamStore } from '@/status';
 import MessageBubble from './MessageBubble';
 import MessageActions from './MessageActions';
@@ -35,12 +35,19 @@ export default function MessageList({ onRegenerate }: MessageListProps) {
   return (
     <div className="messages-inner">
       {messages.map((msg, i) => (
-        <MessageBubble
-          key={msg.id}
-          role={msg.role}
-          content={msg.content}
-          isStreaming={isStreamingThisChat && i === messages.length - 1 && msg.role === 'assistant'}
-        />
+        <Fragment key={msg.id}>
+          <MessageBubble
+            role={msg.role}
+            content={msg.content}
+            isStreaming={isStreamingThisChat && i === messages.length - 1 && msg.role === 'assistant'}
+          />
+          {msg.role === 'assistant' && msg.stopped && (
+            <div className="msg-stopped-hint">
+              <span className="stopped-dot" />
+              手动终止输出
+            </div>
+          )}
+        </Fragment>
       ))}
       {lastAiMsgIndex >= 0 && !isStreamingThisChat && (
         <MessageActions onRegenerate={onRegenerate} />

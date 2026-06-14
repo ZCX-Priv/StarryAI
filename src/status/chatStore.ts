@@ -17,6 +17,7 @@ interface ChatActions {
   deleteChat: (id: string) => { chats: Chat[]; activeChatId: string | null };
   addMessage: (role: Message['role'], content: string, chatId?: string) => string;
   updateMessageContent: (chatId: string, messageId: string, content: string) => void;
+  stopMessage: (chatId: string, messageId: string) => void;
   renameChat: (chatId: string, newTitle: string) => void;
 }
 
@@ -94,6 +95,21 @@ const useChatStore = create<ChatStore>((set, get) => ({
               ...c,
               messages: c.messages.map(m =>
                 m.id === messageId ? { ...m, content, rendered: content } : m
+              ),
+            }
+          : c
+      ),
+    });
+  },
+
+  stopMessage: (chatId, messageId) => {
+    set({
+      chats: get().chats.map(c =>
+        c.id === chatId
+          ? {
+              ...c,
+              messages: c.messages.map(m =>
+                m.id === messageId ? { ...m, stopped: true } : m
               ),
             }
           : c

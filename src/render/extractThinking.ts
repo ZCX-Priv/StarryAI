@@ -5,19 +5,38 @@ interface ExtractResult {
 }
 
 export function extractThinkingBlocks(content: string): ExtractResult {
-  const thinkRegex = /<think\/>([\s\S]*?)<\/think\/>/g;
   const thinkingParts: string[] = [];
   const contentParts: string[] = [];
   let lastIndex = 0;
-  let match: RegExpExecArray | null;
+  const openTag = '<think>';
+  const closeTag = '</think>';
 
-  while ((match = thinkRegex.exec(content)) !== null) {
-    if (match.index > lastIndex) {
-      contentParts.push(content.slice(lastIndex, match.index));
+  let i = 0;
+  while (i < content.length) {
+    const openIndex = content.indexOf(openTag, i);
+    if (openIndex === -1) break;
+
+    const closeIndex = content.indexOf(closeTag, openIndex);
+
+    if (closeIndex === -1) {
+      // 未闭合：流式渲染中
+      if (openIndex > lastIndex) {
+        contentParts.push(content.slice(lastIndex, openIndex));
+      }
+      thinkingParts.push(content.slice(openIndex + openTag.length).trim());
+      lastIndex = content.length;
+      break;
+    } else {
+      // 正常闭合
+      if (openIndex > lastIndex) {
+        contentParts.push(content.slice(lastIndex, openIndex));
+      }
+      thinkingParts.push(content.slice(openIndex + openTag.length, closeIndex).trim());
+      lastIndex = closeIndex + closeTag.length;
+      i = lastIndex;
     }
-    thinkingParts.push(match[1].trim());
-    lastIndex = match.index + match[0].length;
   }
+
   if (lastIndex < content.length) {
     contentParts.push(content.slice(lastIndex));
   }
