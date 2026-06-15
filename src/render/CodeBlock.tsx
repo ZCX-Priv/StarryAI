@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { Copy, Check, Eye } from 'lucide-react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { Copy, Check, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import HtmlPreviewDialog from '@/components/modals/HtmlPreviewDialog';
 
 const LANG_NAMES: Record<string, string> = {
@@ -52,11 +52,33 @@ interface CodeBlockProps {
   language: string;
   code: string;
   children: React.ReactNode;
+  isStreaming?: boolean;
 }
 
-export default function CodeBlock({ language, code, children }: CodeBlockProps) {
+const COLLAPSE_THRESHOLD = 5;
+const collapseStateMap = new Map<string, boolean>();
+
+export default function CodeBlock({ language, code, children, isStreaming }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const codeKey = useMemo(() => `${language}:${code.length}:${code.slice(0, 200)}`, [language, code]);
+  const [expanded, setExpanded] = useState(() => collapseStateMap.get(codeKey) ?? false);
+
+  const lineCount = code.split('\n').length;
+  const shouldCollapsible = lineCount > COLLAPSE_THRESHOLD;
+  const isCollapsed = shouldCollapsible && !expanded;
+
+  useEffect(() => {
+    if (isStreaming && isCollapsed && contentRef.current) {
+      contentRef.current.scrollTop = contentRef.current.scrollHeight;
+    }
+  }, [code, isStreaming, isCollapsed]);
+
+  useEffect(() => {
+    collapseStateMap.set(codeKey, expanded);
+  }, [expanded, codeKey]);
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(code).then(() => {
@@ -93,9 +115,30 @@ export default function CodeBlock({ language, code, children }: CodeBlockProps) 
           </button>
         </div>
       </div>
-      <div className="code-block-content">
+      <div
+        ref={contentRef}
+        className={`code-block-content${isCollapsed ? ' code-block-collapsed' : ''}`}
+      >
         {children}
+        {isCollapsed && <div className="code-block-fade" />}
       </div>
+      {shouldCollapsible && (
+        <button
+          type="button"
+          className="code-block-expand-btn"
+          onClick={() => setExpanded((prev) => !prev)}
+        >
+          {expanded ? (
+            <>
+              <ChevronUp size={13} /> 收起
+            </>
+          ) : (
+            <>
+              <ChevronDown size={13} /> 展开
+            </>
+          )}
+        </button>
+      )}
       {showPreview && (
         <HtmlPreviewDialog
           visible={showPreview}

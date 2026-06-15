@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeHighlight from 'rehype-highlight';
-import rehypeMathjax from 'rehype-mathjax/browser';
+import MathJaxNode from '@/components/ui/MathJaxNode';
 import CodeBlock from './CodeBlock';
 import MermaidBlock from './MermaidBlock';
 import 'highlight.js/styles/atom-one-dark.css';
@@ -11,6 +11,7 @@ import 'highlight.js/styles/atom-one-dark.css';
 interface MarkdownRendererProps {
   content: string;
   className?: string;
+  isStreaming?: boolean;
 }
 
 function extractTextFromChildren(children: ReactNode): string {
@@ -24,19 +25,12 @@ function extractTextFromChildren(children: ReactNode): string {
   return '';
 }
 
-export default function MarkdownRenderer({ content, className }: MarkdownRendererProps) {
+export default function MarkdownRenderer({ content, className, isStreaming }: MarkdownRendererProps) {
   return (
     <div className={['markdown-body', className].filter(Boolean).join(' ')}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[
-          rehypeHighlight,
-          [rehypeMathjax, {
-            tex: {
-              packages: { '[+]': ['mhchem'] },
-            },
-          }],
-        ]}
+        rehypePlugins={[rehypeHighlight]}
         components={{
           pre({ children }) {
             const child = children as React.ReactElement<{
@@ -57,9 +51,13 @@ export default function MarkdownRenderer({ content, className }: MarkdownRendere
               return <MermaidBlock code={codeText} />;
             }
 
+            if (lang === 'math') {
+              return <MathJaxNode display value={codeText} />;
+            }
+
             if (lang) {
               return (
-                <CodeBlock language={lang} code={codeText}>
+                <CodeBlock language={lang} code={codeText} isStreaming={isStreaming}>
                   {children}
                 </CodeBlock>
               );
@@ -68,6 +66,11 @@ export default function MarkdownRenderer({ content, className }: MarkdownRendere
             return <pre className="code-block-no-lang">{children}</pre>;
           },
           code({ className, children, ...props }) {
+            if (className?.includes('math-inline')) {
+              const text = extractTextFromChildren(children);
+              return <MathJaxNode value={text} />;
+            }
+
             const isInline = !className;
             if (isInline) {
               return <code className={className} {...props}>{children}</code>;

@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "copy-mathjax": "xcopy /E /I /Y node_modules\\mathjax\\es5 public\\mathjax",
+    "dev": "npm run copy-mathjax && vite",
+    "build": "npm run copy-mathjax && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -15,6 +16,7 @@
     "highlight.js": "^11.11.1",
     "idb": "^8.0.3",
     "lucide-react": "^1.17.0",
+    "mathjax": "^3.2.2",
     "mermaid": "^11.15.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 interface HtmlPreviewData {
@@ -25,7 +26,7 @@ export default function HtmlPreviewDialog({ visible, onClose, data }: HtmlPrevie
 
   const title = data?.lang ? `${String(data.lang).toUpperCase()} 预览` : 'HTML 预览';
 
-  return (
+  return createPortal(
     <div className="modal-overlay visible" onClick={(e: React.MouseEvent) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal preview-modal" style={{ maxWidth: '960px' }}>
         <div className="modal-hd">
@@ -43,6 +44,7 @@ export default function HtmlPreviewDialog({ visible, onClose, data }: HtmlPrevie
           <button className="btn-sm ghost" onClick={onClose}>关闭</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

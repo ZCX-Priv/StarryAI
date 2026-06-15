@@ -106,7 +106,7 @@ export default function MessageBubble({ role, content, status, isStreaming, erro
             <div className="td"></div>
           </div>
         )}
-        {mainContent && <MarkdownRenderer content={mainContent} />}
+        {mainContent && <MarkdownRenderer content={mainContent} isStreaming={isStreaming} />}
         {isStreaming && mainContent && <span className="streaming-cursor" />}
         {status === 'interrupted' && (
           <div className="msg-interrupted-hint">
