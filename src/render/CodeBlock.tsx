@@ -1,6 +1,7 @@
-import { useState, useCallback, type ReactNode } from 'react';
+import { useState, useCallback, lazy, Suspense, type ReactNode } from 'react';
 import { Copy, Check, Eye, EyeOff } from 'lucide-react';
-import MermaidDiagram from './MermaidDiagram';
+
+const MermaidDiagram = lazy(() => import('./MermaidDiagram'));
 
 interface CopyButtonProps {
   text: string;
@@ -96,9 +97,13 @@ export default function CodeBlock({ children }: CodeBlockProps) {
 
   const { language, codeString, codeElement } = extractCodeInfo(children);
 
-  // Mermaid 代码块
+  // Mermaid 代码块（懒加载，mermaid 加载失败不影响其他代码块）
   if (language === 'mermaid') {
-    return <MermaidDiagram chart={codeString} />;
+    return (
+      <Suspense fallback={<div className="mermaid-loading">渲染中...</div>}>
+        <MermaidDiagram chart={codeString} />
+      </Suspense>
+    );
   }
 
   // 无语言标识的 pre（非代码块，直接透传）

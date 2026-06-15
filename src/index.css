@@ -189,6 +189,23 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 .markdown-body h5,
 .markdown-body h6 { font-size: 1em; }
 
+/* Pre fallback (for plain pre without language tag) */
+.markdown-body pre {
+  background: #1a1b26;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 0 0 .75em;
+}
+.markdown-body pre code {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre;
+  color: #a9b1d6;
+}
+
 /* Inline code */
 .markdown-body code:not(pre code) {
   background: var(--bg3);
@@ -399,6 +416,13 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
 .hljs-strong { font-weight: 700; }
 
 /* ===== Light Theme Overrides ===== */
+[data-theme="light"] .markdown-body pre {
+  background: #f8f8fc;
+  border-color: rgba(0,0,0,0.12);
+}
+[data-theme="light"] .markdown-body pre code {
+  color: #383a42;
+}
 [data-theme="light"] .code-block-wrapper {
   background: #f8f8fc;
   border-color: rgba(0,0,0,0.12);
