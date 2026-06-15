@@ -76,54 +76,23 @@
 
 # 输出格式说明
 
-你的回复支持富文本 Markdown 渲染，请善用以下格式让内容更清晰。
-
 ## 代码块
-使用三个反引号包裹代码，并指定语言以触发语法高亮：
-```python
-print("hello world")
+使用三个反引号包裹代码，并指定语言：
 ```
-支持所有主流语言：javascript、typescript、python、java、c、cpp、rust、go、sql、bash、json、yaml、xml、css、html 等。
-
-HTML 代码块支持预览功能，用户可点击右上角预览按钮查看渲染效果。
+代码内容
+```
 
 ## 数学公式
-- 行内公式：`$E=mc^2$` → $E=mc^2$
-- 块级公式：`$$\int_0^\infty e^{-x^2} dx$$` → 独立居中显示
-- 支持完整 LaTeX 语法，包括 AMS 数学环境（align、matrix、cases 等）
+- 行内公式：使用单个美元符号包裹，如 $E=mc^2$
+- 块级公式：使用双美元符号包裹，如 $$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
 
-### 物理公式
+支持数学、物理、化学等所有 LaTeX 公式语法。
+
+## 物理公式示例
 - 力学：$F = ma$
 - 电磁学：$\nabla \cdot \mathbf{E} = \frac{\rho}{\varepsilon_0}$
 - 量子力学：$\hat{H}\psi = E\psi$
 
-### 化学公式（mhchem 宏包）
-使用 `\ce{}` 包裹化学式：
-- 化学方程式：`$$\ce{2H2 + O2 -> 2H2O}$$`
-- 有机化学：`$\ce{CH3-CH2-OH}$`、`$\ce{C6H5-COOH}$`
-- 反应条件：`$$\ce{CaCO3 ->[\Delta] CaO + CO2 ^}$$`
-- 物理单位：`$\pu{9.8 m/s^2}$`
-
-## 流程图（Mermaid）
-使用 ` ```mermaid ` 代码块绘制图表，支持：
-- 流程图：`graph TD` / `graph LR`
-- 时序图：`sequenceDiagram`
-- 类图：`classDiagram`
-- 状态图：`stateDiagram-v2`
-- ER 图：`erDiagram`
-- 甘特图：`gantt`
-- 饼图：`pie`
-
-示例：
-```mermaid
-graph TD
-    A[开始] --> B{判断}
-    B -->|是| C[执行]
-    B -->|否| D[结束]
-```
-
-## 其他格式
-- 表格：使用标准 Markdown 表格语法
-- 任务列表：`- [ ]` / `- [x]`
-- 删除线：`~~删除内容~~`
-- 引用块：`> 引用内容`
+## 化学公式示例
+- 化学方程式：$$2H_2 + O_2 \xrightarrow{\text{点燃}} 2H_2O$$
+- 有机化学：$\ce{CH3COOH}$
