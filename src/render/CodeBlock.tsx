@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo, useLayoutEffect } from 'react';
 import { Copy, Check, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import HtmlPreviewDialog from '@/components/modals/HtmlPreviewDialog';
 
@@ -63,12 +63,22 @@ export default function CodeBlock({ language, code, children, isStreaming }: Cod
   const [showPreview, setShowPreview] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const codeKey = useMemo(() => `${language}:${code.length}:${code.slice(0, 200)}`, [language, code]);
+  const codeKey = useMemo(() => {
+    const prefix = code.split('\n').slice(0, 3).join('\n');
+    return `${language}:${prefix}`;
+  }, [language, code]);
   const [expanded, setExpanded] = useState(() => collapseStateMap.get(codeKey) ?? false);
 
   const lineCount = code.split('\n').length;
   const shouldCollapsible = lineCount > COLLAPSE_THRESHOLD;
   const isCollapsed = shouldCollapsible && !expanded;
+
+  useLayoutEffect(() => {
+    const saved = collapseStateMap.get(codeKey);
+    if (saved === true && !expanded) {
+      setExpanded(true);
+    }
+  }, [codeKey]);
 
   useEffect(() => {
     if (isStreaming && isCollapsed && contentRef.current) {

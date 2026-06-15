@@ -103,7 +103,6 @@ export default function Sidebar({ onOpenModal, onToggleSidebar }: SidebarProps) 
               />
             ))
           )}
-          <div className="chat-list-spacer" />
         </div>
         <div className="sb-bottom">
           <button className="sb-btn" onClick={() => onOpenModal('settings')}>

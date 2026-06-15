@@ -89,7 +89,7 @@ export default function useStore(): { initialized: boolean; error: string | null
             ),
           };
         });
-        useChatStore.getState().setChats(migratedChats.sort((a: Chat, b: Chat) => b.createdAt - a.createdAt));
+        useChatStore.getState().setChats(migratedChats.sort((a, b) => b.createdAt - a.createdAt));
         useKeyStore.getState().setKeys(keys || []);
         useMemoryStore.getState().setMemory(memory || []);
         if (activeKey) useKeyStore.getState().setActiveKey(activeKey);
