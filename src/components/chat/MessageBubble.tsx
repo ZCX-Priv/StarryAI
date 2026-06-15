@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { XCircle, RefreshCw } from 'lucide-react';
+import { XCircle, RefreshCw, FileText } from 'lucide-react';
 import { MarkdownRenderer, ThinkingBlock, extractThinkingBlocks } from '@/render';
 import ErrorDetailDialog from '@/components/modals/ErrorDetailDialog';
 import type { Message } from '@/types';
@@ -82,7 +82,7 @@ export default function MessageBubble({ role, content, status, isStreaming, erro
               <RefreshCw size={12} /> 重新生成
             </button>
             <button type="button" className="msg-action-btn" onClick={() => setShowDetail(true)}>
-              错误信息
+              <FileText size={12} /> 错误信息
             </button>
           </div>
         </div>

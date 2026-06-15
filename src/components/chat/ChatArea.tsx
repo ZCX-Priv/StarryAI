@@ -161,7 +161,7 @@ export default function ChatArea({ onOpenModal, scrollBtnProps }: ChatAreaProps)
     if (useStreamStore.getState().streamingChatIds.has(chatId)) {
       removeStreamingChat(chatId);
     }
-  }, [chats, activeChatId, contextLength, model, addMessage, updateMessageContent, setMessageStatus, stopMessage, saveChat, setStopRequested, addStreamingChat, removeStreamingChat, showToast]);
+  }, [chats, activeChatId, contextLength, model, isStreamingThisChat, addMessage, updateMessageContent, setMessageStatus, stopMessage, saveChat, setStopRequested, addStreamingChat, removeStreamingChat, showToast]);
 
   return (
     <div id="chat-area" ref={chatAreaRef}>
